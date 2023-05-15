@@ -1,0 +1,96 @@
+.list-group-item .wrap {
+  display: block;
+  box-shadow: inset 1px 0 0 var(--list-group-border, var(--component-border, var(--root-component-border, rgba(0, 0, 0, 0.05)))),
+    inset 0 -1px 0 var(--list-group-border, var(--component-border, var(--root-component-border, rgba(0, 0, 0, 0.05)))),
+    inset -1px 0 0 var(--list-group-border, var(--component-border, var(--root-component-border, rgba(0, 0, 0, 0.05))));
+
+  &.expanded {
+    background-color: var(--component-expanded-background, var(--root-component-expanded-background, var(--gray-10, #FBFBFC)));
+  }
+}
+
+header,
+.collapse>* {
+  padding: 10px calc(var(--component-padding, var(--root-component-padding, 16)) * 1px);
+}
+
+header {
+  // &.priority-1 {}
+
+  &.priority-2 {
+    background-color: rgba(#FF801F, .1);
+  }
+
+  &.priority-3 {
+    background-color: rgba(#E0000E, .1);
+  }
+
+  &.closed {
+    background-color: transparent;
+
+    a {
+      color: var(--component-text-muted, var(--root-component-text-muted, var(--text-muted, #677680))) !important;
+    }
+  }
+}
+
+.collapse {
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.03);
+}
+
+.comments {
+  max-height: 300px;
+  overflow: auto;
+  padding-bottom: 10px;
+
+  .timeline-list-item.type-system .timeline-item-content {
+    background-color: var(--component-expanded-background, var(--root-component-expanded-background, var(--gray-10, #FBFBFC)));
+  }
+}
+
+.comments-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.comment {
+  background: var(--component-background, var(--root-component-background, #fff));
+  border: 2px solid var(--component-background, var(--root-component-background, #fff));
+  box-shadow: 0 2px 1px -1px #0003, 0 1px 1px #00000024, 0 1px 3px #0000001f;
+  color: var(--component-color, var(--root-component-color, var(--gray-text, #333)));
+  flex: 1 1 0%;
+  margin-bottom: 8px;
+  margin-top: 0;
+  min-height: 40px;
+  overflow-wrap: break-word;
+  padding: 8px calc(var(--component-padding, var(--root-component-padding, 16))*1px);
+  position: relative;
+  transition: background .5s linear, border .5s linear;
+
+  &:before {
+    position: absolute;
+    top: 20px;
+    left: -13px;
+    margin-top: -10px;
+    width: 0;
+    height: 0;
+    border-width: 10px 10px 10px 0;
+    border-style: solid;
+    border-color: transparent rgba(0, 0, 0, 0.05) transparent transparent;
+    content: '';
+  }
+
+  &:after {
+    position: absolute;
+    top: 20px;
+    left: -11px;
+    margin-top: -10px;
+    width: 0;
+    height: 0;
+    border-width: 10px 10px 10px 0;
+    border-style: solid;
+    border-color: transparent var(--component-background, var(--root-component-background, white)) transparent transparent;
+    content: '';
+    transition: border 0.5s linear;
+  }
+}

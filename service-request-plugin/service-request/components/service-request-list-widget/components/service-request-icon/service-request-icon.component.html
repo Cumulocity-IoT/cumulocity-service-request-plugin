@@ -1,0 +1,22 @@
+<!-- active request -->
+<ng-container *ngIf="!closed; else isClosed">
+  <ng-contaner [ngSwitch]="priority?.ordinal">
+    <ng-container *ngSwitchCase="1">
+      <i class="no-icon"></i>
+    </ng-container>
+    <ng-container *ngSwitchCase="2">
+      <i class="dlt-c8y-icon-medium-priority text-warning"></i>
+    </ng-container>
+    <ng-container *ngSwitchCase="3">
+      <i class="dlt-c8y-icon-high-priority text-danger"></i>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+      <i class="no-icon"></i>
+    </ng-container>
+  </ng-contaner>
+</ng-container>
+
+<!-- resolved -->
+<ng-template #isClosed>
+  <i class="dlt-c8y-icon-ok text-muted"></i>
+</ng-template>

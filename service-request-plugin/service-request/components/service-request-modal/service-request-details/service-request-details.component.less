@@ -1,0 +1,94 @@
+.tabContainer {
+  margin-bottom: 24px;
+
+  .nav-tabs {
+    margin-bottom: 16px;
+
+    button {
+      border-top-width: 0;
+      border-left-width: 0;
+      border-right-width: 0;
+    }
+  }
+}
+
+.write-a-comment .timeline-list-item {
+  margin-left: 95px;
+
+  &::before,
+  &::after {
+    left: auto;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 20px);
+    height: calc(50% + 25px);
+    bottom: 1px;
+    border: 1px dotted var(--component-border, var(--root-component-border, rgba(0, 0, 0, 0.05)));
+    transition: top 0.35s linear;
+  }
+  
+  &::after {
+    content: "\e9f6";
+    right: calc(100% + 16px);
+    margin-top: -1rem;
+    font-family: "dlt-c8y-icons";
+    background-color: transparent;
+    box-shadow: none;
+    color: #B0B9BF;
+  }
+}
+
+.timeline-list > li:first-child::before {
+  top: 0;
+}
+
+.comments-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.comment {
+  background: var(--component-background, var(--root-component-background, #fff));
+  border: 2px solid var(--component-background, var(--root-component-background, #fff));
+  box-shadow: 0 3px 1px -2px #0003, 0 2px 2px #00000024, 0 1px 5px #0000001f;
+  color: var(--component-color, var(--root-component-color, var(--gray-text, #333)));
+  flex: 1 1 0%;
+  margin-bottom: 8px;
+  margin-top: 0;
+  min-height: 40px;
+  overflow-wrap: break-word;
+  padding: 8px calc(var(--component-padding, var(--root-component-padding, 16))*1px);
+  position: relative;
+  transition: background .5s linear, border .5s linear;
+
+  &:before {
+    position: absolute;
+    top: 20px;
+    left: -13px;
+    margin-top: -10px;
+    width: 0;
+    height: 0;
+    border-width: 10px 10px 10px 0;
+    border-style: solid;
+    border-color: transparent rgba(0, 0, 0, 0.05) transparent transparent;
+    content: '';
+  }
+
+  &:after {
+    position: absolute;
+    top: 20px;
+    left: -11px;
+    margin-top: -10px;
+    width: 0;
+    height: 0;
+    border-width: 10px 10px 10px 0;
+    border-style: solid;
+    border-color: transparent var(--component-background, var(--root-component-background, white)) transparent transparent;
+    content: '';
+    transition: border 0.5s linear;
+  }
+}

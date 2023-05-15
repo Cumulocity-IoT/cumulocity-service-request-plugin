@@ -1,0 +1,304 @@
+<ng-container *ngIf="!loadingRequest; else loadingData">
+  <!-- form -->
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <div class="card-header separator">
+          <h4 class="card-title" translate>service-request-details.card-title</h4>
+        </div>
+
+        <form
+          novalidate
+          name="service-request-form"
+          [formGroup]="serviceRequestForm"
+          (ngSubmit)="submitServiceRequest()"
+        >
+          <div class="card-block">
+            <!-- title -->
+            <div class="form-group">
+              <label for="sr_title" translate>service-request-details.form-title-label</label>
+              <input
+                id="sr_title"
+                type="text"
+                class="form-control"
+                name="title"
+                [formControlName]="'title'"
+              />
+            </div>
+
+            <!-- priority -->
+            <div class="form-group">
+              <label for="sr_priority" translate>service-request-details.form-priority-label</label>
+              <div class="c8y-select-wrapper">
+                <select id="sr_priority" class="form-control" [formControlName]="'priority'">
+                  <option *ngFor="let p of priorities" [ngValue]="p">
+                    {{ p.name }}
+                  </option>
+                </select>
+                <span></span>
+              </div>
+            </div>
+
+            <!-- status -->
+            <div class="form-group">
+              <label for="sr_status" translate>service-request-details.form-status-label</label>
+              <div class="c8y-select-wrapper">
+                <select id="sr_status" class="form-control" [formControlName]="'status'">
+                  <option *ngFor="let s of status" [ngValue]="s">
+                    {{ s.name }}
+                  </option>
+                </select>
+                <span></span>
+              </div>
+            </div>
+
+            <!-- device info/select -->
+            <div class="form-group">
+              <ene-device-select
+                [(device)]="device"
+                [disabled]="serviceRequestId"
+              ></ene-device-select>
+            </div>
+
+            <!-- SAP master data -->
+            <fieldset>
+              <p class="legend form-block">
+                {{ 'service-request-details.field-set-sap' | translate }}
+              </p>
+              <div class="form-group">
+                <span class="text-muted">{{
+                  'service-request-details.not-available-in-mvp' | translate
+                }}</span>
+              </div>
+            </fieldset>
+
+            <!-- snapshot -->
+            <fieldset>
+              <p class="legend form-block">
+                {{ 'service-request-details.field-set-snapshot' | translate }}
+              </p>
+              <div class="form-group">
+                <span class="text-muted">{{
+                  'service-request-details.not-available-in-mvp' | translate
+                }}</span>
+              </div>
+            </fieldset>
+
+            <!-- measurement/event/alarm info -->
+            <fieldset>
+              <div class="tabContainer">
+                <!-- tabs -->
+                <ul class="nav nav-tabs nav-tabsc8y m-b-8">
+                  <li *ngFor="let t of tabs" [class.active]="t.active">
+                    <button
+                      type="button"
+                      [title]="t.label"
+                      [disabled]="t.disabled"
+                      (click)="changeTab(t.id)"
+                    >
+                      <i *ngIf="t.icon" class="{{ t.icon }}"></i>
+                      <span class="txt">{{ t.label }}</span>
+                    </button>
+                  </li>
+                </ul>
+
+                <!-- tab content -->
+                <div class="tab">
+                  <ng-container [ngSwitch]="currentTab">
+                    <ng-container *ngSwitchCase="'measurements'">
+                      {{ 'service-request-details.not-available-in-mvp' | translate }}
+                      <pre>{{ serviceRequest.seriesRef | json }}</pre>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'events'">
+                      {{ 'service-request-details.not-available-in-mvp' | translate }}
+                      <pre>{{ serviceRequest.eventRef | json }}</pre>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'alarms'">
+                      <ene-alarm-select
+                        [alarms]="serviceRequest?.alarmRef"
+                        [disabled]="true || !isCreateForm"
+                      ></ene-alarm-select>
+                    </ng-container>
+                  </ng-container>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- description -->
+            <div class="form-group">
+              <label for="sr_description" translate
+                >service-request-details.form-description-label</label
+              >
+              <textarea
+                id="sr_description"
+                class="form-control"
+                name="description"
+                rows="5"
+                [formControlName]="'description'"
+              >
+              </textarea>
+            </div>
+
+            <!-- files -->
+            <div class="form-group">
+              <label translate>service-request-details.form-files-label</label>
+              <!-- TODO add upload -->
+              <span class="text-muted">{{
+                'service-request-details.not-available-in-mvp' | translate
+              }}</span>
+            </div>
+          </div>
+
+          <!-- form actions -->
+          <div class="card-footer separator">
+            <div class="row">
+              <ng-container *ngIf="!serviceRequestId; else updateFormActions">
+                <div class="col-md-12">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    [class.btn-pending]="requestFormInAction"
+                    [disabled]="
+                      !serviceRequestForm.valid ||
+                      serviceRequestForm.pristine ||
+                      requestFormInAction
+                    "
+                    title="{{ 'card-footer.button-submit' | translate }}"
+                    translate
+                  >
+                    card-footer.button-submit
+                  </button>
+                </div>
+              </ng-container>
+
+              <ng-template #updateFormActions>
+                <div class="col-md-6">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    [class.btn-pending]="requestFormInAction"
+                    [disabled]="
+                      !serviceRequestForm.valid ||
+                      serviceRequestForm.pristine ||
+                      requestFormInAction
+                    "
+                    title="{{ 'card-footer.button-update' | translate }}"
+                    translate
+                  >
+                    card-footer.button-update
+                  </button>
+                  <button
+                    type="button"
+                    class="btn"
+                    [disabled]="
+                      !serviceRequestForm.valid ||
+                      serviceRequestForm.pristine ||
+                      requestFormInAction
+                    "
+                    (click)="resetServiceRequestForm()"
+                    title="{{ 'card-footer.button-reset' | translate }}"
+                    translate
+                  >
+                    card-footer.button-reset
+                  </button>
+                </div>
+
+                <div class="col-md-6 text-right">
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    [disabled]="!canResolve || requestFormInAction"
+                    (click)="resolve()"
+                    title="{{ 'card-footer.button-resolve' | translate }}"
+                    translate
+                  >
+                    card-footer.button-resolve
+                  </button>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- comments -->
+  <ng-container *ngIf="serviceRequestId">
+    <h4 class="m-t-16">Comments</h4>
+
+    <div class="row m-t-16 m-b-16">
+      <div class="col-md-6">
+        <div class="comment">
+          <div class="m-b-8">{{ 'service-request-details.comment-form-title' | translate }}</div>
+
+          <form
+            novalidate
+            name="comment-form"
+            [formGroup]="commentForm"
+            (ngSubmit)="submitComment()"
+          >
+            <!-- comment -->
+            <div class="form-group m-b-8">
+              <textarea
+                id="c_text"
+                class="form-control"
+                name="text"
+                rows="5"
+                [formControlName]="'text'"
+              >
+              </textarea>
+            </div>
+
+            <!-- form actions -->
+            <div class="row">
+              <div class="col-md-12">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [class.btn-pending]="commentFormInAction"
+                  [disabled]="commentForm.pristine || commentFormInAction"
+                  [title]="'service-request-details.comment-button-submit' | translate"
+                  translate
+                >
+                  service-request-details.comment-button-submit
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- comments display -->
+    <div class="row" *ngIf="serviceRequestId">
+      <div class="col-md-6">
+        <ng-container *ngIf="loadingComments">
+          <ng-container *ngTemplateOutlet="loadingData"></ng-container>
+        </ng-container>
+
+        <ul class="comments-list">
+          <li *ngFor="let c of comments" class="comment">
+            <div class="d-flex">
+              <div class="list-item-body">
+                <small class="d-block m-b-8">
+                  {{ c.owner }} - {{ c.creationTime | date : 'dd MMM YYYY HH:mm' }}
+                </small>
+                <p [innerHtml]="c.text | nl2br"></p>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <!-- TODO: pagination? -->
+      </div>
+    </div>
+  </ng-container>
+</ng-container>
+
+<ng-template #loadingData>
+  <div class="loading-data">
+    <c8y-loading></c8y-loading>
+  </div>
+</ng-template>

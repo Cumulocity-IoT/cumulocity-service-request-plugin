@@ -1,0 +1,24 @@
+<ng-container *ngIf="!loading; else loadingData">
+  <ng-container *ngIf="serviceRequests?.length; else noServiceRequests">
+    <ul class="list-group">
+      <li *ngFor="let s of serviceRequests" class="list-group-item p-0">
+        <ene-service-request-list-item [serviceRequest]="s"></ene-service-request-list-item>
+      </li>
+    </ul>
+  </ng-container>
+</ng-container>
+
+<ng-template #noServiceRequests>
+  <div class="c8y-empty-state d-flex d-col a-i-center">
+    <i class="c8y-icon-duocolor c8y-icon c8y-icon-data-explorer"></i>
+    <div>
+      <p>
+        <strong>{{ 'service-request-list-widget.empty-service-requests' | translate }}</strong>
+      </p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #loadingData>
+  <c8y-loading></c8y-loading>
+</ng-template>

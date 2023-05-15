@@ -1,0 +1,131 @@
+<div class="wrap" [class.expanded]="!collapsed">
+  <!-- header -->
+  <header
+    class="d-flex priority-{{ serviceRequest.priority?.ordinal }}"
+    [class.closed]="serviceRequest.status.id === requestIsClosed"
+  >
+    <div
+      class="list-item-icon"
+      [tooltip]="
+        ('service-request-list-item.header-tooltip' | translate) + serviceRequest.priority?.name
+      "
+      placement="right"
+    >
+      <ene-service-request-icon
+        [priority]="serviceRequest.priority"
+        [closed]="serviceRequest.status.id === requestIsClosed"
+      ></ene-service-request-icon>
+    </div>
+
+    <!-- title -->
+    <div class="list-item-body">
+      <a [routerLink]="['/device', serviceRequest.source.id, 'notifications', serviceRequest.id]">
+        {{ serviceRequest.title }}
+      </a>
+
+      <small class="d-block m-t-4">
+        <!-- updated -->
+        <span
+          class="text-muted m-r-16"
+          [title]="'service-request-list-item.last-update-title' | translate"
+        >
+          <i class="dlt-c8y-icon-clock-o"></i>
+          {{ serviceRequest.lastUpdated | c8yDate }}
+        </span>
+
+        <!-- status -->
+        <span
+          class="text-muted m-r-16"
+          title="{{ 'service-request-list-item.status-title' | translate }}: {{
+            serviceRequest.status?.name
+          }}"
+        >
+          <i class="dlt-c8y-icon-commit-git"></i>
+          {{ serviceRequest.status?.name }}
+        </span>
+
+        <!-- device link -->
+        <a
+          [routerLink]="['/device', serviceRequest.source.id]"
+          [title]="'service-request-list-item.device-name-title' | translate"
+        >
+          <i class="dlt-c8y-icon-exchange"></i>
+          {{ serviceRequest.source.name }}
+        </a>
+      </small>
+    </div>
+
+    <!-- actions -->
+    <div class="list-item-actions">
+      <button
+        type="button"
+        [title]="'button.expand' | translate"
+        class="collapse-btn"
+        (click)="toggle()"
+      >
+        <i class="dlt-c8y-icon-chevron-down"></i>
+      </button>
+      <!-- actions menu -->
+      <!-- <div dropdown class="dropdown settings">
+        <button dropdownToggle class="dropdown-toggle btn-clean c8y-dropdown" title="Actions">
+          <i c8y-icon="ellipsis-v" class="dlt-c8y-icon-ellipsis-v"></i>
+        </button>
+        <ul *dropdownMenu class="dropdown-menu">
+          <li>
+            <button type="button" (click)="edit()">{{ 'button.actions-edit' | translate }}</button>
+            <button type="button" (click)="resolve()">
+              {{ 'button.actions-resolve' | translate }}
+            </button>
+          </li>
+        </ul>
+      </div> -->
+    </div>
+  </header>
+
+  <!-- details -->
+  <div class="collapse" [collapse]="collapsed" [isAnimated]="true">
+    <!-- request info -->
+    <div class="legend form-block p-t-16 m-t-0">
+      {{ 'service-request-list-item.description' | translate }}
+    </div>
+    <div>
+      {{
+        serviceRequest.description || ('service-request-list-item.description--empty' | translate)
+      }}
+    </div>
+
+    <!-- comments -->
+    <div class="legend form-block">{{ 'service-request-list-item.timeline' | translate }}</div>
+    <div class="comments">
+      <ng-container *ngIf="!loading; else loadingData">
+        <ng-container *ngIf="comments.length; else noComments">
+          <ul class="comments-list">
+            <li
+              *ngFor="let c of comments"
+              class="comment"
+              [ngClass]="{ 'type-user': c.type === 'user', 'type-system': c.type === 'system' }"
+            >
+              <div class="d-flex">
+                <div class="list-item-body">
+                  <small class="d-block m-b-8">
+                    {{ c.owner }} - {{ c.creationTime | date : 'dd MMM YYYY HH:mm' }}
+                  </small>
+                  <p [innerHtml]="c.text | nl2br"></p>
+                </div>
+              </div>
+            </li>
+            <li *ngIf="additionalCommentsCount">+ {{ additionalCommentsCount }} more</li>
+          </ul>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+
+  <ng-template #noComments>{{
+    'service-request-list-item.empty-comments' | translate
+  }}</ng-template>
+
+  <ng-template #loadingData>
+    <c8y-loading></c8y-loading>
+  </ng-template>
+</div>

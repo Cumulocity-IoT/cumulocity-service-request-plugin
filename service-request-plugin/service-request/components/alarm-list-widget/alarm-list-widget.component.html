@@ -1,0 +1,50 @@
+<c8y-list-group>
+    <c8y-li>
+      <label>All alarms</label>
+    </c8y-li>
+    <c8y-li
+      *c8yFor="let alarm of alarms; loadMore: 'auto'; notFound: notFoundTemplate"
+      #li
+    >
+      <c8y-li-icon [icon]="alarm | alarmIcon" [status]="alarm | c8yLiStatus" tooltip="{{ 'Status' | translate }}: {{ alarm.status | translate }}"></c8y-li-icon>
+     <c8y-li-body>
+        <div class="list-item-body">
+            <!-- badge -->
+            <span class="badge badge-danger" *ngIf="alarm.count>1">{{alarm.count}}</span>
+            <!-- Alarm description -->
+            <span class="m-l-4">{{ alarm.text }}</span>
+            <p class="m-t-4">
+              <!-- Date -->
+              <small class="text-muted icon-flex" title="Last occurrence of this alarm (device time).">
+                <i c8yIcon="clock-o"></i>{{ alarm.time | c8yDate: 'medium' }}
+              </small>
+              &nbsp;
+              <!-- device -->
+              <br class="visible-xs">
+              <a class="text-muted" [href]="'#/device/' + alarm.source.id" title="Go to device">
+                <small class="icon-flex">
+                  <i c8yIcon="exchange" ></i>{{ alarm.source.name || alarm.source.id }}
+                </small>
+              </a>
+               <span class="pull-right showOnHover">
+                <button class="btn btn-warning btn-xs" (click)="openServiceRequestModal(alarm)" tooltip="{{'Create service request' | translate }}">
+                  <i c8yIcon="online-support"></i>
+                </button>
+              </span>
+            </p>
+          </div>
+     </c8y-li-body>
+      <c8y-li-action (click)="createServiceRequest(alarm)" icon="online-support">
+        Create service request
+      </c8y-li-action>
+      <c8y-li-collapse>
+       <!--  Source: <a [routerLink]="['/device', alarm.source.id]">{{  alarm.source.id }}</a> -->
+       <pre>{{ alarm | json }}</pre>
+      </c8y-li-collapse>
+    </c8y-li>
+    <ng-template #notFoundTemplate>
+      <c8y-li class="bg-level-2 p-8" *ngIf="!alarms?.data?.length">
+        <p translate>No alarms found.</p>
+      </c8y-li>
+    </ng-template>
+  </c8y-list-group>
