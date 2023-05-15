@@ -19,9 +19,9 @@
 
     <!-- title -->
     <div class="list-item-body">
-      <a [routerLink]="['/device', serviceRequest.source.id, 'notifications', serviceRequest.id]">
+      <button class="btn btn-link" (click)="openServiceRequestModal(serviceRequest)">
         {{ serviceRequest.title }}
-      </a>
+      </button>
 
       <small class="d-block m-t-4">
         <!-- updated -->
@@ -108,7 +108,7 @@
               <div class="d-flex">
                 <div class="list-item-body">
                   <small class="d-block m-b-8">
-                    {{ c.owner }} - {{ c.creationTime | date : 'dd MMM YYYY HH:mm' }}
+                    <i c8yIcon="clock-o"></i> {{ c.creationTime | c8yDate }} - <b>{{ c.owner }}</b> {{ 'wrote' | translate }}:
                   </small>
                   <p [innerHtml]="c.text | nl2br"></p>
                 </div>

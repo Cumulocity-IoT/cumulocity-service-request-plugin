@@ -302,10 +302,10 @@ export class ServiceRequestService {
       try {
         return ((await result.json()) as ServiceRequestCommentListResponse)?.list;
       } catch (e) {
-        console.error('No service requests available', result);
+        console.error('No comments available', result);
       }
     } else {
-      console.error('Error receiving service requests', result);
+      console.error('Error receiving comments', result);
     }
 
     return [];

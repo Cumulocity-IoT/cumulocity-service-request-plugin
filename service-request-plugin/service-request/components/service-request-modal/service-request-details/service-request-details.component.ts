@@ -1,7 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { IAlarm, IManagedObject, InventoryService } from '@c8y/client';
+import { IAlarm, IManagedObject } from '@c8y/client';
 import { gettext, ModalService, Status } from '@c8y/ngx-components';
 import {
   ServiceRequestComment,
@@ -12,7 +11,6 @@ import {
 } from '../../../models/service-request.model';
 import { ServiceRequestMetaService } from '../../../service/service-request-meta.service';
 import { ServiceRequestService } from '../../../service/service-request.service';
-import { Subscription } from 'rxjs';
 
 interface Tab {
   id: string;
@@ -27,14 +25,12 @@ interface Tab {
   templateUrl: './service-request-details.component.html',
   styleUrls: ['./service-request-details.component.less'],
 })
-export class ServiceRequestDetailsComponent implements OnDestroy {
-  private sub: Subscription;
+export class ServiceRequestDetailsComponent {
 
   device: IManagedObject;
   alarm?: IAlarm;
-  serviceRequestId: string;
-
   serviceRequest: ServiceRequestObject;
+  isEdit = false;
 
   comments: ServiceRequestComment[] = [];
   status: ServiceRequestStatus[] = [{name: 'Default', id: ''}];
@@ -81,54 +77,50 @@ export class ServiceRequestDetailsComponent implements OnDestroy {
   ];
 
   currentTab: Tab['id'] = this.tabs.find((t) => t.active).id;
+  close: (cause: any) => void;
 
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
     private serviceRequestService: ServiceRequestService,
     private serviceRequestMetaSerivce: ServiceRequestMetaService,
-    private inventory: InventoryService,
     private modalService: ModalService
   ) {}
  
    async init() {
     this.loadingRequest = true;
 
-    await this.reset();
+    await this.fetchMeta();
 
-    this.serviceRequest.title = '';
+    if (!this.isEdit) {
+      await this.reset();
 
-    this.serviceRequest.source = {
-      id: this.device.id,
-      self: this.device.self,
-      name: this.device.name,
-    };
-
-    if (this.alarm) {
-      this.serviceRequest.title = this.alarm.text;
-      this.serviceRequest.alarmRef = {
-        uri: this.alarm.self,
-        id: this.alarm.id as string,
+      this.serviceRequest.source = {
+        id: this.device.id,
+        self: this.device.self,
+        name: this.device.name,
       };
+  
+      if (this.alarm) {
+        this.serviceRequest.title = this.alarm.text;
+        this.serviceRequest.alarmRef = {
+          uri: this.alarm.self,
+          id: this.alarm.id as string,
+        };
+      }
+  
+      this.serviceRequest.status = this.status[0];
+      this.serviceRequest.priority = this.priorities[0];
     }
 
-    this.serviceRequest.status = this.status[0];
-    this.serviceRequest.priority = this.priorities[0];
-
+   
     this.setFormValue(this.serviceRequest);
-
-    if (this.serviceRequestId) {
-      await this.fetchServiceRequest(this.serviceRequestId);
-    }
-
     this.loadingRequest = false;
   }
 
   private async reset() {
-    await this.fetchMeta();
-    this.serviceRequest = this.serviceRequestService.createEmptyServiceRequest();
+   
     this.comments = [];
-
+    
+    this.serviceRequest = this.serviceRequestService.createEmptyServiceRequest();
     this.setFormValue(this.serviceRequest);
   }
 
@@ -140,7 +132,6 @@ export class ServiceRequestDetailsComponent implements OnDestroy {
     } catch(e) {
 
     }
-
   }
 
   private setFormValue(request: ServiceRequestObject): void {
@@ -160,7 +151,7 @@ export class ServiceRequestDetailsComponent implements OnDestroy {
       priority: request?.priority,
     });
 
-    if (!this.serviceRequestId) {
+    if (!this.isEdit) {
       this.serviceRequestForm.get('status').enable();
     } else {
       this.serviceRequestForm.get('status').disable();
@@ -176,33 +167,11 @@ export class ServiceRequestDetailsComponent implements OnDestroy {
     }
   }
 
-  private async fetchComments(id: string): Promise<ServiceRequestComment[]> {
+  private fetchComments(id: string) {
     this.loadingComments = true;
-    this.comments = await this.serviceRequestService.commentList(id);
-    this.loadingComments = false;
-
-    return this.comments;
-  }
-
-  private async fetchServiceRequest(serviceRequestId: string): Promise<void> {
-    try {
-      this.loadingRequest = true;
-      this.serviceRequest = await this.serviceRequestService.detail(serviceRequestId);
-      this.device = (await this.inventory.detail(this.serviceRequest.source.id)).data;
-      this.setFormValue(this.serviceRequest);
-      await this.fetchComments(this.serviceRequest.id);
-    } catch (error) {
-      console.error(error); // TODO temp
-      this.reset();
-    } finally {
-      this.loadingRequest = false;
-    }
-  }
-
-  ngOnDestroy(): void {
-    if (this.sub) {
-      this.sub.unsubscribe();
-    }
+    this.serviceRequestService.commentList(id)
+      .then(res => this.comments = res)
+      .finally(() => this.loadingComments = false);
   }
 
   async resolve(): Promise<void> {
@@ -224,16 +193,11 @@ export class ServiceRequestDetailsComponent implements OnDestroy {
     }
 
     this.requestFormInAction = true;
-    const resolvedServiceRequestObject = await this.serviceRequestService.resolve(
-      this.serviceRequest
-    );
-
-    this.requestFormInAction = false;
-
-    if (resolvedServiceRequestObject) {
-      await this.router.navigate(['./'], {
-        relativeTo: this.route,
-      });
+    try {
+      await this.serviceRequestService.resolve(this.serviceRequest);
+      this.close(true);
+    }  finally {
+      this.requestFormInAction = false;
     }
   }
 
@@ -257,41 +221,35 @@ export class ServiceRequestDetailsComponent implements OnDestroy {
     const formValue = this.serviceRequestForm.value;
 
     this.requestFormInAction = true;
-
     let newServiceRequestObject: ServiceRequestObject;
-
-    if (!this.serviceRequestId) {
-      newServiceRequestObject = await this.serviceRequestService.create({
-        title: formValue.title,
-        status: formValue.status,
-        priority: formValue.priority,
-        description: formValue.description,
-        type: this.serviceRequest.type,
-        alarmRef: this.serviceRequest.alarmRef,
-        customProperties: this.serviceRequest.customProperties,
-        eventRef: this.serviceRequest.eventRef,
-        seriesRef: this.serviceRequest.seriesRef,
-        source: this.serviceRequest.source,
-      });
-
-      this.requestFormInAction = false;
-
-      if (newServiceRequestObject) {
-        await this.router.navigate(['./' + newServiceRequestObject.id], {
-          relativeTo: this.route,
+    try {
+      if (!this.isEdit) {
+        newServiceRequestObject = await this.serviceRequestService.create({
+          title: formValue.title,
+          status: formValue.status,
+          priority: formValue.priority,
+          description: formValue.description,
+          type: this.serviceRequest.type,
+          alarmRef: this.serviceRequest.alarmRef,
+          customProperties: this.serviceRequest.customProperties,
+          eventRef: this.serviceRequest.eventRef,
+          seriesRef: this.serviceRequest.seriesRef,
+          source: this.serviceRequest.source,
         });
+        this.close(true);
+       
+      } else {
+        newServiceRequestObject = await this.serviceRequestService.update(this.serviceRequest.id, {
+          title: formValue.title ?? undefined,
+          priority: formValue.priority ?? undefined,
+          description: formValue.description ?? undefined,
+        });
+        this.close(true);
       }
-    } else {
-      newServiceRequestObject = await this.serviceRequestService.update(this.serviceRequest.id, {
-        title: formValue.title ?? undefined,
-        priority: formValue.priority ?? undefined,
-        description: formValue.description ?? undefined,
-      });
+    } finally {
+      this.requestFormInAction = false;
+      this.close(false);
     }
-
-    this.requestFormInAction = false;
-
-    this.setFormValue(newServiceRequestObject);
   }
 
   async submitComment(): Promise<void> {

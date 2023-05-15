@@ -56,7 +56,7 @@
             <div class="form-group">
               <ene-device-select
                 [(device)]="device"
-                [disabled]="serviceRequestId"
+                [disabled]="isEdit"
               ></ene-device-select>
             </div>
 
@@ -154,7 +154,7 @@
           <!-- form actions -->
           <div class="card-footer separator">
             <div class="row">
-              <ng-container *ngIf="!serviceRequestId; else updateFormActions">
+              <ng-container *ngIf="!isEdit; else updateFormActions">
                 <div class="col-md-12">
                   <button
                     type="submit"
@@ -226,8 +226,8 @@
   </div>
 
   <!-- comments -->
-  <ng-container *ngIf="serviceRequestId">
-    <h4 class="m-t-16">Comments</h4>
+  <ng-container *ngIf="isEdit">
+    <h4 class="m-t-16">Comments {{ '('+ comments.length +')'}}</h4>
 
     <div class="row m-t-16 m-b-16">
       <div class="col-md-6">
@@ -273,7 +273,7 @@
     </div>
 
     <!-- comments display -->
-    <div class="row" *ngIf="serviceRequestId">
+    <div class="row" *ngIf="isEdit">
       <div class="col-md-6">
         <ng-container *ngIf="loadingComments">
           <ng-container *ngTemplateOutlet="loadingData"></ng-container>
@@ -284,7 +284,7 @@
             <div class="d-flex">
               <div class="list-item-body">
                 <small class="d-block m-b-8">
-                  {{ c.owner }} - {{ c.creationTime | date : 'dd MMM YYYY HH:mm' }}
+                  <i c8yIcon="clock-o"></i> {{ c.creationTime | c8yDate }} - <b>{{ c.owner }}</b> {{ 'wrote' | translate }}:
                 </small>
                 <p [innerHtml]="c.text | nl2br"></p>
               </div>

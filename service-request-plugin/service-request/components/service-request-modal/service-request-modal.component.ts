@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from "@angular/core";
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { Subject } from "rxjs";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { IAlarm, IManagedObject } from "@c8y/client";
@@ -7,7 +7,7 @@ import { ServiceRequestDetailsComponent } from "./service-request-details/servic
 
 @Component({
     template: `<c8y-modal
-    [title]="'Run Summary' | translate"
+    [title]="'Service Request' | translate"
     (onClose)="onClose()"
     (onDismiss)="onDismiss()"
     [customFooter]="true"
@@ -18,11 +18,17 @@ import { ServiceRequestDetailsComponent } from "./service-request-details/servic
   </div>
   </c8y-modal>`
 })
-export class ServiceRequestModalComponent {
-    closeSubject: Subject<void> = new Subject();
+export class ServiceRequestModalComponent implements OnInit {
+    closeSubject: Subject<any> = new Subject();
     @ViewChild(ServiceRequestDetailsComponent, {static: true}) requestDetails: ServiceRequestDetailsComponent;
 
-    constructor( public modal: BsModalRef) {}
+    constructor(public modal: BsModalRef) {}
+  
+    ngOnInit(): void {
+      this.requestDetails.close = (cause: any) => {
+        this.closeModal(cause);
+      }
+    }
 
     onDismiss() {
       // called if cancel is pressed
@@ -34,8 +40,8 @@ export class ServiceRequestModalComponent {
       this.closeSubject.next();
     }
 
-    private closeModal(): void {
-        this.closeSubject.next();
+    private closeModal(cause: any): void {
+        this.closeSubject.next(cause);
         this.closeSubject.complete();
         this.modal.hide();
       }

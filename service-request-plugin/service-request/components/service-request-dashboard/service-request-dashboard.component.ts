@@ -3,9 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Widget } from '@c8y/ngx-components';
 import { Subscription } from 'rxjs';
 import { IManagedObject } from '@c8y/client';
-import { ServiceRequestModalComponent } from '../service-request-modal/service-request-modal.component';
-import { BsModalService } from "ngx-bootstrap/modal";
-import { take } from 'rxjs/operators';
+import { ServiceRequestModalService } from '../../service/service-request-modal.service';
 
 
 @Component({
@@ -18,7 +16,7 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
   device: IManagedObject;
   widgets: Widget[];
 
-  constructor(private activatedRoute: ActivatedRoute, private bsModalService: BsModalService) {
+  constructor(private activatedRoute: ActivatedRoute, private serviceRequestModal: ServiceRequestModalService) {
     this.device = this.activatedRoute.parent.snapshot.data.contextData as IManagedObject;
   }
 
@@ -64,12 +62,7 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
   }
 
   openServiceRequestModal(): void {
-    const modalRef = this.bsModalService.show(ServiceRequestModalComponent, {
-      class: "modal-lg",
-    });
-    modalRef.content.requestDetails.device = this.device;
-    modalRef.content.requestDetails.init();
-    modalRef.content.closeSubject.pipe(take(1)).subscribe();
+    this.serviceRequestModal.openForDevice(this.device);
   }
 
   ngOnDestroy(): void {

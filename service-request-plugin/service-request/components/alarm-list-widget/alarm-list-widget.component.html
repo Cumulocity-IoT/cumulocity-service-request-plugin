@@ -34,8 +34,8 @@
             </p>
           </div>
      </c8y-li-body>
-      <c8y-li-action (click)="createServiceRequest(alarm)" icon="online-support">
-        Create service request
+      <c8y-li-action (click)="openServiceRequestModal(alarm)" icon="online-support">
+        {{ 'Create service request' | translate }}
       </c8y-li-action>
       <c8y-li-collapse>
        <!--  Source: <a [routerLink]="['/device', alarm.source.id]">{{  alarm.source.id }}</a> -->

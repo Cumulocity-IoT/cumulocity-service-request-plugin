@@ -5,6 +5,7 @@ import {
 } from '../../../../models/service-request.model';
 import { ServiceRequestService } from '../../../../service/service-request.service';
 import { SERVICE_REQUEST_CLOSED } from '../../models/service-request.model';
+import { ServiceRequestModalService } from '../../../../service/service-request-modal.service';
 
 const displayedCommentsLimit = 10;
 
@@ -22,7 +23,7 @@ export class ServiceRequestListItemComponent {
 
   @Input('serviceRequest') serviceRequest: ServiceRequestObject;
 
-  constructor(private serviceRequestService: ServiceRequestService) {}
+  constructor(private serviceRequestService: ServiceRequestService, private serviceRequestModal: ServiceRequestModalService ) {}
 
   async loadComments(): Promise<void> {
     this.loading = true;
@@ -34,6 +35,10 @@ export class ServiceRequestListItemComponent {
     this.additionalCommentsCount = Math.max(0, comments.length - displayedCommentsLimit);
 
     this.loading = false;
+  }
+
+  openServiceRequestModal(serviceRequest: ServiceRequestObject) {
+    this.serviceRequestModal.open(serviceRequest);
   }
 
   toggle(collapsed = !this.collapsed): void {

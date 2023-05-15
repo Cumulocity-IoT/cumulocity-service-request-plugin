@@ -1,6 +1,17 @@
 # Service request plugin
 
 Acknowledge alarms by adding new views and a widget
+
+## Sample images
+
+Overview dashboard
+![alt See alarms and service requests](/docs/notifications-dashboard.png)
+
+You can create service requests from scratch, or based on an alarm.
+![alt Create or edit service requests](/docs/edit-service-request.png)
+
+Users can comment on service requests
+![alt Layers](/docs/comments.png)
 ## Recommended versions
 node v 14.x
 npm v 6.x
