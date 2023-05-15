@@ -54,10 +54,10 @@ export class ServiceRequestService {
         if (result.ok) {
           return true;
         }
-    } catch(e) {
-      // empty
+    } finally {
+      this.alertService.info('service-request.microservice-required');
+      return false;
     }
-    return false;
   }
 
   // GET /service/request

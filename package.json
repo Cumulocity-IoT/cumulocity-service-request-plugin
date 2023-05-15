@@ -53,8 +53,8 @@
     "application": {
       "name": "Service Request Plugin",
       "description": "",
-      "contextPath": "sag-ps-iot-pkg-advanced-map-widget-plugin",
-      "key": "sag-ps-iot-pkg-advanced-map-widget-key",
+      "contextPath": "sag-ps-iot-pkg-service-request-plugin",
+      "key": "sag-ps-iot-pkg-service-request-key",
       "globalTitle": "Service Request Plugin",
       "tabsHorizontal": true,
       "isPackage": true,

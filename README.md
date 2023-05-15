@@ -2,6 +2,10 @@
 
 Acknowledge alarms by adding new views and a widget
 
+# Requirements
+
+This plugin requires the Microservice xxx to be installed on the tenant.
+
 ## Sample images
 
 Overview dashboard

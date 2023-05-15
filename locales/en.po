@@ -94,3 +94,6 @@ msgstr "Resolve"
 
 msgid "service-request.comment.feedback--not-resolved"
 msgstr "Could not create comment"
+
+msgid "service-request.microservice-required"
+msgstr "The Microservice xxx needs to be installed in order to use the Service Request Plugin"
