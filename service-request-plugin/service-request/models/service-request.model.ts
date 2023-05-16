@@ -1,5 +1,5 @@
 export const SERVICE_REQUEST_DEFAULT_PAGE_SIZE = 500;
-export const SERVICE_REQUEST_PATH = 'notifications';
+export const SERVICE_REQUEST_PATH = 'service-requests';
 export interface Reference {
   uri: string;
   id?: string;
@@ -12,7 +12,6 @@ export interface Source {
 export interface ServiceRequestForm {
   text: string;
 }
-// https://dev.azure.com/Enercon/EC-P1D/_wiki/wikis/IoT%20Wiki/5187/API?anchor=schemaservicerequestpriority
 export interface ServiceRequestStatus {
   id: string;
   name: string;
