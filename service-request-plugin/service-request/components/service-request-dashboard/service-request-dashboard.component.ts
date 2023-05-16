@@ -44,7 +44,7 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
         _height: 9,
         _width: 12,
         id: '789012',
-        title: 'IoT Notifications',
+        title: 'Service Requests',
         config: {
           device: {
             id: device.id,

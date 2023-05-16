@@ -12,7 +12,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "service-request-details.card-title"
-msgstr "Notification"
+msgstr "Service Request"
 
 msgid "service-request-details.comment-button-submit"
 msgstr "Submit"
@@ -21,7 +21,7 @@ msgid "service-request-details.comment-form-title"
 msgstr "Create a new comment"
 
 msgid "service-request-details.field-set-sap"
-msgstr "SAP Master data"
+msgstr "Master data"
 
 msgid "service-request-details.field-set-snapshot"
 msgstr "Snapshot"
@@ -60,7 +60,7 @@ msgid "service-request-list-item.header-tooltip"
 msgstr "Priority: "
 
 msgid "service-request-list-item.last-update-title"
-msgstr "Date of the latest update of the notification."
+msgstr "Date of the latest update of the service request."
 
 msgid "service-request-list-item.status-title"
 msgstr "Status"
@@ -69,7 +69,7 @@ msgid "service-request-list-item.timeline"
 msgstr "Comments"
 
 msgid "service-request-list-widget.empty-service-requests"
-msgstr "No notifications to display."
+msgstr "No service requests to display."
 
 msgid "card-footer.button-submit"
 msgstr "Submit"
@@ -96,4 +96,4 @@ msgid "service-request.comment.feedback--not-resolved"
 msgstr "Could not create comment"
 
 msgid "service-request.microservice-required"
-msgstr "The Microservice xxx needs to be installed in order to use the Service Request Plugin"
+msgstr "The Microservice Service-request-mgmt needs to be installed in order to use the Service Request Plugin"

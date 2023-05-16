@@ -22,9 +22,9 @@ import { AlarmListWidgetModule } from './components/alarm-list-widget/alarm-list
       multi: true,
       useValue: [
         {
-          label: 'Notifications',
+          label: 'Service Requests',
           path: SERVICE_REQUEST_PATH,
-          icon: 'notification',
+          icon: 'online-support',
           context: ViewContext.Device,
           component: ServiceRequestDashboardComponent,
           priority: 3000,
