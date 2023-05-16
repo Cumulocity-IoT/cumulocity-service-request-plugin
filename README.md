@@ -5,11 +5,12 @@ This plugin extends Cumulocity application like Cockpit with the capability to c
 The UI Plugin is depending on the domain specific API provided by a Microservice:
 [Open API documentation](https://github.com/SoftwareAG/cumulocity-microservice-service-request-mgmt/blob/develop/docs/README.md)
 
+This microservice can be extendet or even replaced if needed. Custome microservice have to implement the REST API documentated above.
 
 # Requirements
 
-This plugin requires the Microservice Service-request-mgmt to be installed on the tenant.
-Reposiotory: [cumulocity-microservice-service-request-mgmt](https://github.com/SoftwareAG/cumulocity-microservice-service-request-mgmt)
+This plugin requires a Microservice called Service-request-mgmt to be installed on the tenant.
+Reposiotory: [Standard cumulocity-microservice-service-request-mgmt](https://github.com/SoftwareAG/cumulocity-microservice-service-request-mgmt)
 
 ## Sample images
 
