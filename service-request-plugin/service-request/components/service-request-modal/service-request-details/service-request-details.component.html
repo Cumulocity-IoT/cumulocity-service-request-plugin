@@ -3,9 +3,9 @@
   <div class="row">
     <div class="col">
       <div class="card">
-        <div class="card-header separator">
+        <!-- <div class="card-header separator">
           <h4 class="card-title" translate>service-request-details.card-title</h4>
-        </div>
+        </div> -->
 
         <form
           novalidate
@@ -144,10 +144,11 @@
             <!-- files -->
             <div class="form-group">
               <label translate>service-request-details.form-files-label</label>
-              <!-- TODO add upload -->
-              <span class="text-muted">{{
-                'service-request-details.not-available-in-mvp' | translate
-              }}</span>
+             
+              <service-request-attachments
+              [id]="serviceRequest?.id"
+              formControlName="attachment"
+            ></service-request-attachments>
             </div>
           </div>
 
@@ -160,11 +161,7 @@
                     type="submit"
                     class="btn btn-primary"
                     [class.btn-pending]="requestFormInAction"
-                    [disabled]="
-                      !serviceRequestForm.valid ||
-                      serviceRequestForm.pristine ||
-                      requestFormInAction
-                    "
+                    [disabled]="!serviceRequestForm.valid || requestFormInAction"
                     title="{{ 'card-footer.button-submit' | translate }}"
                     translate
                   >
@@ -226,75 +223,12 @@
   </div>
 
   <!-- comments -->
-  <ng-container *ngIf="isEdit">
-    <h4 class="m-t-16">Comments {{ '('+ comments.length +')'}}</h4>
-
-    <div class="row m-t-16 m-b-16">
-      <div class="col-md-6">
-        <div class="comment">
-          <div class="m-b-8">{{ 'service-request-details.comment-form-title' | translate }}</div>
-
-          <form
-            novalidate
-            name="comment-form"
-            [formGroup]="commentForm"
-            (ngSubmit)="submitComment()"
-          >
-            <!-- comment -->
-            <div class="form-group m-b-8">
-              <textarea
-                id="c_text"
-                class="form-control"
-                name="text"
-                rows="5"
-                [formControlName]="'text'"
-              >
-              </textarea>
-            </div>
-
-            <!-- form actions -->
-            <div class="row">
-              <div class="col-md-12">
-                <button
-                  type="submit"
-                  class="btn btn-primary"
-                  [class.btn-pending]="commentFormInAction"
-                  [disabled]="commentForm.pristine || commentFormInAction"
-                  [title]="'service-request-details.comment-button-submit' | translate"
-                  translate
-                >
-                  service-request-details.comment-button-submit
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- comments display -->
-    <div class="row" *ngIf="isEdit">
-      <div class="col-md-6">
-        <ng-container *ngIf="loadingComments">
-          <ng-container *ngTemplateOutlet="loadingData"></ng-container>
-        </ng-container>
-
-        <ul class="comments-list">
-          <li *ngFor="let c of comments" class="comment">
-            <div class="d-flex">
-              <div class="list-item-body">
-                <small class="d-block m-b-8">
-                  <i c8yIcon="clock-o"></i> {{ c.creationTime | c8yDate }} - <b>{{ c.owner }}</b> {{ 'wrote' | translate }}:
-                </small>
-                <p [innerHtml]="c.text | nl2br"></p>
-              </div>
-            </div>
-          </li>
-        </ul>
-        <!-- TODO: pagination? -->
-      </div>
-    </div>
-  </ng-container>
+  <div *ngIf="isEdit" class="row">
+    <service-request-comments
+        [id]="serviceRequest?.id"
+        [isCreateForm]="true"
+      ></service-request-comments>
+  </div>
 </ng-container>
 
 <ng-template #loadingData>

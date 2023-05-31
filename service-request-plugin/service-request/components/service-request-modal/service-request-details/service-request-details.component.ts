@@ -3,14 +3,14 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { IAlarm, IManagedObject } from '@c8y/client';
 import { gettext, ModalService, Status } from '@c8y/ngx-components';
 import {
-  ServiceRequestComment,
-  ServiceRequestForm,
+  ServiceRequestAttachment,
   ServiceRequestObject,
   ServiceRequestPriority,
   ServiceRequestStatus,
 } from '../../../models/service-request.model';
 import { ServiceRequestMetaService } from '../../../service/service-request-meta.service';
 import { ServiceRequestService } from '../../../service/service-request.service';
+import { ServiceRequestAttachmentsService } from '../../../service/service-request-attachments.service';
 
 interface Tab {
   id: string;
@@ -32,14 +32,12 @@ export class ServiceRequestDetailsComponent {
   serviceRequest: ServiceRequestObject;
   isEdit = false;
 
-  comments: ServiceRequestComment[] = [];
   status: ServiceRequestStatus[] = [{name: 'Default', id: ''}];
   priorities: ServiceRequestPriority[] = [];
 
   loadingRequest = true;
   loadingComments = false;
   requestFormInAction = false;
-  commentFormInAction = false;
 
   canResolve = false;
 
@@ -49,10 +47,8 @@ export class ServiceRequestDetailsComponent {
     type: new FormControl(''),
     status: new FormControl<ServiceRequestStatus>({ value: null, disabled: true }),
     priority: new FormControl<ServiceRequestPriority>(null),
-  });
+    attachment: new FormControl<ServiceRequestAttachment | ServiceRequestAttachment[]>(null),
 
-  commentForm = new FormGroup({
-    text: new FormControl('', [Validators.required]),
   });
 
   tabs: Tab[] = [
@@ -82,7 +78,8 @@ export class ServiceRequestDetailsComponent {
   constructor(
     private serviceRequestService: ServiceRequestService,
     private serviceRequestMetaSerivce: ServiceRequestMetaService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private serviceRequestAttachmentsService: ServiceRequestAttachmentsService,
   ) {}
  
    async init() {
@@ -116,10 +113,7 @@ export class ServiceRequestDetailsComponent {
     this.loadingRequest = false;
   }
 
-  private async reset() {
-   
-    this.comments = [];
-    
+  private async reset() {    
     this.serviceRequest = this.serviceRequestService.createEmptyServiceRequest();
     this.setFormValue(this.serviceRequest);
   }
@@ -136,10 +130,10 @@ export class ServiceRequestDetailsComponent {
 
   private setFormValue(request: ServiceRequestObject): void {
     if (request) {
-      request.priority = this.priorities.find((p) => p.ordinal == request.priority?.ordinal);
+      request.priority = this.priorities?.find((p) => p.ordinal == request.priority?.ordinal);
       request.priority ??= this.priorities[0];
 
-      request.status = this.status.find((p) => p.id == request.status?.id);
+      request.status = this.status?.find((p) => p.id == request.status?.id);
       request.status ??= this.status[0];
     }
 
@@ -149,6 +143,7 @@ export class ServiceRequestDetailsComponent {
       type: request?.type,
       status: request?.status,
       priority: request?.priority,
+      attachment: request?.attachment
     });
 
     if (!this.isEdit) {
@@ -165,13 +160,6 @@ export class ServiceRequestDetailsComponent {
       this.serviceRequestForm.disable();
       this.canResolve = false;
     }
-  }
-
-  private fetchComments(id: string) {
-    this.loadingComments = true;
-    this.serviceRequestService.commentList(id)
-      .then(res => this.comments = res)
-      .finally(() => this.loadingComments = false);
   }
 
   async resolve(): Promise<void> {
@@ -211,7 +199,7 @@ export class ServiceRequestDetailsComponent {
     this.serviceRequestForm.updateValueAndValidity();
 
     if (
-      this.serviceRequestForm.pristine ||
+      (this.isEdit && this.serviceRequestForm.pristine) ||
       this.serviceRequestForm.invalid ||
       this.requestFormInAction
     ) {
@@ -221,58 +209,85 @@ export class ServiceRequestDetailsComponent {
     const formValue = this.serviceRequestForm.value;
 
     this.requestFormInAction = true;
+
     let newServiceRequestObject: ServiceRequestObject;
-    try {
-      if (!this.isEdit) {
-        newServiceRequestObject = await this.serviceRequestService.create({
-          title: formValue.title,
-          status: formValue.status,
-          priority: formValue.priority,
-          description: formValue.description,
-          type: this.serviceRequest.type,
-          alarmRef: this.serviceRequest.alarmRef,
-          customProperties: this.serviceRequest.customProperties,
-          eventRef: this.serviceRequest.eventRef,
-          seriesRef: this.serviceRequest.seriesRef,
-          source: this.serviceRequest.source,
-        });
-        this.close(true);
-       
-      } else {
-        newServiceRequestObject = await this.serviceRequestService.update(this.serviceRequest.id, {
-          title: formValue.title ?? undefined,
-          priority: formValue.priority ?? undefined,
-          description: formValue.description ?? undefined,
-        });
+
+    if (!this.isEdit) {
+      newServiceRequestObject = await this.serviceRequestService.create({
+        title: formValue.title,
+        status: formValue.status,
+        priority: formValue.priority,
+        description: formValue.description,
+        type: this.serviceRequest.type,
+        alarmRef: this.serviceRequest.alarmRef,
+        customProperties: this.serviceRequest.customProperties,
+        eventRef: this.serviceRequest.eventRef,
+        seriesRef: this.serviceRequest.seriesRef,
+        source: this.serviceRequest.source,
+      });
+
+      this.requestFormInAction = false;
+    } else {
+      newServiceRequestObject = await this.serviceRequestService.update(this.serviceRequest.id, {
+        title: formValue.title ?? undefined,
+        priority: formValue.priority ?? undefined,
+        description: formValue.description ?? undefined,
+      });
+    }
+
+    if (newServiceRequestObject) {
+      if (formValue.attachment) {
+        // TODO: if in the future service requests support multiple attachments, this check and the else path is no longer needed
+        if (Array.isArray(formValue.attachment)) {
+          const tasks = formValue.attachment.map((attachment) => {
+            if (attachment.new) {
+              return this.serviceRequestAttachmentsService.uploadAttachment(
+                newServiceRequestObject.id,
+                attachment.file
+              );
+            }
+
+            if (attachment.delete) {
+              // TODO: re-add when delete endpoint is available
+              // return this.serviceRequestAttachmentsService.deleteAttachment(
+              //   newServiceRequestObject.id,
+              //   attachment.file
+              // );
+            }
+
+            // null will resolve the promise immediately, no filtering or extra steps needed
+            return null;
+          });
+
+          await Promise.all(tasks);
+        } else {
+          if (formValue.attachment.new) {
+            await this.serviceRequestAttachmentsService.uploadAttachment(
+              newServiceRequestObject.id,
+              formValue.attachment.file
+            );
+          }
+        }
+      }
+
+      
+        await this.fetchServiceRequest(newServiceRequestObject.id);
+
+        this.requestFormInAction = false;
         this.close(true);
       }
-    } finally {
-      this.requestFormInAction = false;
-      this.close(false);
-    }
+    
   }
 
-  async submitComment(): Promise<void> {
-    const formValue = this.commentForm.value as ServiceRequestForm;
+  private async fetchServiceRequest(requestId: ServiceRequestObject['id']): Promise<void> {
+    try {
+      this.serviceRequest = await this.serviceRequestService.detail(requestId);
+      this.setFormValue(this.serviceRequest);
+    } catch (error) {
+      console.error(error); // TODO temp
 
-    if (!formValue?.text || this.commentFormInAction) {
-      return;
+      this.reset();
     }
-
-    this.commentFormInAction = true;
-
-    await this.serviceRequestService.commentCreate(this.serviceRequest.id, {
-      text: formValue?.text,
-      type: 'user',
-    });
-
-    this.commentFormInAction = false;
-
-    this.commentForm.reset({
-      text: '',
-    });
-
-    await this.fetchComments(this.serviceRequest.id);
   }
 
   changeTab(tabId: Tab['id']): void {

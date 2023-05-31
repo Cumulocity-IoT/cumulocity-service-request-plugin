@@ -96,29 +96,13 @@
 
     <!-- comments -->
     <div class="legend form-block">{{ 'service-request-list-item.timeline' | translate }}</div>
-    <div class="comments">
-      <ng-container *ngIf="!loading; else loadingData">
-        <ng-container *ngIf="comments.length; else noComments">
-          <ul class="comments-list">
-            <li
-              *ngFor="let c of comments"
-              class="comment"
-              [ngClass]="{ 'type-user': c.type === 'user', 'type-system': c.type === 'system' }"
-            >
-              <div class="d-flex">
-                <div class="list-item-body">
-                  <small class="d-block m-b-8">
-                    <i c8yIcon="clock-o"></i> {{ c.creationTime | c8yDate }} - <b>{{ c.owner }}</b> {{ 'wrote' | translate }}:
-                  </small>
-                  <p [innerHtml]="c.text | nl2br"></p>
-                </div>
-              </div>
-            </li>
-            <li *ngIf="additionalCommentsCount">+ {{ additionalCommentsCount }} more</li>
-          </ul>
-        </ng-container>
-      </ng-container>
-    </div>
+    
+    <service-request-comments
+    [id]="serviceRequest?.id"
+    [isCreateForm]="false"
+    [displayedItems]="10"
+  ></service-request-comments>
+
   </div>
 
   <ng-template #noComments>{{

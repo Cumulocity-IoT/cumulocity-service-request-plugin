@@ -1,0 +1,43 @@
+<c8y-file-picker
+  #picker
+  (onFilesPicked)="onFiles($event)"
+  uploadChoice="uploadBinary"
+></c8y-file-picker>
+
+<div class="list-group m-t-8">
+  <div
+    *ngFor="let attachment of attachments"
+    class="attachment list-group-item d-flex"
+    [class.new]="attachment.new"
+    [class.delete]="attachment.delete"
+  >
+    <div class="list-item-icon">
+      <i [attr.title]="'service-request-attachments.file' | translate" c8yIcon="file-o"></i>
+    </div>
+
+    <div class="list-item-body">
+      <div class="d-flex flex-space-between row">
+        <span class="col-sm-4 col-xs-12">{{ attachment.name }}</span>
+      </div>
+    </div>
+
+    <div>
+      <button
+        *ngIf="!attachment.new"
+        class="btn btn-default btn-icon btn-xs"
+        [attr.title]="'service-request-attachments.download' | translate"
+        (click)="download(attachment)"
+      >
+        <i c8yIcon="download"></i>
+      </button>
+      <button
+        *ngIf="attachment.new"
+        class="btn btn-danger btn-icon btn-xs"
+        [attr.title]="'service-request-attachments.delete' | translate"
+        (click)="delete(attachment)"
+      >
+        <i c8yIcon="trash"></i>
+      </button>
+    </div>
+  </div>
+</div>

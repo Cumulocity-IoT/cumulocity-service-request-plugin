@@ -20,6 +20,15 @@ export interface ServiceRequestPriority {
   name: string;
   ordinal: number;
 }
+
+export interface ServiceRequestAttachment {
+  name: string;
+  length: number;
+  type: string;
+  file?: File;
+  new?: boolean;
+  delete?: boolean;
+}
 export interface ServiceRequestObject {
   id: string;
   lastUpdated: string | Date;
@@ -37,6 +46,7 @@ export interface ServiceRequestObject {
   eventRef?: Reference;
   seriesRef?: Reference;
   customProperties?: object;
+  attachment: ServiceRequestAttachment;
 }
 export interface ServiceRequestComment {
   id: string;
@@ -76,4 +86,10 @@ export interface ServiceRequestListResponse {
 }
 export interface ServiceRequestCommentListResponse {
   list: ServiceRequestComment[];
+}
+export interface ServiceRequestErrorResponse {
+  error: string;
+  path: string;
+  status: number;
+  timestamp: string;
 }

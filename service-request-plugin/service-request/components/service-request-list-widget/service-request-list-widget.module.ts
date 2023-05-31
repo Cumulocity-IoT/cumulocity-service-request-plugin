@@ -9,16 +9,15 @@ import { ServiceRequestIconComponent } from './components/service-request-icon/s
 import { ServiceRequestListItemComponent } from './components/service-request-list-item/service-request-list-item.component';
 import { ServiceRequestListWidgetConfigComponent } from './components/service-request-list-widget-config/service-request-list-widget-config.component';
 import { SeriveRequestListWidgetComponent } from './components/service-request-list-widget/service-request-list-widget.component';
-import { Nl2brPipe } from '../../pipes/nl2br.pipe';
+import { ServiceRequestCommentsModule } from '../comments/service-requests-comments.module';
 
 @NgModule({
-  imports: [CommonModule, CoreModule, CollapseModule, RouterModule, TooltipModule],
+  imports: [CommonModule, CoreModule, CollapseModule, RouterModule, TooltipModule, ServiceRequestCommentsModule],
   declarations: [
     SeriveRequestListWidgetComponent,
     ServiceRequestListWidgetConfigComponent,
     ServiceRequestListItemComponent,
     ServiceRequestIconComponent,
-    Nl2brPipe
   ],
   entryComponents: [SeriveRequestListWidgetComponent, ServiceRequestListWidgetConfigComponent],
   providers: [

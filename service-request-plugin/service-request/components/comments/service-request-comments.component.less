@@ -1,0 +1,61 @@
+:host ::ng-deep c8y-file-picker div.form-group {
+  display: none;
+}
+
+.comments-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.comment {
+  background: var(--component-background, var(--root-component-background, #fff));
+  border: 2px solid var(--component-background, var(--root-component-background, #fff));
+  box-shadow: 0 3px 1px -2px #0003, 0 2px 2px #00000024, 0 1px 5px #0000001f;
+  color: var(--component-color, var(--root-component-color, var(--gray-text, #333)));
+  flex: 1 1 0%;
+  margin-bottom: 8px;
+  margin-top: 0;
+  min-height: 40px;
+  overflow-wrap: break-word;
+  padding: 8px calc(var(--component-padding, var(--root-component-padding, 16)) * 1px);
+  position: relative;
+  transition: background 0.5s linear, border 0.5s linear;
+
+  &:before {
+    position: absolute;
+    top: 20px;
+    left: -13px;
+    margin-top: -10px;
+    width: 0;
+    height: 0;
+    border-width: 10px 10px 10px 0;
+    border-style: solid;
+    border-color: transparent rgba(0, 0, 0, 0.05) transparent transparent;
+    content: '';
+  }
+
+  &:after {
+    position: absolute;
+    top: 20px;
+    left: -11px;
+    margin-top: -10px;
+    width: 0;
+    height: 0;
+    border-width: 10px 10px 10px 0;
+    border-style: solid;
+    border-color: transparent var(--component-background, var(--root-component-background, white))
+      transparent transparent;
+    content: '';
+    transition: border 0.5s linear;
+  }
+}
+
+.c8y-empty-state {
+  > .c8y-icon {
+    flex: 0 0 45px;
+  }
+}
+
+.download-attachment {
+  min-height: initial !important;
+}
