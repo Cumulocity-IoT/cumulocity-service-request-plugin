@@ -10,7 +10,7 @@ import { ServiceRequestModalService } from '../../../../service/service-request-
 const displayedCommentsLimit = 10;
 
 @Component({
-  selector: 'ene-service-request-list-item',
+  selector: 'service-request-list-item',
   templateUrl: './service-request-list-item.component.html',
   styleUrls: ['./service-request-list-item.component.less'],
 })

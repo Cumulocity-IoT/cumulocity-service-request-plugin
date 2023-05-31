@@ -12,9 +12,9 @@ import { SERVICE_REQUEST_PATH } from './models/service-request.model';
 
 import { ServiceRequestListWidgetModule } from './components/service-request-list-widget/service-request-list-widget.module';
 import { AlarmListWidgetModule } from './components/alarm-list-widget/alarm-list-widget.module';
-
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 @NgModule({
-  imports: [CoreModule, CommonModule, RouterModule, ReactiveFormsModule, C8yWidgetModule, ServiceRequestListWidgetModule, AlarmListWidgetModule],
+  imports: [CoreModule, CommonModule, RouterModule, ReactiveFormsModule, BsDropdownModule, C8yWidgetModule, ServiceRequestListWidgetModule, AlarmListWidgetModule],
   declarations: [ServiceRequestDashboardComponent],
   providers: [
     {

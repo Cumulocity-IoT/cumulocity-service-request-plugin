@@ -58,8 +58,7 @@ export class ServiceRequestModalService {
     private async resolveServiceRequest(serviceRequest: ServiceRequestObject, requestDetailsComp: ServiceRequestDetailsComponent) {
         const inventory = this.inventory.detail(serviceRequest.source.id)
             .then(res => requestDetailsComp.device = res.data);
-        const comments = this.serviceRequestService.commentList(serviceRequest.id).then(res => requestDetailsComp.comments = res);
-        await Promise.all([inventory, comments]);
+        await inventory;
         return serviceRequest;
     }
 

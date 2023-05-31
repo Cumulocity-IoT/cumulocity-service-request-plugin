@@ -2,7 +2,7 @@
   <ng-container *ngIf="serviceRequests?.length; else noServiceRequests">
     <ul class="list-group">
       <li *ngFor="let s of serviceRequests" class="list-group-item p-0">
-        <ene-service-request-list-item [serviceRequest]="s"></ene-service-request-list-item>
+        <service-request-list-item [serviceRequest]="s"></service-request-list-item>
       </li>
     </ul>
   </ng-container>

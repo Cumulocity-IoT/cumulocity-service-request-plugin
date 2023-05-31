@@ -36,6 +36,7 @@ export class ServiceRequestService {
       status: { id: '', name: ''},
       priority: null,
       customProperties: null,
+      attachment: null
     };
   }
 
@@ -54,10 +55,11 @@ export class ServiceRequestService {
         if (result.ok) {
           return true;
         }
-    } finally {
-      this.alertService.info('service-request.microservice-required');
-      return false;
+    } catch(e) {
+      // nothing to do here
     }
+    this.alertService.info('service-request.microservice-required');
+    return false;
   }
 
   // GET /service/request
