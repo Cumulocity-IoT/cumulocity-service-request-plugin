@@ -1,0 +1,44 @@
+<label>{{ label || ('device-select.device' | translate) }}</label>
+
+<ng-container *ngIf="selectedDevice; else noDeviceSelected">
+  <div class="device-info">
+    <div class="title">
+      <ene-device-status [status]="selectedDevice.c8y_Availability?.status"></ene-device-status>
+      <a [routerLink]="['/device', selectedDevice.id]">{{ selectedDevice.name }}</a>
+      <span class="text-muted">{{ selectedDevice.c8y_Hardware.model }}</span>
+
+      <!-- TODO show device status/info -->
+    </div>
+
+    <div class="actions">
+      <button
+        *ngIf="!disabled"
+        type="button"
+        [title]="'device-select.deselect' | translate"
+        class="btn btn-clean"
+        (click)="deselectDevice()"
+      >
+        <i class="dlt-c8y-icon-clear"></i>
+      </button>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #noDeviceSelected>
+  <c8y-typeahead
+    class="flex-grow"
+    name="selectProfile"
+    [ngModel]="selectedDevice"
+    placeholder="{{ 'placeholder.select-device-profile' | translate }}"
+    (onSearch)="setFilter($event)"
+    [allowFreeEntries]="false"
+  >
+    <c8y-li
+      *c8yFor="let device of devices; pipe: filterPipe"
+      class="p-l-8 p-r-8 c8y-list__item--link"
+      (click)="selectDevice(device); setFilter('')"
+    >
+      <c8y-highlight [text]="device.name" [pattern]="searchPattern"></c8y-highlight>
+    </c8y-li>
+  </c8y-typeahead>
+</ng-template>

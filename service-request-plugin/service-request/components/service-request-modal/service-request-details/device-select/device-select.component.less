@@ -1,0 +1,21 @@
+.device-info {
+  box-shadow: inset 0 0 0 var(--form-control-border-width, 1px) var(--input-border-color, var(--component-input-border, var(--root-component-input-border, var(--gray-8, #CCD2D6))));
+  padding: var(--form-control-padding-base-vertical, 5px) var(--form-control-padding-base-horizontal, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+
+  .title {
+    display: flex;
+    align-items: center;
+
+    > *:nth-child(n+2) {
+      margin-left: var(--form-control-padding-base-horizontal, 8px);
+    }
+  }
+
+  .actions {
+    margin-left: var(--form-control-padding-base-horizontal, 8px);
+  }
+}

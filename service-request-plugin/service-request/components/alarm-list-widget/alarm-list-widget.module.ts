@@ -6,10 +6,18 @@ import { AlarmListWidgetComponent } from './alarm-list-widget.component';
 import { AlarmListWidgetConfigComponent } from './alarm-list-widget-config.component';
 import { AlarmIconPipe, C8yLiStatusFromAlarmPipe } from './alarm-icon.pipe';
 import { ServiceRequestModalModule } from '../service-request-modal/service-request-modal.module';
+import { AlarmIconComponent } from './alarm-icon/alarm-icon.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
-  imports: [CommonModule, CoreModule, TooltipModule, ServiceRequestModalModule],
-  declarations: [AlarmListWidgetComponent, AlarmListWidgetConfigComponent, AlarmIconPipe, C8yLiStatusFromAlarmPipe],
+  imports: [CommonModule, RouterModule, CoreModule, TooltipModule, ServiceRequestModalModule],
+  declarations: [
+    AlarmIconComponent,
+    AlarmListWidgetComponent,
+    AlarmListWidgetConfigComponent,
+    AlarmIconPipe,
+    C8yLiStatusFromAlarmPipe,
+  ],
   entryComponents: [AlarmListWidgetComponent, AlarmListWidgetConfigComponent],
   providers: [
     {

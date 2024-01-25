@@ -5,7 +5,6 @@ import { Subscription } from 'rxjs';
 import { IManagedObject } from '@c8y/client';
 import { ServiceRequestModalService } from '../../service/service-request-modal.service';
 
-
 @Component({
   templateUrl: './service-request-dashboard.component.html',
 })
@@ -16,7 +15,10 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
   device: IManagedObject;
   widgets: Widget[];
 
-  constructor(private activatedRoute: ActivatedRoute, private serviceRequestModal: ServiceRequestModalService) {
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private serviceRequestModal: ServiceRequestModalService
+  ) {
     this.device = this.activatedRoute.parent.snapshot.data.contextData as IManagedObject;
   }
 
@@ -35,6 +37,8 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
             id: device.id,
             name: device.name,
           },
+          status: ['ACTIVE', 'ACKNOWLEDGED'],
+          severity: ['CRITICAL'],
         },
       },
       {
@@ -57,7 +61,7 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
     return this.widgets;
   }
 
-   ngOnInit(): void {
+  ngOnInit(): void {
     void this.initWidgets();
   }
 

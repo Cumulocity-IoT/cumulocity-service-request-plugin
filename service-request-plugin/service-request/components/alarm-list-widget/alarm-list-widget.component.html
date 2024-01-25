@@ -1,50 +1,151 @@
-<c8y-list-group>
-    <c8y-li>
-      <label>All alarms</label>
-    </c8y-li>
-    <c8y-li
-      *c8yFor="let alarm of alarms; loadMore: 'auto'; notFound: notFoundTemplate"
-      #li
-    >
-      <c8y-li-icon [icon]="alarm | alarmIcon" [status]="alarm | c8yLiStatus" tooltip="{{ 'Status' | translate }}: {{ alarm.status | translate }}"></c8y-li-icon>
-     <c8y-li-body>
-        <div class="list-item-body">
-            <!-- badge -->
-            <span class="badge badge-danger" *ngIf="alarm.count>1">{{alarm.count}}</span>
-            <!-- Alarm description -->
-            <span class="m-l-4">{{ alarm.text }}</span>
-            <p class="m-t-4">
-              <!-- Date -->
-              <small class="text-muted icon-flex" title="Last occurrence of this alarm (device time).">
-                <i c8yIcon="clock-o"></i>{{ alarm.time | c8yDate: 'medium' }}
-              </small>
-              &nbsp;
-              <!-- device -->
-              <br class="visible-xs">
-              <a class="text-muted" [href]="'#/device/' + alarm.source.id" title="Go to device">
-                <small class="icon-flex">
-                  <i c8yIcon="exchange" ></i>{{ alarm.source.name || alarm.source.id }}
+<!-- filter -->
+<header>
+  <ul class="filter">
+    <li>
+      <label translate>Status</label>
+      <c8y-select
+        *ngIf="statusTypes.length"
+        container="body"
+        style="min-width: 200px"
+        [items]="statusTypes"
+        [selected]="selectedStatusTypes"
+        [disableApplyOnNoSelection]="true"
+        (onChange)="onStatusChange($event)"
+      >
+      </c8y-select>
+    </li>
+
+    <li>
+      <label translate>Severity</label>
+      <c8y-select
+        *ngIf="severityTypes.length"
+        container="body"
+        style="min-width: 200px"
+        [items]="severityTypes"
+        [selected]="selectedSeverityTypes"
+        [disableApplyOnNoSelection]="true"
+        (onChange)="onSeverityChange($event)"
+      >
+      </c8y-select>
+    </li>
+  </ul>
+
+  <ul class="actions">
+    <li>
+      <button class="btn btn-link" title="{{ 'Reload' | translate }}" (click)="reload()">
+        <i class="m-r-4 dlt-c8y-icon-refresh"></i>
+        <span translate>Reload</span>
+      </button>
+    </li>
+
+    <li>
+      <button class="btn btn-link" title="{{ 'Realtime' | translate }}" (click)="togglePolling()">
+        <div class="c8y-realtime ec-high-frequency-indicator">
+          <span
+            class="c8y-pulse"
+            [ngClass]="{
+              active: pollingEnabled,
+              inactive: !pollingEnabled
+            }"
+          ></span>
+          {{ 'Realtime' | translate }}
+        </div>
+      </button>
+    </li>
+  </ul>
+</header>
+
+<!-- list -->
+<div class="alarm-list vertical-scrollbar">
+  <ng-container *ngIf="!loading; else loadingData">
+    <div class="interact-list list-group">
+      <ng-container *ngIf="alarms.length; else noAlarms">
+        <div *ngFor="let alarm of alarms" class="list-group-item flex-row">
+          <aside class="list-item-icon">
+            <sr-alarm-icon class="status" [alarm]="alarm" [display]="'status'"></sr-alarm-icon>
+            <sr-alarm-icon class="severity" [alarm]="alarm" [display]="'severity'"></sr-alarm-icon>
+          </aside>
+
+          <div class="list-item-body">
+            <p>{{ alarm.text }}</p>
+            <ul class="details">
+              <li *ngIf="alarm.count > 1">
+                <span class="badge badge-danger">{{ alarm.count }}</span>
+              </li>
+              <li>
+                <small class="text-muted">
+                  <i class="dlt-c8y-icon-clock-o"></i>
+                  {{ alarm.creationTime | c8yDate }}
                 </small>
-              </a>
-               <span class="pull-right showOnHover">
-                <button class="btn btn-warning btn-xs" (click)="openServiceRequestModal(alarm)" tooltip="{{'Create service request' | translate }}">
-                  <i c8yIcon="online-support"></i>
-                </button>
-              </span>
-            </p>
+              </li>
+              <li>
+                <a [routerLink]="['/device', alarm.source.id, 'notifications']" class="text-muted">
+                  <i class="dlt-c8y-icon-exchange"></i>
+                  {{ alarm.source.name }}
+                </a>
+              </li>
+            </ul>
           </div>
-     </c8y-li-body>
-      <c8y-li-action (click)="openServiceRequestModal(alarm)" icon="online-support">
-        {{ 'Create service request' | translate }}
-      </c8y-li-action>
-      <c8y-li-collapse>
-       <!--  Source: <a [routerLink]="['/device', alarm.source.id]">{{  alarm.source.id }}</a> -->
-       <pre>{{ alarm | json }}</pre>
-      </c8y-li-collapse>
-    </c8y-li>
-    <ng-template #notFoundTemplate>
-      <c8y-li class="bg-level-2 p-8" *ngIf="!alarms?.data?.length">
-        <p translate>No alarms found.</p>
-      </c8y-li>
-    </ng-template>
-  </c8y-list-group>
+
+          <ul class="list-item-actions">
+            <li *ngIf="alarm.status === 'ACTIVE'">
+              <a
+                class="btn btn-warning btn-xs"
+                [tooltip]="'Acknowledge' | translate"
+                [container]="'body'"
+                [placement]="'left'"
+                (click)="openServiceRequestModal(alarm)"
+              >
+                <i class="dlt-c8y-icon-bell-slash"></i>
+              </a>
+            </li>
+            <li *ngIf="!(alarm.status === 'CLEARED')">
+              <button
+                type="button"
+                class="btn btn-success btn-xs"
+                [tooltip]="'Clear' | translate"
+                [container]="'body'"
+                [placement]="'left'"
+                (click)="clearAlarm(alarm)"
+              >
+                <i class="dlt-c8y-icon-check-circle"></i>
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div *ngIf="loadMore" class="list-group-item flex-row">
+          <ene-loading-data></ene-loading-data>
+        </div>
+      </ng-container>
+    </div>
+
+    <div *ngIf="totalPages && page !== totalPages" class="list-actions">
+      <button type="button" class="btn btn-default" (click)="loadNextPage()" translate>
+        Load more
+      </button>
+      <small *ngIf="pollingEnabled" class="text-muted" translate>
+        alarms-widget.info.load-page-stop-realtime
+      </small>
+    </div>
+  </ng-container>
+</div>
+
+<!-- no alarms -->
+<ng-template #noAlarms>
+  <div class="c8y-empty-state c8y-empty-state--horizontal">
+    <i class="c8y-icon-duocolor c8y-icon c8y-icon-alert-idle"></i>
+    <div>
+      <p>
+        <strong>{{ 'alarms-widget.info.no-alarms--title' | translate }}</strong>
+      </p>
+      <small *ngIf="config.showStatusFilter || config.showSeverityFilter">
+        {{ 'alarms-widget.info.no-alarms--details' | translate }}
+      </small>
+    </div>
+  </div>
+</ng-template>
+
+<!-- loading -->
+<ng-template #loadingData>
+  <ene-loading-data></ene-loading-data>
+</ng-template>

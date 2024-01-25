@@ -54,10 +54,7 @@
 
             <!-- device info/select -->
             <div class="form-group">
-              <ene-device-select
-                [(device)]="device"
-                [disabled]="isEdit"
-              ></ene-device-select>
+              <sr-device-select [(device)]="device" [disabled]="isEdit"></sr-device-select>
             </div>
 
             <!-- SAP master data -->
@@ -116,10 +113,10 @@
                     </ng-container>
 
                     <ng-container *ngSwitchCase="'alarms'">
-                      <ene-alarm-select
+                      <sr-alarm-select
                         [alarms]="serviceRequest?.alarmRef"
                         [disabled]="true || !isCreateForm"
-                      ></ene-alarm-select>
+                      ></sr-alarm-select>
                     </ng-container>
                   </ng-container>
                 </div>
@@ -144,11 +141,11 @@
             <!-- files -->
             <div class="form-group">
               <label translate>service-request-details.form-files-label</label>
-             
+
               <service-request-attachments
-              [id]="serviceRequest?.id"
-              formControlName="attachment"
-            ></service-request-attachments>
+                [id]="serviceRequest?.id"
+                formControlName="attachment"
+              ></service-request-attachments>
             </div>
           </div>
 
@@ -166,6 +163,16 @@
                     translate
                   >
                     card-footer.button-submit
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-default"
+                    (click)="close(true)"
+                    title="{{ 'Cancel' | translate }}"
+                    translate
+                  >
+                    Cancel
                   </button>
                 </div>
               </ng-container>
@@ -186,9 +193,20 @@
                   >
                     card-footer.button-update
                   </button>
+
                   <button
                     type="button"
-                    class="btn"
+                    class="btn btn-default"
+                    (click)="close(true)"
+                    title="{{ 'Cancel' | translate }}"
+                    translate
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-default"
                     [disabled]="
                       !serviceRequestForm.valid ||
                       serviceRequestForm.pristine ||
@@ -225,9 +243,9 @@
   <!-- comments -->
   <div *ngIf="isEdit" class="row">
     <service-request-comments
-        [id]="serviceRequest?.id"
-        [isCreateForm]="true"
-      ></service-request-comments>
+      [id]="serviceRequest?.id"
+      [isCreateForm]="true"
+    ></service-request-comments>
   </div>
 </ng-container>
 
