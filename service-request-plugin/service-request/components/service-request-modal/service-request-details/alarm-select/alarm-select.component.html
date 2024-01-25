@@ -26,7 +26,9 @@
           <div class="list-item-actions">
             <button
               type="button"
-              [title]="'button.expand' | translate"
+              [title]="
+                sel.expanded ? ('button.collapse' | translate) : ('button.expand' | translate)
+              "
               class="collapse-btn"
               (click)="sel.expanded = !sel.expanded"
             >
@@ -53,10 +55,11 @@
           <fieldset>
             <p class="legend form-block" translate>alarm-select.status</p>
             <small>
-              {{ sel.status }}<br />
+              <strong>{{ sel.status }}</strong
+              ><br />
               {{ 'alarm-select.type' | translate }}: {{ sel.type }}<br />
-              {{ 'alarm-select.first-occurence' | translate }}:
-              {{ sel.time | date : 'dd MMM YYYY, HH:mm:ss' }}
+              {{ 'alarm-select.creation-time' | translate }}:
+              {{ sel.creationTime | date : 'dd MMM YYYY, HH:mm:ss' }}
             </small>
           </fieldset>
         </div>

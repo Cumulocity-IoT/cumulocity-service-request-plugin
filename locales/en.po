@@ -11,6 +11,25 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "alarm-select.creation-time"
+msgstr "Created at"
+
+msgid "alarm-select.empty-alarms"
+msgstr "No alarms available"
+
+msgid "alarm-select.status"
+msgstr "Alarm status"
+
+msgid "alarm-select.type"
+msgstr "Type"
+
+msgid "button.collapse"
+msgstr "Collapse"
+
+msgid "button.expand"
+msgstr "Expand"
+
+
 msgid "service-request-details.card-title"
 msgstr "Service Request"
 
