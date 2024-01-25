@@ -29,6 +29,14 @@ msgstr "Collapse"
 msgid "button.expand"
 msgstr "Expand"
 
+msgid "device-select.device"
+msgstr "Device"
+
+msgid "device-select.deselect"
+msgstr "Deselect"
+
+msgid "device-select.placeholder.select-device"
+msgstr "Select device"
 
 msgid "service-request-details.card-title"
 msgstr "Service Request"
