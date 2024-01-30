@@ -28,8 +28,8 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
         componentId: 'alarm.list.widget',
         _x: 0,
         _y: 0,
-        _height: 5,
-        _width: 12,
+        _height: 12,
+        _width: 6,
         id: '123456',
         title: 'Alarms',
         config: {
@@ -43,10 +43,10 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
       },
       {
         componentId: 'service-request.list.widget',
-        _x: 0,
-        _y: 5,
-        _height: 9,
-        _width: 12,
+        _x: 6,
+        _y: 0,
+        _height: 12,
+        _width: 6,
         id: '789012',
         title: 'Service Requests',
         config: {
