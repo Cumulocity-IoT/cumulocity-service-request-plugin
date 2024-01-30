@@ -59,7 +59,7 @@ export class ServiceRequestService {
       // nothing to do here
     }
     this.alertService.info('service-request.microservice-required');
-    return false;
+    return true;
   }
 
   // GET /service/request

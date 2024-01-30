@@ -26,13 +26,12 @@ interface Tab {
   styleUrls: ['./service-request-details.component.less'],
 })
 export class ServiceRequestDetailsComponent {
-
   device: IManagedObject;
   alarm?: IAlarm;
   serviceRequest: ServiceRequestObject;
   isEdit = false;
 
-  status: ServiceRequestStatus[] = [{name: 'Default', id: ''}];
+  status: ServiceRequestStatus[] = [{ name: 'Default', id: '' }];
   priorities: ServiceRequestPriority[] = [];
 
   loadingRequest = true;
@@ -48,7 +47,6 @@ export class ServiceRequestDetailsComponent {
     status: new FormControl<ServiceRequestStatus>({ value: null, disabled: true }),
     priority: new FormControl<ServiceRequestPriority>(null),
     attachment: new FormControl<ServiceRequestAttachment | ServiceRequestAttachment[]>(null),
-
   });
 
   tabs: Tab[] = [
@@ -73,16 +71,17 @@ export class ServiceRequestDetailsComponent {
   ];
 
   currentTab: Tab['id'] = this.tabs.find((t) => t.active).id;
+
   close: (cause: any) => void;
 
   constructor(
     private serviceRequestService: ServiceRequestService,
     private serviceRequestMetaSerivce: ServiceRequestMetaService,
     private modalService: ModalService,
-    private serviceRequestAttachmentsService: ServiceRequestAttachmentsService,
+    private serviceRequestAttachmentsService: ServiceRequestAttachmentsService
   ) {}
- 
-   async init() {
+
+  async init() {
     this.loadingRequest = true;
 
     await this.fetchMeta();
@@ -95,7 +94,7 @@ export class ServiceRequestDetailsComponent {
         self: this.device.self,
         name: this.device.name,
       };
-  
+
       if (this.alarm) {
         this.serviceRequest.title = this.alarm.text;
         this.serviceRequest.alarmRef = {
@@ -103,17 +102,16 @@ export class ServiceRequestDetailsComponent {
           id: this.alarm.id as string,
         };
       }
-  
+
       this.serviceRequest.status = this.status[0];
       this.serviceRequest.priority = this.priorities[0];
     }
 
-   
     this.setFormValue(this.serviceRequest);
     this.loadingRequest = false;
   }
 
-  private async reset() {    
+  private async reset() {
     this.serviceRequest = this.serviceRequestService.createEmptyServiceRequest();
     this.setFormValue(this.serviceRequest);
   }
@@ -123,9 +121,7 @@ export class ServiceRequestDetailsComponent {
       const { status, priorities } = await this.serviceRequestMetaSerivce.fetchMeta();
       this.status = status;
       this.priorities = priorities;
-    } catch(e) {
-
-    }
+    } catch (e) {}
   }
 
   private setFormValue(request: ServiceRequestObject): void {
@@ -143,7 +139,7 @@ export class ServiceRequestDetailsComponent {
       type: request?.type,
       status: request?.status,
       priority: request?.priority,
-      attachment: request?.attachment
+      attachment: request?.attachment,
     });
 
     if (!this.isEdit) {
@@ -184,7 +180,7 @@ export class ServiceRequestDetailsComponent {
     try {
       await this.serviceRequestService.resolve(this.serviceRequest);
       this.close(true);
-    }  finally {
+    } finally {
       this.requestFormInAction = false;
     }
   }
@@ -270,13 +266,11 @@ export class ServiceRequestDetailsComponent {
         }
       }
 
-      
-        await this.fetchServiceRequest(newServiceRequestObject.id);
+      await this.fetchServiceRequest(newServiceRequestObject.id);
 
-        this.requestFormInAction = false;
-        this.close(true);
-      }
-    
+      this.requestFormInAction = false;
+      this.close(true);
+    }
   }
 
   private async fetchServiceRequest(requestId: ServiceRequestObject['id']): Promise<void> {

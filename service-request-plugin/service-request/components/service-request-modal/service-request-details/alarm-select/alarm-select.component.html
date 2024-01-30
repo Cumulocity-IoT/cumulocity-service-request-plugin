@@ -1,0 +1,82 @@
+<ng-container *ngIf="!loading; else loadingData">
+  <!-- show selected -->
+  <ng-container *ngIf="selectedAlarms.length; else noSelected">
+    <div class="list-group">
+      <div *ngFor="let sel of selectedAlarms" class="list-group-item collapsible">
+        <header class="d-flex">
+          <div class="list-item-icon">
+            <sr-alarm-icon [alarm]="sel"></sr-alarm-icon>
+          </div>
+
+          <div class="list-item-body">
+            <span class="badge badge-danger m-r-4">{{ sel.count }}</span>
+            {{ sel.text }}
+            <small class="d-block m-t-4">
+              <span class="text-muted m-r-16">
+                <i class="dlt-c8y-icon-clock-o"></i>
+                {{ sel.lastUpdated | date : 'dd MMM YYYY HH:mm:ss' }}</span
+              >
+              <a [routerLink]="['/devices', sel.source.id]">
+                <i class="dlt-c8y-icon-exchange"></i>
+                {{ sel.source.name }}
+              </a>
+            </small>
+          </div>
+
+          <div class="list-item-actions">
+            <button
+              type="button"
+              [title]="
+                sel.expanded ? ('button.collapse' | translate) : ('button.expand' | translate)
+              "
+              class="collapse-btn"
+              (click)="sel.expanded = !sel.expanded"
+            >
+              <i
+                [ngClass]="{
+                  'dlt-c8y-icon-chevron-down': !sel.expanded,
+                  'dlt-c8y-icon-chevron-up': sel.expanded
+                }"
+              ></i>
+            </button>
+            <button
+              *ngIf="!disabled"
+              type="button"
+              class="btn btn-clean"
+              [title]="'button.remove-alarm' | translate"
+              (click)="removeAlarm(sel.id)"
+            >
+              <i class="dlt-c8y-icon-clear"></i>
+            </button>
+          </div>
+        </header>
+
+        <div class="collapse" [collapse]="!sel.expanded" isAnimated="true">
+          <fieldset>
+            <p class="legend form-block" translate>alarm-select.status</p>
+            <small>
+              <strong>{{ sel.status }}</strong
+              ><br />
+              {{ 'alarm-select.type' | translate }}: {{ sel.type }}<br />
+              {{ 'alarm-select.creation-time' | translate }}:
+              {{ sel.creationTime | date : 'dd MMM YYYY, HH:mm:ss' }}
+            </small>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #noSelected>{{ 'alarm-select.empty-alarms' | translate }}</ng-template>
+
+  <!-- show available alarms -->
+  <div *ngIf="!disabled">
+    <pre>{{ availableAlarms | json }}</pre>
+  </div>
+</ng-container>
+
+<ng-template #loadingData>
+  <div class="loading-data">
+    <c8y-loading></c8y-loading>
+  </div>
+</ng-template>

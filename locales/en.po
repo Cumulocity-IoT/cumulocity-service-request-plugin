@@ -11,6 +11,42 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "alarm-select.creation-time"
+msgstr "Created at"
+
+msgid "alarm-select.empty-alarms"
+msgstr "No alarms available"
+
+msgid "alarm-select.status"
+msgstr "Alarm status"
+
+msgid "alarm-select.type"
+msgstr "Type"
+
+msgid "alarms-widget.info.load-page-stop-realtime"
+msgstr "Load more will stop realtime"
+
+msgid "alarms-widget.info.no-alarms--title"
+msgstr "No alarms to display"
+
+msgid "alarms-widget.info.no-alarms--details"
+msgstr "Check your filter settings"
+
+msgid "button.collapse"
+msgstr "Collapse"
+
+msgid "button.expand"
+msgstr "Expand"
+
+msgid "device-select.device"
+msgstr "Device"
+
+msgid "device-select.deselect"
+msgstr "Deselect"
+
+msgid "device-select.placeholder.select-device"
+msgstr "Select device"
+
 msgid "service-request-details.card-title"
 msgstr "Service Request"
 
