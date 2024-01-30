@@ -15,13 +15,13 @@ Repository: [Standard cumulocity-microservice-service-request-mgmt](https://gith
 ## Sample images
 
 Overview dashboard
-![alt See alarms and service requests](/docs/notifications-dashboard.png)
+![alt See alarms and service requests](/assets/service-request-dashboard.png)
 
 You can create service requests from scratch, or based on an alarm.
-![alt Create or edit service requests](/docs/edit-service-request.png)
+![alt Create or edit service requests](/assets/service-request-modal.png)
 
 Users can comment on service requests
-![alt Layers](/docs/comments.png)
+![alt Layers](/assets/service-request-comments.png)
 ## Recommended versions
 node v 14.x
 npm v 6.x
