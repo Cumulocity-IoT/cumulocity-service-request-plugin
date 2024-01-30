@@ -91,12 +91,12 @@
             <li *ngIf="alarm.status === 'ACTIVE'">
               <a
                 class="btn btn-warning btn-xs"
-                [tooltip]="'Acknowledge' | translate"
+                [tooltip]="'Create service request' | translate"
                 [container]="'body'"
                 [placement]="'left'"
                 (click)="openServiceRequestModal(alarm)"
               >
-                <i class="dlt-c8y-icon-bell-slash"></i>
+                <i [c8yIcon]="'online-support'"></i>
               </a>
             </li>
             <li *ngIf="!(alarm.status === 'CLEARED')">

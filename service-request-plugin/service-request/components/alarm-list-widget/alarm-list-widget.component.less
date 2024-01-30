@@ -1,3 +1,5 @@
+@import '../../branding/colors.less';
+
 :host {
   height: 100%;
   overflow: hidden;
@@ -235,8 +237,18 @@ header {
     display: flex;
     flex-direction: column;
 
+    .btn-warning {
+      color: @color-orange;
+      border-color: @color-orange;
+    }
+
+    .btn-success {
+      color: @color-green;
+      border-color: @color-green;
+    }
+
     li + li {
-      margin-top: 0.25rem;
+      margin-top: 0.25rem; 
     }
   }
 }
