@@ -75,7 +75,13 @@
         "widget-plugin": [
           "ServiceRequestPluginModule"
         ]
-      }
+      },
+      "copy": [
+        {
+          "from": "assets",
+          "to": "assets"
+        }
+      ]
     },
     "cli": {}
   },
