@@ -1,3 +1,5 @@
+@import '../../../branding/colors.less';
+
 .tabContainer {
   margin-bottom: 24px;
 
@@ -9,5 +11,16 @@
       border-left-width: 0;
       border-right-width: 0;
     }
+  }
+}
+
+.btn-warning {
+  color: white;
+  background-color: @color-orange;
+
+  &:hover {
+    background-color: white;
+    border-color: @color-orange;
+    color: @color-orange;
   }
 }
