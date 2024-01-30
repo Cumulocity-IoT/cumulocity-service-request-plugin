@@ -73,7 +73,23 @@
                 <span class="badge badge-danger">{{ alarm.count }}</span>
               </li>
               <li>
-                <small class="text-muted">
+                <small
+                  class="text-muted"
+                  [tooltip]="
+                    ('Created at:' | translate) +
+                    ' ' +
+                    (alarm.creationTime | c8yDate) +
+                    '\n' +
+                    ('Last occurred:' | translate) +
+                    ' ' +
+                    (alarm.time | c8yDate) +
+                    '\n' +
+                    ('Last updated' | translate) +
+                    ' ' +
+                    (alarm.lastUpdated | c8yDate)
+                  "
+                  placement="bottom"
+                >
                   <i class="dlt-c8y-icon-clock-o"></i>
                   {{ alarm.creationTime | c8yDate }}
                 </small>
