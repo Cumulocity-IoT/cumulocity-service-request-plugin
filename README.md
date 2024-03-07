@@ -14,7 +14,11 @@ Repository: [Standard cumulocity-microservice-service-request-mgmt](https://gith
 
 # Create Service Request
 
+![Create Service Request screen](./assets/CreateServiceRequest.gif)
+
 # Create Comment for Service Request
+
+![Create Comment for Service Request screen](./assets/CreateComment.gif)
 
 ## Recommended versions
 node v 14.x
