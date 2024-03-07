@@ -2,7 +2,7 @@
 
 This plugin extends Cumulocity application like Cockpit with the capability to create, update and manage service requests.
 
-The UI Plugin is depending on the domain specific API provided by a Microservice:
+The UI Plugin is depending on the domain specific API provided by [service-request-mgmt microservice](https://github.com/SoftwareAG/cumulocity-microservice-service-request-mgmt):
 [Open API documentation](https://github.com/SoftwareAG/cumulocity-microservice-service-request-mgmt/blob/develop/docs/README.md)
 
 This microservice can be extended or even replaced if needed. Custom microservices have to implement the REST API as documented above.
@@ -12,16 +12,10 @@ This microservice can be extended or even replaced if needed. Custom microservic
 This plugin requires a Microservice called Service-request-mgmt to be installed on the tenant.
 Repository: [Standard cumulocity-microservice-service-request-mgmt](https://github.com/SoftwareAG/cumulocity-microservice-service-request-mgmt)
 
-## Sample images
+# Create Service Request
 
-Overview dashboard
-![alt See alarms and service requests](/assets/service-request-dashboard.png)
+# Create Comment for Service Request
 
-You can create service requests from scratch, or based on an alarm.
-![alt Create or edit service requests](/assets/service-request-modal.png)
-
-Users can comment on service requests
-![alt Layers](/assets/service-request-comments.png)
 ## Recommended versions
 node v 14.x
 npm v 6.x
