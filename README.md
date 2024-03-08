@@ -16,7 +16,12 @@ Repository: [Standard cumulocity-microservice-service-request-mgmt](https://gith
 
 ![Create Service Request screen](./assets/CreateServiceRequest.gif)
 
+The service request can be created for an alarm as shown in the screenshot above or with out any context via (+) button "Create service request". The service request will be stored at Cumulocity. If the service request is created and a alarm status transition is configured the alarm status will change to the configured status, in that example the alarm changes to ACKNOWLEDGED.
+
+
 # Create Comment for Service Request
+
+
 
 ![Create Comment for Service Request screen](./assets/CreateComment.gif)
 
