@@ -21,9 +21,15 @@ The service request can be created for an alarm as shown in the screenshot above
 
 # Create Comment for Service Request
 
-
-
 ![Create Comment for Service Request screen](./assets/CreateComment.gif)
+
+There are SYSTEM comments and USER comments. SYSTEM comments reflect specific changes at the service request object and show the status history of it. USER comments can be created by any user which is allowded to create service requests. Service request comments are a very sufficient way to communicate with the field service technician in the device context. 
+
+# Attachments
+
+![Add attachment screen](./assets/Attachment.gif)
+
+Each service request and each comment can have arbitrary files like pictures, excel documents etc. as attachment. This attachments allow the user to add additional information for the field service team. 
 
 ## Recommended versions
 node v 14.x
