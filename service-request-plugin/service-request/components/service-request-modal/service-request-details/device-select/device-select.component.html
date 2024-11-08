@@ -5,7 +5,7 @@
     <div class="title">
       <ene-device-status [status]="selectedDevice.c8y_Availability?.status"></ene-device-status>
       <a [routerLink]="['/device', selectedDevice.id]">{{ selectedDevice.name }}</a>
-      <span class="text-muted">{{ selectedDevice.c8y_Hardware.model }}</span>
+      <span class="text-muted">{{ selectedDevice.c8y_Hardware?.model }}</span>
 
       <!-- TODO show device status/info -->
     </div>
