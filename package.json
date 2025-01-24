@@ -5,8 +5,9 @@
   "description": "",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve -u https://dexion.eu-latest.cumulocity.com --shell cockpit",
+    "start": "ng serve -u {{C8Y_URL}} --shell cockpit",
     "build": "ng build",
+    "deploy": "ng deploy -u {{C8Y_URL}}",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
