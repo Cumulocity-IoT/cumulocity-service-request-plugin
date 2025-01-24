@@ -1,6 +1,12 @@
 import { Component, Input, OnDestroy } from '@angular/core';
-import { AlarmService, AlarmStatus, IAlarm, IResultList, Severity } from '@c8y/client';
-import { AlertService, Item } from '@c8y/ngx-components';
+import {
+  AlarmService,
+  AlarmStatus,
+  IAlarm,
+  IResultList,
+  Severity,
+} from '@c8y/client';
+import { AlertService, Item, SelectableItem } from '@c8y/ngx-components';
 import { AlarmsListWidgetConfig } from './alarm-list-widget.model';
 import { ServiceRequestModalService } from '../../service/service-request-modal.service';
 
@@ -17,19 +23,27 @@ export class AlarmListWidgetComponent implements OnDestroy {
     this._config = config;
     this.selectedStatusTypes =
       config.status
-        ?.filter((status) => this.statusTypes.find((statusType) => statusType.name === status))
+        ?.filter((status) =>
+          this.statusTypes.find((statusType) => statusType.label === status)
+        )
         .sort()
-        .map((status) => this.statusTypes.find((statusType) => statusType.name === status))
+        .map((status) =>
+          this.statusTypes.find((statusType) => statusType.label === status)
+        )
         .filter((statusType) => statusType !== undefined) ?? [];
 
     this.selectedSeverityTypes =
       config.severity
         ?.filter((severity) =>
-          this.severityTypes.find((severityType) => severityType.name === severity)
+          this.severityTypes.find(
+            (severityType) => severityType.label === severity
+          )
         )
         .sort()
         .map((severity) =>
-          this.severityTypes.find((severityType) => severityType.name === severity)
+          this.severityTypes.find(
+            (severityType) => severityType.label === severity
+          )
         )
         .filter((severityType) => severityType !== undefined) ?? [];
 
@@ -40,19 +54,19 @@ export class AlarmListWidgetComponent implements OnDestroy {
     return this._config;
   }
 
-  readonly statusTypes: Item[] = Object.keys(AlarmStatus)
+  readonly statusTypes: SelectableItem[] = Object.keys(AlarmStatus)
     .filter((item) => isNaN(Number(item)))
     .sort()
-    .map((statusType) => ({ name: statusType }));
+    .map((statusType) => ({ label: statusType, value: statusType }));
 
-  readonly severityTypes: Item[] = Object.keys(Severity)
+  readonly severityTypes: SelectableItem[] = Object.keys(Severity)
     .filter((item) => isNaN(Number(item)))
     .sort()
-    .map((severityType) => ({ name: severityType }));
+    .map((severityType) => ({ label: severityType, value: severityType }));
 
-  selectedStatusTypes: Item[] = [];
+  selectedStatusTypes: SelectableItem[] = [];
 
-  selectedSeverityTypes: Item[] = [];
+  selectedSeverityTypes: SelectableItem[] = [];
 
   pollingEnabled = true;
 
@@ -81,7 +95,7 @@ export class AlarmListWidgetComponent implements OnDestroy {
   }
 
   async loadAlarms(page = 1): Promise<void> {
-    if (!this.alarms) {
+    if (!this.alarms || this.alarms.length === 0) {
       this.loading = true;
     } else {
       this.loadMore = true;
@@ -137,19 +151,14 @@ export class AlarmListWidgetComponent implements OnDestroy {
         this.reload();
       }
     } catch (error) {
-      this.alertService.danger('alarms-widget.error.not-cleared', error as string);
+      this.alertService.danger(
+        'alarms-widget.error.not-cleared',
+        error as string
+      );
     }
   }
 
-  async onSeverityChange(severityTypes: Item[]) {
-    this.selectedSeverityTypes = severityTypes;
-
-    await this.loadAlarms();
-  }
-
-  async onStatusChange(statusTypes: Item[]) {
-    this.selectedStatusTypes = statusTypes;
-
+  async onStatusOrSeverityChange() {
     await this.loadAlarms();
   }
 
@@ -176,9 +185,11 @@ export class AlarmListWidgetComponent implements OnDestroy {
       dateTo: now.toISOString(),
       query: this.buildQueryFilter(),
       // type:
-      status: this.joinArrayConfig(this.selectedStatusTypes.map((statusType) => statusType.name)),
+      status: this.joinArrayConfig(
+        this.selectedStatusTypes.map((statusType) => statusType.label)
+      ),
       severity: this.joinArrayConfig(
-        this.selectedSeverityTypes.map((severityType) => severityType.name)
+        this.selectedSeverityTypes.map((severityType) => severityType.label)
       ),
       withSourceAssets: this.config.showSubassets || false,
       withSourceDevices: this.config.showSubassets || false,

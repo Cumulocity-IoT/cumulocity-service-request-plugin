@@ -1,7 +1,7 @@
 {
   "name": "service-request-plugin",
-  "version": "0.0.0",
-  "author": "Hendrik Naether",
+  "version": "1.0.4",
+  "author": "Cumulocity",
   "description": "",
   "scripts": {
     "ng": "ng",
