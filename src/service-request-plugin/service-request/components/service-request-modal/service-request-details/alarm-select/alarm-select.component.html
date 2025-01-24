@@ -27,7 +27,7 @@
             <button
               type="button"
               [title]="
-                sel.expanded ? ('button.collapse' | translate) : ('button.expand' | translate)
+                sel.expanded ? ('Collapse' | translate) : ('Expand' | translate)
               "
               class="collapse-btn"
               (click)="sel.expanded = !sel.expanded"
@@ -53,12 +53,12 @@
 
         <div class="collapse" [collapse]="!sel.expanded" isAnimated="true">
           <fieldset>
-            <p class="legend form-block" translate>alarm-select.status</p>
+            <p class="legend form-block" translate>Alarm status</p>
             <small>
               <strong>{{ sel.status }}</strong
               ><br />
-              {{ 'alarm-select.type' | translate }}: {{ sel.type }}<br />
-              {{ 'alarm-select.creation-time' | translate }}:
+              {{ 'Type' | translate }}: {{ sel.type }}<br />
+              {{ 'Created at' | translate }}:
               {{ sel.creationTime | date : 'dd MMM YYYY, HH:mm:ss' }}
             </small>
           </fieldset>
@@ -67,7 +67,7 @@
     </div>
   </ng-container>
 
-  <ng-template #noSelected>{{ 'alarm-select.empty-alarms' | translate }}</ng-template>
+  <ng-template #noSelected>{{ 'No alarms available' | translate }}</ng-template>
 
   <!-- show available alarms -->
   <div *ngIf="!disabled">

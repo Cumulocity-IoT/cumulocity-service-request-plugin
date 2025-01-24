@@ -58,7 +58,7 @@ export class ServiceRequestService {
     } catch(e) {
       // nothing to do here
     }
-    this.alertService.info('service-request.microservice-required');
+    this.alertService.info('The Microservice Service-request-mgmt needs to be installed in order to use the Service Request Plugin');
     return true;
   }
 
@@ -331,15 +331,15 @@ export class ServiceRequestService {
       try {
         const res = (await result.json()) as ServiceRequestComment;
 
-        this.alertService.success(gettext('service-request.comment.feedback--created') as string);
+        this.alertService.success(gettext('Comment created') as string);
 
         return res;
       } catch (e) {
-        console.error('service-request.request.feedback--empty', result);
+        console.error('Could not create commen', result);
       }
     } else {
       this.alertService.danger(
-        gettext('service-request.comment.feedback--not-resolved') as string,
+        gettext('Could not create comment') as string,
         result.statusText
       );
 

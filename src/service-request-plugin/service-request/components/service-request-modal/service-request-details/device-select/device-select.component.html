@@ -1,4 +1,4 @@
-<label>{{ label || ('device-select.device' | translate) }}</label>
+<label>{{ label || ('Device' | translate) }}</label>
 
 <ng-container *ngIf="selectedDevice; else noDeviceSelected">
   <div class="device-info">
@@ -14,7 +14,7 @@
       <button
         *ngIf="!disabled"
         type="button"
-        [title]="'device-select.deselect' | translate"
+        [title]="'Deselect' | translate"
         class="btn btn-clean"
         (click)="deselectDevice()"
       >
@@ -29,7 +29,7 @@
     class="flex-grow"
     name="selectProfile"
     [ngModel]="selectedDevice"
-    placeholder="{{ 'device-select.placeholder.select-device' | translate }}"
+    placeholder="{{ 'Select device' | translate }}"
     (onSearch)="setFilter($event)"
     [allowFreeEntries]="false"
   >

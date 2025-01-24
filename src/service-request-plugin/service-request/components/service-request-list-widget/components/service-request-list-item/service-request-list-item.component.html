@@ -7,7 +7,7 @@
     <div
       class="list-item-icon"
       [tooltip]="
-        ('service-request-list-item.header-tooltip' | translate) + serviceRequest.priority?.name
+        ('Priority: ' | translate) + serviceRequest.priority?.name
       "
       placement="right"
     >
@@ -27,7 +27,7 @@
         <!-- updated -->
         <span
           class="text-muted m-r-16"
-          [title]="'service-request-list-item.last-update-title' | translate"
+          [title]="'Date of the latest update of the service request.' | translate"
         >
           <i class="dlt-c8y-icon-clock-o"></i>
           {{ serviceRequest.lastUpdated | c8yDate }}
@@ -36,7 +36,7 @@
         <!-- status -->
         <span
           class="text-muted m-r-16"
-          title="{{ 'service-request-list-item.status-title' | translate }}: {{
+          title="{{ 'Status' | translate }}: {{
             serviceRequest.status?.name
           }}"
         >
@@ -46,11 +46,11 @@
 
         <!-- device link -->
         <a
-          [routerLink]="['/device', serviceRequest.source.id]"
-          [title]="'service-request-list-item.device-name-title' | translate"
+          [routerLink]="['/device', serviceRequest.source?.id]"
+          [title]="'Name of the device' | translate"
         >
           <i class="dlt-c8y-icon-exchange"></i>
-          {{ serviceRequest.source.name }}
+          {{ serviceRequest.source?.name }}
         </a>
       </small>
     </div>
@@ -59,7 +59,7 @@
     <div class="list-item-actions">
       <button
         type="button"
-        [title]="'button.expand' | translate"
+        [title]="'Expand' | translate"
         class="collapse-btn"
         (click)="toggle()"
       >
@@ -86,16 +86,16 @@
   <div class="collapse" [collapse]="collapsed" [isAnimated]="true">
     <!-- request info -->
     <div class="legend form-block p-t-16 m-t-0">
-      {{ 'service-request-list-item.description' | translate }}
+      {{ 'Description' | translate }}
     </div>
     <div>
       {{
-        serviceRequest.description || ('service-request-list-item.description--empty' | translate)
+        serviceRequest.description || ('No description provided.' | translate)
       }}
     </div>
 
     <!-- comments -->
-    <div class="legend form-block">{{ 'service-request-list-item.timeline' | translate }}</div>
+    <div class="legend form-block">{{ 'Comments' | translate }}</div>
     
     <service-request-comments
     [id]="serviceRequest?.id"
@@ -106,7 +106,7 @@
   </div>
 
   <ng-template #noComments>{{
-    'service-request-list-item.empty-comments' | translate
+    'No Comments to display.' | translate
   }}</ng-template>
 
   <ng-template #loadingData>

@@ -11,125 +11,125 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "alarm-select.creation-time"
+msgid "Created at"
 msgstr "Created at"
 
-msgid "alarm-select.empty-alarms"
+msgid "No alarms available"
 msgstr "No alarms available"
 
-msgid "alarm-select.status"
+msgid "Alarm status"
 msgstr "Alarm status"
 
-msgid "alarm-select.type"
+msgid "Type"
 msgstr "Type"
 
-msgid "alarms-widget.info.load-page-stop-realtime"
+msgid "Load more will stop realtime"
 msgstr "Load more will stop realtime"
 
-msgid "alarms-widget.info.no-alarms--title"
+msgid "No alarms to display"
 msgstr "No alarms to display"
 
-msgid "alarms-widget.info.no-alarms--details"
+msgid "Check your filter settings"
 msgstr "Check your filter settings"
 
-msgid "button.collapse"
+msgid "Collapse"
 msgstr "Collapse"
 
-msgid "button.expand"
+msgid "Expand"
 msgstr "Expand"
 
-msgid "device-select.device"
+msgid "Device"
 msgstr "Device"
 
-msgid "device-select.deselect"
+msgid "Deselect"
 msgstr "Deselect"
 
-msgid "device-select.placeholder.select-device"
+msgid "Select device"
 msgstr "Select device"
 
-msgid "service-request-details.card-title"
+msgid "Service Request"
 msgstr "Service Request"
 
-msgid "service-request-details.comment-button-submit"
+msgid "Submit"
 msgstr "Submit"
 
-msgid "service-request-details.comment-form-title"
+msgid "Create a new comment"
 msgstr "Create a new comment"
 
-msgid "service-request-details.field-set-sap"
+msgid "Master data"
 msgstr "Master data"
 
-msgid "service-request-details.field-set-snapshot"
+msgid "Snapshot"
 msgstr "Snapshot"
 
-msgid "service-request-details.form-description-label"
+msgid "Description"
 msgstr "Description"
 
-msgid "service-request-details.form-files-label"
+msgid "Files"
 msgstr "Files"
 
-msgid "service-request-details.form-priority-label"
+msgid "Priority"
 msgstr "Priority"
 
-msgid "service-request-details.form-status-label"
+msgid "Status"
 msgstr "Status"
 
-msgid "service-request-details.form-title-label"
+msgid "Title"
 msgstr "Title"
 
-msgid "service-request-details.not-available-in-mvp"
+msgid "Not available in MVP."
 msgstr "Not available in MVP."
 
-msgid "service-request-list-item.description"
+msgid "Description"
 msgstr "Description"
 
-msgid "service-request-list-item.description--empty"
+msgid "No description provided."
 msgstr "No description provided."
 
-msgid "service-request-list-item.device-name-title"
+msgid "Name of the device"
 msgstr "Name of the device"
 
-msgid "service-request-list-item.empty-comments"
+msgid "No Comments to display."
 msgstr "No Comments to display."
 
-msgid "service-request-list-item.header-tooltip"
+msgid "Priority: "
 msgstr "Priority: "
 
-msgid "service-request-list-item.last-update-title"
+msgid "Date of the latest update of the service request."
 msgstr "Date of the latest update of the service request."
 
-msgid "service-request-list-item.status-title"
+msgid "Status"
 msgstr "Status"
 
-msgid "service-request-list-item.timeline"
+msgid "Comments"
 msgstr "Comments"
 
-msgid "service-request-list-widget.empty-service-requests"
+msgid "No service requests to display."
 msgstr "No service requests to display."
 
-msgid "card-footer.button-submit"
+msgid "Submit"
 msgstr "Submit"
 
-msgid "card-footer.button-update"
+msgid "Update"
 msgstr "Update"
 
-msgid "card-footer.button-reset"
+msgid "Reset"
 msgstr "Reset"
 
-msgid "card-footer.button-resolve"
+msgid "Resolve"
 msgstr "Resolve"
 
-msgid "service-request.comment.feedback--created"
+msgid "Comment created"
 msgstr "Comment created"
 
-msgid "service-request.request.feedback--empty"
+msgid "Could not create commen"
 msgstr "Could not create comment"
 
-msgid "service-request.action--resolve"
+msgid "Resolve"
 msgstr "Resolve"
 
-msgid "service-request.comment.feedback--not-resolved"
+msgid "Could not create comment"
 msgstr "Could not create comment"
 
-msgid "service-request.microservice-required"
+msgid "The Microservice Service-request-mgmt needs to be installed in order to use the Service Request Plugin"
 msgstr "The Microservice Service-request-mgmt needs to be installed in order to use the Service Request Plugin"

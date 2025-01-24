@@ -4,7 +4,7 @@
     <div class="col">
       <div class="card">
         <!-- <div class="card-header separator">
-          <h4 class="card-title" translate>service-request-details.card-title</h4>
+          <h4 class="card-title" translate>Service Request</h4>
         </div> -->
 
         <form
@@ -16,7 +16,7 @@
           <div class="card-block">
             <!-- title -->
             <div class="form-group">
-              <label for="sr_title" translate>service-request-details.form-title-label</label>
+              <label for="sr_title" translate>Title</label>
               <input
                 id="sr_title"
                 type="text"
@@ -28,7 +28,7 @@
 
             <!-- priority -->
             <div class="form-group">
-              <label for="sr_priority" translate>service-request-details.form-priority-label</label>
+              <label for="sr_priority" translate>Priority</label>
               <div class="c8y-select-wrapper">
                 <select id="sr_priority" class="form-control" [formControlName]="'priority'">
                   <option *ngFor="let p of priorities" [ngValue]="p">
@@ -41,7 +41,7 @@
 
             <!-- status -->
             <div class="form-group">
-              <label for="sr_status" translate>service-request-details.form-status-label</label>
+              <label for="sr_status" translate>Status</label>
               <div class="c8y-select-wrapper">
                 <select id="sr_status" class="form-control" [formControlName]="'status'">
                   <option *ngFor="let s of status" [ngValue]="s">
@@ -79,12 +79,12 @@
                 <div class="tab">
                   <ng-container [ngSwitch]="currentTab">
                     <ng-container *ngSwitchCase="'measurements'">
-                      {{ 'service-request-details.not-available-in-mvp' | translate }}
+                      {{ 'Not available in MVP.' | translate }}
                       <pre>{{ serviceRequest.seriesRef | json }}</pre>
                     </ng-container>
 
                     <ng-container *ngSwitchCase="'events'">
-                      {{ 'service-request-details.not-available-in-mvp' | translate }}
+                      {{ 'Not available in MVP.' | translate }}
                       <pre>{{ serviceRequest.eventRef | json }}</pre>
                     </ng-container>
 
@@ -102,7 +102,7 @@
             <!-- description -->
             <div class="form-group">
               <label for="sr_description" translate
-                >service-request-details.form-description-label</label
+                >Description</label
               >
               <textarea
                 id="sr_description"
@@ -116,7 +116,7 @@
 
             <!-- files -->
             <div class="form-group">
-              <label translate>service-request-details.form-files-label</label>
+              <label translate>Files</label>
 
               <service-request-attachments
                 [id]="serviceRequest?.id"
@@ -135,10 +135,10 @@
                     class="btn btn-primary"
                     [class.btn-pending]="requestFormInAction"
                     [disabled]="!serviceRequestForm.valid || requestFormInAction"
-                    title="{{ 'card-footer.button-submit' | translate }}"
+                    title="{{ 'Submit' | translate }}"
                     translate
                   >
-                    card-footer.button-submit
+                    Submit
                   </button>
 
                   <button
@@ -164,10 +164,10 @@
                       serviceRequestForm.pristine ||
                       requestFormInAction
                     "
-                    title="{{ 'card-footer.button-update' | translate }}"
+                    title="{{ 'Update' | translate }}"
                     translate
                   >
-                    card-footer.button-update
+                    Update
                   </button>
 
                   <button
@@ -189,10 +189,10 @@
                       requestFormInAction
                     "
                     (click)="resetServiceRequestForm()"
-                    title="{{ 'card-footer.button-reset' | translate }}"
+                    title="{{ 'Reset' | translate }}"
                     translate
                   >
-                    card-footer.button-reset
+                    Reset
                   </button>
                 </div>
 
@@ -202,10 +202,10 @@
                     class="btn btn-danger"
                     [disabled]="!canResolve || requestFormInAction"
                     (click)="resolve()"
-                    title="{{ 'card-footer.button-resolve' | translate }}"
+                    title="{{ 'Resolve' | translate }}"
                     translate
                   >
-                    card-footer.button-resolve
+                    Resolve
                   </button>
                 </div>
               </ng-template>

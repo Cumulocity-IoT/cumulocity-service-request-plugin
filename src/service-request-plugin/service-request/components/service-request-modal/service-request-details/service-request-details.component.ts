@@ -163,7 +163,7 @@ export class ServiceRequestDetailsComponent {
     }
 
     const confirmed = await this.modalService.confirm(
-      gettext('service-request.action--resolve') as string,
+      gettext('Resolve') as string,
       // TODO translation
       gettext(
         `You are about to resolve a the service request '${this.serviceRequest.title}'`
