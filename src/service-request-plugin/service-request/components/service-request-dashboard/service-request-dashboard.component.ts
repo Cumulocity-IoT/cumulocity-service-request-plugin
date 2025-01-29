@@ -39,6 +39,7 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
           },
           status: ['ACTIVE', 'ACKNOWLEDGED'],
           severity: ['CRITICAL'],
+          showSubassets: true,
         },
       },
       {
