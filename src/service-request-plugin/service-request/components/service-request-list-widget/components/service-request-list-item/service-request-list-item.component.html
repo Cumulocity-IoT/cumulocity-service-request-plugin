@@ -1,0 +1,115 @@
+<div class="wrap" [class.expanded]="!collapsed">
+  <!-- header -->
+  <header
+    class="d-flex a-i-center priority-{{ serviceRequest.priority?.ordinal }}"
+    [class.closed]="serviceRequest.status.id === requestIsClosed"
+  >
+    <div
+      class="list-item-icon"
+      [tooltip]="
+        ('Priority: ' | translate) + serviceRequest.priority?.name
+      "
+      placement="right"
+    >
+      <ene-service-request-icon
+        [priority]="serviceRequest.priority"
+        [closed]="serviceRequest.status.id === requestIsClosed"
+      ></ene-service-request-icon>
+    </div>
+
+    <!-- title -->
+    <div class="list-item-body">
+      <button class="btn btn-link" (click)="openServiceRequestModal(serviceRequest)">
+        {{ serviceRequest.title }}
+      </button>
+
+      <small class="d-block m-t-4">
+        <!-- updated -->
+        <span
+          class="text-muted m-r-16"
+          [title]="'Date of the latest update of the service request.' | translate"
+        >
+          <i class="dlt-c8y-icon-clock-o"></i>
+          {{ serviceRequest.lastUpdated | c8yDate }}
+        </span>
+
+        <!-- status -->
+        <span
+          class="text-muted m-r-16"
+          title="{{ 'Status' | translate }}: {{
+            serviceRequest.status?.name
+          }}"
+        >
+          <i class="dlt-c8y-icon-commit-git"></i>
+          {{ serviceRequest.status?.name }}
+        </span>
+
+        <!-- device link -->
+        <a
+          [routerLink]="['/device', serviceRequest.source?.id]"
+          [title]="'Name of the device' | translate"
+        >
+          <i class="dlt-c8y-icon-exchange"></i>
+          {{ serviceRequest.source?.name }}
+        </a>
+      </small>
+    </div>
+
+    <!-- actions -->
+    <div class="list-item-actions">
+      <button
+        type="button"
+        [title]="'Expand' | translate"
+        class="collapse-btn"
+        (click)="toggle()"
+      >
+        <i class="dlt-c8y-icon-chevron-down"></i>
+      </button>
+      <!-- actions menu -->
+      <!-- <div dropdown class="dropdown settings">
+        <button dropdownToggle class="dropdown-toggle btn-clean c8y-dropdown" title="Actions">
+          <i c8y-icon="ellipsis-v" class="dlt-c8y-icon-ellipsis-v"></i>
+        </button>
+        <ul *dropdownMenu class="dropdown-menu">
+          <li>
+            <button type="button" (click)="edit()">{{ 'button.actions-edit' | translate }}</button>
+            <button type="button" (click)="resolve()">
+              {{ 'button.actions-resolve' | translate }}
+            </button>
+          </li>
+        </ul>
+      </div> -->
+    </div>
+  </header>
+
+  <!-- details -->
+  <div class="collapse" [collapse]="collapsed" [isAnimated]="true">
+    <!-- request info -->
+    <div class="legend form-block p-t-16 m-t-0">
+      {{ 'Description' | translate }}
+    </div>
+    <div>
+      {{
+        serviceRequest.description || ('No description provided.' | translate)
+      }}
+    </div>
+
+    <!-- comments -->
+    <div class="legend form-block">{{ 'Comments' | translate }}</div>
+    
+    <service-request-comments
+    [id]="serviceRequest?.id"
+    [isCreateForm]="false"
+    [displayedItems]="10"
+  ></service-request-comments>
+
+  </div>
+
+  <ng-template #noComments>{{
+    'No Comments to display.' | translate
+  }}</ng-template>
+
+  <ng-template #loadingData>
+    <c8y-loading></c8y-loading>
+  </ng-template>
+</div>

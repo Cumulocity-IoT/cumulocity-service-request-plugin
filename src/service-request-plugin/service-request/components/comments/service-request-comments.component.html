@@ -1,0 +1,73 @@
+<h4 class="m-t-16">Comments {{ '('+ comments.length +')'}}</h4>
+<div class="m-t-16 m-b-16" *ngIf="isCreateForm">
+  <div class="comment">
+    <div class="m-b-8">{{ 'Create a new comment' | translate }}</div>
+
+    <form novalidate name="form" [formGroup]="form" (ngSubmit)="submitComment()">
+      <!-- comment -->
+      <div class="m-b-8">
+        <textarea id="c_text" class="form-control" name="text" rows="5" [formControlName]="'text'">
+        </textarea>
+      </div>
+
+      <div class="m-b-8">
+        <c8y-file-picker
+          #picker
+          (onFilesPicked)="onFiles($event)"
+          uploadChoice="uploadBinary"
+        ></c8y-file-picker>
+      </div>
+
+      <!-- form actions -->
+      <div>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [class.btn-pending]="formInAction"
+          [disabled]="form.pristine || formInAction"
+        >
+          {{ 'Submit' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- comments display -->
+<div>
+  <ul class="comments-list" *ngIf="!loadingComments; else loadingData">
+    <li *ngIf="!comments.length">
+      <div class="c8y-empty-state c8y-empty-state--horizontal">
+        <i class="c8y-icon-duocolor c8y-icon c8y-icon-data-explorer"></i>
+        <strong>{{ 'service-request-comments.no-comments' | translate }}</strong>
+      </div>
+    </li>
+    <li *ngFor="let c of comments" class="comment">
+      <div class="d-flex">
+        <div class="list-item-body">
+          <div class="flex-row m-b-8">
+            <small>{{ c.owner }} - {{ c.creationTime | c8yDate }}</small>
+            <button
+              type="button"
+              class="m-l-16 p-0 btn btn-link download-attachment"
+              (click)="downloadAttachment(c)"
+              *ngIf="c.attachment"
+            >
+              <i c8yIcon="attach"></i>{{ c.attachment.name }}
+            </button>
+          </div>
+          <p [innerHtml]="c.text | nl2br"></p>
+        </div>
+      </div>
+    </li>
+    <li *ngIf="additionalCommentsCount">
+      + {{ additionalCommentsCount }} {{ 'service-request-comments.more' | translate }}
+    </li>
+  </ul>
+</div>
+
+<ng-template #loadingData>
+  <div class="loading-data">
+    <c8y-loading></c8y-loading>
+  </div>
+</ng-template>

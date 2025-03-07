@@ -1,0 +1,135 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: c8yui\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language: en\n"
+"Language-Team: \n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Created at"
+msgstr "Created at"
+
+msgid "No alarms available"
+msgstr "No alarms available"
+
+msgid "Alarm status"
+msgstr "Alarm status"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Load more will stop realtime"
+msgstr "Load more will stop realtime"
+
+msgid "No alarms to display"
+msgstr "No alarms to display"
+
+msgid "Check your filter settings"
+msgstr "Check your filter settings"
+
+msgid "Collapse"
+msgstr "Collapse"
+
+msgid "Expand"
+msgstr "Expand"
+
+msgid "Device"
+msgstr "Device"
+
+msgid "Deselect"
+msgstr "Deselect"
+
+msgid "Select device"
+msgstr "Select device"
+
+msgid "Service Request"
+msgstr "Service Request"
+
+msgid "Submit"
+msgstr "Submit"
+
+msgid "Create a new comment"
+msgstr "Create a new comment"
+
+msgid "Master data"
+msgstr "Master data"
+
+msgid "Snapshot"
+msgstr "Snapshot"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Files"
+msgstr "Files"
+
+msgid "Priority"
+msgstr "Priority"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Title"
+msgstr "Title"
+
+msgid "Not available in MVP."
+msgstr "Not available in MVP."
+
+msgid "Description"
+msgstr "Description"
+
+msgid "No description provided."
+msgstr "No description provided."
+
+msgid "Name of the device"
+msgstr "Name of the device"
+
+msgid "No Comments to display."
+msgstr "No Comments to display."
+
+msgid "Priority: "
+msgstr "Priority: "
+
+msgid "Date of the latest update of the service request."
+msgstr "Date of the latest update of the service request."
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Comments"
+msgstr "Comments"
+
+msgid "No service requests to display."
+msgstr "No service requests to display."
+
+msgid "Submit"
+msgstr "Submit"
+
+msgid "Update"
+msgstr "Update"
+
+msgid "Reset"
+msgstr "Reset"
+
+msgid "Resolve"
+msgstr "Resolve"
+
+msgid "Comment created"
+msgstr "Comment created"
+
+msgid "Could not create commen"
+msgstr "Could not create comment"
+
+msgid "Resolve"
+msgstr "Resolve"
+
+msgid "Could not create comment"
+msgstr "Could not create comment"
+
+msgid "The Microservice Service-request-mgmt needs to be installed in order to use the Service Request Plugin"
+msgstr "The Microservice Service-request-mgmt needs to be installed in order to use the Service Request Plugin"
