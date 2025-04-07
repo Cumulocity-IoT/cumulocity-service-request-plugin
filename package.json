@@ -1,6 +1,6 @@
 {
-  "name": "service-request-plugin",
-  "version": "1.0.4",
+  "name": "sag-ps-iot-pkg-service-request-plugin",
+  "version": "1.0.5",
   "author": "Cumulocity",
   "description": "",
   "scripts": {

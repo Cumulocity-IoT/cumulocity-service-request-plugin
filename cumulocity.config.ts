@@ -43,5 +43,15 @@ export default {
       '@ngx-translate/core',
       '@ngx-formly/core',
     ],
+    copy: [
+      {
+        from: 'LICENSE',
+        to: 'LICENSE.txt',
+      },
+      {
+        from: 'assets',
+        to: 'assets',
+      },
+    ],
   },
 } as const satisfies ConfigurationOptions;
