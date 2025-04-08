@@ -1,8 +1,17 @@
 {
   "name": "sag-ps-iot-pkg-service-request-plugin",
-  "version": "1.0.5",
-  "author": "Cumulocity",
-  "description": "",
+  "version": "1.0.6",
+  "author": "Cumulocity GmbH",
+  "description": "This plugin extends Cumulocity application like Cockpit with the capability to create, update and manage service requests.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cumulocity-IoT/cumulocity-service-request-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/Cumulocity-IoT/cumulocity-service-request-plugin/issues"
+  },
+  "homepage": "https://github.com/Cumulocity-IoT/cumulocity-service-request-plugin#readme",
   "scripts": {
     "ng": "ng",
     "start": "ng serve -u {{C8Y_URL}} --shell cockpit",
