@@ -8,6 +8,7 @@ import { Reference } from '../../../../models/service-request.model';
   selector: 'sr-alarm-select',
   templateUrl: './alarm-select.component.html',
   styleUrls: ['./alarm-select.component.less'],
+  standalone: false,
 })
 export class AlarmSelectComponent {
   private references: Reference[];

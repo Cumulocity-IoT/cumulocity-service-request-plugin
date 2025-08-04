@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
   selector: 'ene-service-request-list-widget-component-widget',
   templateUrl: './service-request-list-widget.component.html',
   styleUrls: ['./service-request-list-widget.component.less'],
+  standalone: false,
 })
 export class SeriveRequestListWidgetComponent implements OnInit, OnDestroy {
   private intervalTime = 180 * 1000;
@@ -30,9 +31,13 @@ export class SeriveRequestListWidgetComponent implements OnInit, OnDestroy {
   private async reload(): Promise<void> {
     this.loading = true;
     // TODO: verify this works
-    const contextData = this.activatedRoute.snapshot.data['contextData'] || this.activatedRoute.snapshot.parent?.data['contextData'];
+    const contextData =
+      this.activatedRoute.snapshot.data['contextData'] ||
+      this.activatedRoute.snapshot.parent?.data['contextData'];
     try {
-      this.serviceRequests = await this.serviceRequestService.list({ sourceId: contextData.id });
+      this.serviceRequests = await this.serviceRequestService.list({
+        sourceId: contextData.id,
+      });
     } finally {
       this.loading = false;
     }

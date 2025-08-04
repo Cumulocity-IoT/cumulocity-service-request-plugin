@@ -24,6 +24,7 @@ interface Tab {
   selector: 'app-service-request-details',
   templateUrl: './service-request-details.component.html',
   styleUrls: ['./service-request-details.component.less'],
+  standalone: false,
 })
 export class ServiceRequestDetailsComponent {
   device!: IManagedObject;
@@ -44,9 +45,14 @@ export class ServiceRequestDetailsComponent {
     title: new FormControl('', [Validators.required]),
     description: new FormControl(''),
     type: new FormControl(''),
-    status: new FormControl<ServiceRequestStatus>({ value: null, disabled: true }),
+    status: new FormControl<ServiceRequestStatus>({
+      value: null,
+      disabled: true,
+    }),
     priority: new FormControl<ServiceRequestPriority>(null),
-    attachment: new FormControl<ServiceRequestAttachment | ServiceRequestAttachment[]>(null),
+    attachment: new FormControl<
+      ServiceRequestAttachment | ServiceRequestAttachment[]
+    >(null),
   });
 
   tabs: Tab[] = [
@@ -112,13 +118,15 @@ export class ServiceRequestDetailsComponent {
   }
 
   private async reset() {
-    this.serviceRequest = this.serviceRequestService.createEmptyServiceRequest();
+    this.serviceRequest =
+      this.serviceRequestService.createEmptyServiceRequest();
     this.setFormValue(this.serviceRequest);
   }
 
   private async fetchMeta(): Promise<void> {
     try {
-      const { status, priorities } = await this.serviceRequestMetaSerivce.fetchMeta();
+      const { status, priorities } =
+        await this.serviceRequestMetaSerivce.fetchMeta();
       this.status = status;
       this.priorities = priorities;
     } catch (e) {}
@@ -126,10 +134,13 @@ export class ServiceRequestDetailsComponent {
 
   private setFormValue(request: ServiceRequestObject): void {
     if (request) {
-      request.priority = this.priorities?.find((p) => p.ordinal == request.priority?.ordinal);
+      request.priority = this.priorities?.find(
+        (p) => p.ordinal == request.priority?.ordinal
+      );
       request.priority ??= this.priorities[0];
 
-      request.status = this.status?.find((p) => p.id == request.status?.id) ?? this.status[0];
+      request.status =
+        this.status?.find((p) => p.id == request.status?.id) ?? this.status[0];
     }
 
     this.serviceRequestForm.reset({
@@ -223,11 +234,14 @@ export class ServiceRequestDetailsComponent {
 
       this.requestFormInAction = false;
     } else {
-      newServiceRequestObject = await this.serviceRequestService.update(this.serviceRequest.id, {
-        title: formValue.title ?? undefined,
-        priority: formValue.priority ?? undefined,
-        description: formValue.description ?? undefined,
-      });
+      newServiceRequestObject = await this.serviceRequestService.update(
+        this.serviceRequest.id,
+        {
+          title: formValue.title ?? undefined,
+          priority: formValue.priority ?? undefined,
+          description: formValue.description ?? undefined,
+        }
+      );
     }
 
     if (newServiceRequestObject) {
@@ -272,7 +286,9 @@ export class ServiceRequestDetailsComponent {
     }
   }
 
-  private async fetchServiceRequest(requestId: ServiceRequestObject['id']): Promise<void> {
+  private async fetchServiceRequest(
+    requestId: ServiceRequestObject['id']
+  ): Promise<void> {
     try {
       this.serviceRequest = await this.serviceRequestService.detail(requestId);
       this.setFormValue(this.serviceRequest);

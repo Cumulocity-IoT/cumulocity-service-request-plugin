@@ -13,6 +13,7 @@ import { ServiceRequestCommentsService } from '../../service/service-request-com
   selector: 'service-request-comments',
   templateUrl: './service-request-comments.component.html',
   styleUrls: ['./service-request-comments.component.less'],
+  standalone: false,
   providers: [ServiceRequestCommentsService],
 })
 export class ServiceRequestCommentsComponent {
@@ -43,7 +44,9 @@ export class ServiceRequestCommentsComponent {
 
   @ViewChild('picker') picker: FilePickerComponent;
 
-  constructor(private serviceRequestCommentsService: ServiceRequestCommentsService) {}
+  constructor(
+    private serviceRequestCommentsService: ServiceRequestCommentsService
+  ) {}
 
   private async fetchComments(id: string) {
     this.loadingComments = true;
@@ -57,7 +60,10 @@ export class ServiceRequestCommentsComponent {
       this.comments = comments.slice(0, displayedCommentsLimit);
 
       // limit count to 0 if there are less comments than displayedCommentsLimit (would result in negative number)
-      this.additionalCommentsCount = Math.max(0, comments.length - displayedCommentsLimit);
+      this.additionalCommentsCount = Math.max(
+        0,
+        comments.length - displayedCommentsLimit
+      );
     } finally {
       this.loadingComments = false;
     }
@@ -91,7 +97,10 @@ export class ServiceRequestCommentsComponent {
       // use the created comment id to upload the attachment in a second request
       if (this.attachment) {
         if (
-          await this.serviceRequestCommentsService.uploadAttachment(comment.id, this.attachment)
+          await this.serviceRequestCommentsService.uploadAttachment(
+            comment.id,
+            this.attachment
+          )
         ) {
           this.attachment = null;
           this.picker?.clearSelectedFiles();
@@ -111,7 +120,9 @@ export class ServiceRequestCommentsComponent {
       return;
     }
 
-    const file = await this.serviceRequestCommentsService.downloadAttachment(comment.id);
+    const file = await this.serviceRequestCommentsService.downloadAttachment(
+      comment.id
+    );
 
     if (!file) {
       return;

@@ -30,7 +30,11 @@
             <div class="form-group">
               <label for="sr_priority" translate>Priority</label>
               <div class="c8y-select-wrapper">
-                <select id="sr_priority" class="form-control" [formControlName]="'priority'">
+                <select
+                  id="sr_priority"
+                  class="form-control"
+                  [formControlName]="'priority'"
+                >
                   <option *ngFor="let p of priorities" [ngValue]="p">
                     {{ p.name }}
                   </option>
@@ -43,7 +47,11 @@
             <div class="form-group">
               <label for="sr_status" translate>Status</label>
               <div class="c8y-select-wrapper">
-                <select id="sr_status" class="form-control" [formControlName]="'status'">
+                <select
+                  id="sr_status"
+                  class="form-control"
+                  [formControlName]="'status'"
+                >
                   <option *ngFor="let s of status" [ngValue]="s">
                     {{ s.name }}
                   </option>
@@ -54,7 +62,10 @@
 
             <!-- device info/select -->
             <div class="form-group">
-              <sr-device-select [(device)]="device" [disabled]="isEdit"></sr-device-select>
+              <sr-device-select
+                [(device)]="device"
+                [disabled]="isEdit"
+              ></sr-device-select>
             </div>
 
             <!-- measurement/event/alarm info -->
@@ -79,12 +90,12 @@
                 <div class="tab">
                   <ng-container [ngSwitch]="currentTab">
                     <ng-container *ngSwitchCase="'measurements'">
-                      {{ 'Not available in MVP.' | translate }}
+                      {{ "Not available in MVP." | translate }}
                       <pre>{{ serviceRequest.seriesRef | json }}</pre>
                     </ng-container>
 
                     <ng-container *ngSwitchCase="'events'">
-                      {{ 'Not available in MVP.' | translate }}
+                      {{ "Not available in MVP." | translate }}
                       <pre>{{ serviceRequest.eventRef | json }}</pre>
                     </ng-container>
 
@@ -101,9 +112,7 @@
 
             <!-- description -->
             <div class="form-group">
-              <label for="sr_description" translate
-                >Description</label
-              >
+              <label for="sr_description" translate>Description</label>
               <textarea
                 id="sr_description"
                 class="form-control"
@@ -134,7 +143,9 @@
                     type="submit"
                     class="btn btn-primary"
                     [class.btn-pending]="requestFormInAction"
-                    [disabled]="!serviceRequestForm.valid || requestFormInAction"
+                    [disabled]="
+                      !serviceRequestForm.valid || requestFormInAction
+                    "
                     title="{{ 'Submit' | translate }}"
                     translate
                   >
