@@ -6,9 +6,7 @@
   >
     <div
       class="list-item-icon"
-      [tooltip]="
-        ('Priority: ' | translate) + serviceRequest.priority?.name
-      "
+      [tooltip]="('Priority: ' | translate) + serviceRequest.priority?.name"
       placement="right"
     >
       <ene-service-request-icon
@@ -19,15 +17,20 @@
 
     <!-- title -->
     <div class="list-item-body">
-      <button class="btn btn-link" (click)="openServiceRequestModal(serviceRequest)">
+      <button
+        class="btn btn-link p-0"
+        (click)="openServiceRequestModal(serviceRequest)"
+      >
         {{ serviceRequest.title }}
       </button>
 
-      <small class="d-block m-t-4">
+      <small class="d-block">
         <!-- updated -->
         <span
           class="text-muted m-r-16"
-          [title]="'Date of the latest update of the service request.' | translate"
+          [title]="
+            'Date of the latest update of the service request.' | translate
+          "
         >
           <i class="dlt-c8y-icon-clock-o"></i>
           {{ serviceRequest.lastUpdated | c8yDate }}
@@ -36,9 +39,7 @@
         <!-- status -->
         <span
           class="text-muted m-r-16"
-          title="{{ 'Status' | translate }}: {{
-            serviceRequest.status?.name
-          }}"
+          title="{{ 'Status' | translate }}: {{ serviceRequest.status?.name }}"
         >
           <i class="dlt-c8y-icon-commit-git"></i>
           {{ serviceRequest.status?.name }}
@@ -86,27 +87,26 @@
   <div class="collapse" [collapse]="collapsed" [isAnimated]="true">
     <!-- request info -->
     <div class="legend form-block p-t-16 m-t-0">
-      {{ 'Description' | translate }}
+      {{ "Description" | translate }}
     </div>
     <div>
       {{
-        serviceRequest.description || ('No description provided.' | translate)
+        serviceRequest.description || ("No description provided." | translate)
       }}
     </div>
 
     <!-- comments -->
-    <div class="legend form-block">{{ 'Comments' | translate }}</div>
-    
-    <service-request-comments
-    [id]="serviceRequest?.id"
-    [isCreateForm]="false"
-    [displayedItems]="10"
-  ></service-request-comments>
+    <div class="legend form-block">{{ "Comments" | translate }}</div>
 
+    <service-request-comments
+      [id]="serviceRequest?.id"
+      [isCreateForm]="false"
+      [displayedItems]="10"
+    ></service-request-comments>
   </div>
 
   <ng-template #noComments>{{
-    'No Comments to display.' | translate
+    "No Comments to display." | translate
   }}</ng-template>
 
   <ng-template #loadingData>
