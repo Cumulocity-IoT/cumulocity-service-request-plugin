@@ -1,12 +1,23 @@
-<h4 class="m-t-16">Comments {{ '('+ comments.length +')'}}</h4>
+<h4 class="m-t-16">Comments {{ "(" + comments.length + ")" }}</h4>
 <div class="m-t-16 m-b-16" *ngIf="isCreateForm">
   <div class="comment">
-    <div class="m-b-8">{{ 'Create a new comment' | translate }}</div>
+    <div class="m-b-8">{{ "Create a new comment" | translate }}</div>
 
-    <form novalidate name="form" [formGroup]="form" (ngSubmit)="submitComment()">
+    <form
+      novalidate
+      name="form"
+      [formGroup]="form"
+      (ngSubmit)="submitComment()"
+    >
       <!-- comment -->
       <div class="m-b-8">
-        <textarea id="c_text" class="form-control" name="text" rows="5" [formControlName]="'text'">
+        <textarea
+          id="c_text"
+          class="form-control"
+          name="text"
+          rows="5"
+          [formControlName]="'text'"
+        >
         </textarea>
       </div>
 
@@ -26,7 +37,7 @@
           [class.btn-pending]="formInAction"
           [disabled]="form.pristine || formInAction"
         >
-          {{ 'Submit' | translate }}
+          {{ "Submit" | translate }}
         </button>
       </div>
     </form>
@@ -39,7 +50,9 @@
     <li *ngIf="!comments.length">
       <div class="c8y-empty-state c8y-empty-state--horizontal">
         <i class="c8y-icon-duocolor c8y-icon c8y-icon-data-explorer"></i>
-        <strong>{{ 'service-request-comments.no-comments' | translate }}</strong>
+        <strong>{{
+          "service-request-comments.no-comments" | translate
+        }}</strong>
       </div>
     </li>
     <li *ngFor="let c of comments" class="comment">
@@ -61,7 +74,8 @@
       </div>
     </li>
     <li *ngIf="additionalCommentsCount">
-      + {{ additionalCommentsCount }} {{ 'service-request-comments.more' | translate }}
+      + {{ additionalCommentsCount }}
+      {{ "service-request-comments.more" | translate }}
     </li>
   </ul>
 </div>

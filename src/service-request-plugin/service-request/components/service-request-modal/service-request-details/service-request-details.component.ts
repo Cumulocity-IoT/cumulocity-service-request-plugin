@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { IAlarm, IManagedObject } from '@c8y/client';
 import { gettext, ModalService, Status } from '@c8y/ngx-components';
@@ -11,6 +11,7 @@ import {
 import { ServiceRequestMetaService } from '../../../service/service-request-meta.service';
 import { ServiceRequestService } from '../../../service/service-request.service';
 import { ServiceRequestAttachmentsService } from '../../../service/service-request-attachments.service';
+import { Subject } from 'rxjs';
 
 interface Tab {
   id: string;
@@ -26,11 +27,14 @@ interface Tab {
   styleUrls: ['./service-request-details.component.less'],
   standalone: false,
 })
-export class ServiceRequestDetailsComponent {
-  device!: IManagedObject;
-  alarm?: IAlarm;
-  serviceRequest!: ServiceRequestObject;
-  isEdit = false;
+export class ServiceRequestDetailsComponent implements OnInit {
+  @Input() device!: IManagedObject;
+
+  @Input() alarm?: IAlarm;
+
+  @Input() serviceRequest!: ServiceRequestObject;
+
+  @Input() isEdit = false;
 
   status: ServiceRequestStatus[] = [{ name: 'Default', id: '' }];
   priorities: ServiceRequestPriority[] = [];
@@ -40,6 +44,8 @@ export class ServiceRequestDetailsComponent {
   requestFormInAction = false;
 
   canResolve = false;
+
+  closeSubject: Subject<boolean> = new Subject();
 
   serviceRequestForm = new FormGroup({
     title: new FormControl('', [Validators.required]),
@@ -78,8 +84,6 @@ export class ServiceRequestDetailsComponent {
 
   currentTab: Tab['id'] = this.tabs.find((t) => t.active)?.id ?? '';
 
-  close!: (cause: boolean) => void;
-
   constructor(
     private serviceRequestService: ServiceRequestService,
     private serviceRequestMetaSerivce: ServiceRequestMetaService,
@@ -87,13 +91,17 @@ export class ServiceRequestDetailsComponent {
     private serviceRequestAttachmentsService: ServiceRequestAttachmentsService
   ) {}
 
-  async init() {
+  async ngOnInit() {
     this.loadingRequest = true;
 
     await this.fetchMeta();
 
     if (!this.isEdit) {
       await this.reset();
+
+      console.log('service request', this.serviceRequest);
+      console.log('device', this.device);
+      console.log('alarm', this.alarm);
 
       this.serviceRequest.source = {
         id: this.device.id,
@@ -189,7 +197,7 @@ export class ServiceRequestDetailsComponent {
     this.requestFormInAction = true;
     try {
       await this.serviceRequestService.resolve(this.serviceRequest);
-      this.close(true);
+      this.closeSubject.next(true);
     } finally {
       this.requestFormInAction = false;
     }
@@ -282,7 +290,7 @@ export class ServiceRequestDetailsComponent {
       await this.fetchServiceRequest(newServiceRequestObject.id);
 
       this.requestFormInAction = false;
-      this.close(true);
+      this.closeSubject.next(true);
     }
   }
 

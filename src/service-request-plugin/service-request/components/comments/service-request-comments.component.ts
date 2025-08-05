@@ -14,24 +14,25 @@ import { ServiceRequestCommentsService } from '../../service/service-request-com
   templateUrl: './service-request-comments.component.html',
   styleUrls: ['./service-request-comments.component.less'],
   standalone: false,
-  providers: [ServiceRequestCommentsService],
 })
 export class ServiceRequestCommentsComponent {
-  private _id: string;
-
   loadingComments = false;
+
   formInAction = false;
+
   comments: ServiceRequestComment[] = [];
+
   additionalCommentsCount = 0;
-  attachment: File = null;
+
+  attachment: File | null = null;
 
   form = new FormGroup({
     text: new FormControl('', [Validators.required]),
   });
 
-  @Input('displayedItems') displayedItems: number;
+  @Input('displayedItems') displayedItems!: number;
 
-  @Input('isCreateForm') isCreateForm: boolean;
+  @Input('isCreateForm') isCreateForm!: boolean;
 
   @Input('id')
   set id(id: string) {
@@ -42,7 +43,9 @@ export class ServiceRequestCommentsComponent {
     return this._id;
   }
 
-  @ViewChild('picker') picker: FilePickerComponent;
+  @ViewChild('picker') picker!: FilePickerComponent;
+
+  private _id!: string;
 
   constructor(
     private serviceRequestCommentsService: ServiceRequestCommentsService

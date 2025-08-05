@@ -46,6 +46,7 @@
     "@angular/compiler-cli": "^18.2.0",
     "@c8y/devkit": "1021.29.1",
     "@c8y/options": "1021.29.1",
+    "@types/file-saver": "^2.0.7",
     "@types/jasmine": "~5.1.0",
     "@types/lodash": "^4.17.14",
     "jasmine-core": "~5.2.0",

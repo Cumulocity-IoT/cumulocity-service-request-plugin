@@ -1,243 +1,224 @@
-<ng-container *ngIf="!loadingRequest; else loadingData">
-  <!-- form -->
-  <div class="row">
-    <div class="col">
-      <div class="card">
-        <!-- <div class="card-header separator">
-          <h4 class="card-title" translate>Service Request</h4>
-        </div> -->
+<div class="viewport-modal">
+  <div class="modal-header separator">
+    <div id="modal-title" class="modal-title">
+      {{ "Service Request" | translate }}
+    </div>
+  </div>
+  <div class="modal-inner-scroll" id="modal-body">
+    <div class="modal-body">
+      @if (serviceRequest) {
+      <form
+        novalidate
+        name="service-request-form"
+        [formGroup]="serviceRequestForm"
+        (ngSubmit)="submitServiceRequest()"
+      >
+        <div class="card-block">
+          <!-- title -->
+          <div class="form-group">
+            <label for="sr_title" translate>Title</label>
+            <input
+              id="sr_title"
+              type="text"
+              class="form-control"
+              name="title"
+              [formControlName]="'title'"
+            />
+          </div>
 
-        <form
-          novalidate
-          name="service-request-form"
-          [formGroup]="serviceRequestForm"
-          (ngSubmit)="submitServiceRequest()"
-        >
-          <div class="card-block">
-            <!-- title -->
-            <div class="form-group">
-              <label for="sr_title" translate>Title</label>
-              <input
-                id="sr_title"
-                type="text"
+          <!-- priority -->
+          <div class="form-group">
+            <label for="sr_priority" translate>Priority</label>
+            <div class="c8y-select-wrapper">
+              <select
+                id="sr_priority"
                 class="form-control"
-                name="title"
-                [formControlName]="'title'"
-              />
-            </div>
-
-            <!-- priority -->
-            <div class="form-group">
-              <label for="sr_priority" translate>Priority</label>
-              <div class="c8y-select-wrapper">
-                <select
-                  id="sr_priority"
-                  class="form-control"
-                  [formControlName]="'priority'"
-                >
-                  <option *ngFor="let p of priorities" [ngValue]="p">
-                    {{ p.name }}
-                  </option>
-                </select>
-                <span></span>
-              </div>
-            </div>
-
-            <!-- status -->
-            <div class="form-group">
-              <label for="sr_status" translate>Status</label>
-              <div class="c8y-select-wrapper">
-                <select
-                  id="sr_status"
-                  class="form-control"
-                  [formControlName]="'status'"
-                >
-                  <option *ngFor="let s of status" [ngValue]="s">
-                    {{ s.name }}
-                  </option>
-                </select>
-                <span></span>
-              </div>
-            </div>
-
-            <!-- device info/select -->
-            <div class="form-group">
-              <sr-device-select
-                [(device)]="device"
-                [disabled]="isEdit"
-              ></sr-device-select>
-            </div>
-
-            <!-- measurement/event/alarm info -->
-            <fieldset>
-              <div class="tabContainer">
-                <!-- tabs -->
-                <ul class="nav nav-tabs nav-tabsc8y m-b-8">
-                  <li *ngFor="let t of tabs" [class.active]="t.active">
-                    <button
-                      type="button"
-                      [title]="t.label"
-                      [disabled]="t.disabled"
-                      (click)="changeTab(t.id)"
-                    >
-                      <i *ngIf="t.icon" class="{{ t.icon }}"></i>
-                      <span class="txt">{{ t.label }}</span>
-                    </button>
-                  </li>
-                </ul>
-
-                <!-- tab content -->
-                <div class="tab">
-                  <ng-container [ngSwitch]="currentTab">
-                    <ng-container *ngSwitchCase="'measurements'">
-                      {{ "Not available in MVP." | translate }}
-                      <pre>{{ serviceRequest.seriesRef | json }}</pre>
-                    </ng-container>
-
-                    <ng-container *ngSwitchCase="'events'">
-                      {{ "Not available in MVP." | translate }}
-                      <pre>{{ serviceRequest.eventRef | json }}</pre>
-                    </ng-container>
-
-                    <ng-container *ngSwitchCase="'alarms'">
-                      <sr-alarm-select
-                        [alarms]="serviceRequest?.alarmRef"
-                        [disabled]="true || !isCreateForm"
-                      ></sr-alarm-select>
-                    </ng-container>
-                  </ng-container>
-                </div>
-              </div>
-            </fieldset>
-
-            <!-- description -->
-            <div class="form-group">
-              <label for="sr_description" translate>Description</label>
-              <textarea
-                id="sr_description"
-                class="form-control"
-                name="description"
-                rows="5"
-                [formControlName]="'description'"
+                [formControlName]="'priority'"
               >
-              </textarea>
-            </div>
-
-            <!-- files -->
-            <div class="form-group">
-              <label translate>Files</label>
-
-              <service-request-attachments
-                [id]="serviceRequest?.id"
-                formControlName="attachment"
-              ></service-request-attachments>
+                <option *ngFor="let p of priorities" [ngValue]="p">
+                  {{ p.name }}
+                </option>
+              </select>
+              <span></span>
             </div>
           </div>
 
-          <!-- form actions -->
-          <div class="card-footer separator">
-            <div class="row">
-              <ng-container *ngIf="!isEdit; else updateFormActions">
-                <div class="col-md-12">
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    [class.btn-pending]="requestFormInAction"
-                    [disabled]="
-                      !serviceRequestForm.valid || requestFormInAction
-                    "
-                    title="{{ 'Submit' | translate }}"
-                    translate
-                  >
-                    Submit
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-default"
-                    (click)="close(true)"
-                    title="{{ 'Cancel' | translate }}"
-                    translate
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </ng-container>
-
-              <ng-template #updateFormActions>
-                <div class="col-md-6">
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    [class.btn-pending]="requestFormInAction"
-                    [disabled]="
-                      !serviceRequestForm.valid ||
-                      serviceRequestForm.pristine ||
-                      requestFormInAction
-                    "
-                    title="{{ 'Update' | translate }}"
-                    translate
-                  >
-                    Update
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-default"
-                    (click)="close(true)"
-                    title="{{ 'Cancel' | translate }}"
-                    translate
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-warning"
-                    [disabled]="
-                      !serviceRequestForm.valid ||
-                      serviceRequestForm.pristine ||
-                      requestFormInAction
-                    "
-                    (click)="resetServiceRequestForm()"
-                    title="{{ 'Reset' | translate }}"
-                    translate
-                  >
-                    Reset
-                  </button>
-                </div>
-
-                <div class="col-md-6 text-right">
-                  <button
-                    type="button"
-                    class="btn btn-danger"
-                    [disabled]="!canResolve || requestFormInAction"
-                    (click)="resolve()"
-                    title="{{ 'Resolve' | translate }}"
-                    translate
-                  >
-                    Resolve
-                  </button>
-                </div>
-              </ng-template>
+          <!-- status -->
+          <div class="form-group">
+            <label for="sr_status" translate>Status</label>
+            <div class="c8y-select-wrapper">
+              <select
+                id="sr_status"
+                class="form-control"
+                [formControlName]="'status'"
+              >
+                <option *ngFor="let s of status" [ngValue]="s">
+                  {{ s.name }}
+                </option>
+              </select>
+              <span></span>
             </div>
           </div>
-        </form>
-      </div>
+
+          <!-- device info/select -->
+          <div class="form-group">
+            <sr-device-select
+              [(device)]="device"
+              [disabled]="isEdit"
+            ></sr-device-select>
+          </div>
+
+          <!-- measurement/event/alarm info -->
+          <fieldset>
+            <div class="tabContainer">
+              <!-- tabs -->
+              <ul class="nav nav-tabs nav-tabsc8y m-b-8">
+                <li *ngFor="let t of tabs" [class.active]="t.active">
+                  <button
+                    type="button"
+                    [title]="t.label"
+                    [disabled]="t.disabled"
+                    (click)="changeTab(t.id)"
+                  >
+                    <i *ngIf="t.icon" class="{{ t.icon }}"></i>
+                    <span class="txt">{{ t.label }}</span>
+                  </button>
+                </li>
+              </ul>
+
+              <!-- tab content -->
+              <div class="tab">
+                <ng-container [ngSwitch]="currentTab">
+                  <ng-container *ngSwitchCase="'measurements'">
+                    {{ "Not available in MVP." | translate }}
+                    <pre>{{ serviceRequest.seriesRef | json }}</pre>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'events'">
+                    {{ "Not available in MVP." | translate }}
+                    <pre>{{ serviceRequest.eventRef | json }}</pre>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'alarms'">
+                    <sr-alarm-select
+                      [alarms]="serviceRequest.alarmRef"
+                      [disabled]="true"
+                    ></sr-alarm-select>
+                  </ng-container>
+                </ng-container>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- description -->
+          <div class="form-group">
+            <label for="sr_description" translate>Description</label>
+            <textarea
+              id="sr_description"
+              class="form-control"
+              name="description"
+              rows="5"
+              [formControlName]="'description'"
+            >
+            </textarea>
+          </div>
+
+          <!-- files -->
+          <div class="form-group">
+            <label translate>Files</label>
+
+            <service-request-attachments
+              [id]="serviceRequest.id"
+              formControlName="attachment"
+            ></service-request-attachments>
+          </div>
+        </div>
+      </form>
+      }
     </div>
   </div>
 
-  <!-- comments -->
-  <div *ngIf="isEdit" class="row">
-    <service-request-comments
-      [id]="serviceRequest?.id"
-      [isCreateForm]="true"
-    ></service-request-comments>
-  </div>
-</ng-container>
+  <div class="modal-footer">
+    <ng-container *ngIf="!isEdit; else updateFormActions">
+      <div class="col-md-12">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [class.btn-pending]="requestFormInAction"
+          [disabled]="!serviceRequestForm.valid || requestFormInAction"
+          title="{{ 'Submit' | translate }}"
+          translate
+        >
+          Submit
+        </button>
 
-<ng-template #loadingData>
-  <div class="loading-data">
-    <c8y-loading></c8y-loading>
+        <button
+          type="button"
+          class="btn btn-default"
+          (click)="closeSubject.next(true)"
+          title="{{ 'Cancel' | translate }}"
+          translate
+        >
+          Cancel
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-template #updateFormActions>
+      <div class="col-md-6">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [class.btn-pending]="requestFormInAction"
+          [disabled]="
+            !serviceRequestForm.valid ||
+            serviceRequestForm.pristine ||
+            requestFormInAction
+          "
+          title="{{ 'Update' | translate }}"
+          translate
+        >
+          Update
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-default"
+          (click)="closeSubject.next(true)"
+          title="{{ 'Cancel' | translate }}"
+          translate
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-warning"
+          [disabled]="
+            !serviceRequestForm.valid ||
+            serviceRequestForm.pristine ||
+            requestFormInAction
+          "
+          (click)="resetServiceRequestForm()"
+          title="{{ 'Reset' | translate }}"
+          translate
+        >
+          Reset
+        </button>
+      </div>
+
+      <div class="col-md-6 text-right">
+        <button
+          type="button"
+          class="btn btn-danger"
+          [disabled]="!canResolve || requestFormInAction"
+          (click)="resolve()"
+          title="{{ 'Resolve' | translate }}"
+          translate
+        >
+          Resolve
+        </button>
+      </div>
+    </ng-template>
   </div>
-</ng-template>
+</div>
