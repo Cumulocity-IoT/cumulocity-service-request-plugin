@@ -134,7 +134,16 @@
           </div>
         </div>
       </form>
-      }
+
+      @if (isEdit) {
+      <!-- comments -->
+      <div class="p-l-16 p-r-16">
+        <service-request-comments
+          [id]="serviceRequest!.id"
+          [isCreateForm]="true"
+        ></service-request-comments>
+      </div>
+      } }
     </div>
   </div>
 
