@@ -98,11 +98,13 @@
     <!-- comments -->
     <div class="legend form-block">{{ "Comments" | translate }}</div>
 
-    <service-request-comments
-      [id]="serviceRequest?.id"
-      [isCreateForm]="false"
-      [displayedItems]="10"
-    ></service-request-comments>
+    <div class="p-l-24 p-r-24">
+      <service-request-comments
+        [id]="serviceRequest!.id"
+        [isCreateForm]="false"
+        [displayedItems]="10"
+      ></service-request-comments>
+    </div>
   </div>
 
   <ng-template #noComments>{{
