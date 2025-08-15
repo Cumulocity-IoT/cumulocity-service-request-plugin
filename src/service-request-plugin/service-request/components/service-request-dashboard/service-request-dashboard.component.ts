@@ -7,6 +7,7 @@ import { ServiceRequestModalService } from '../../service/service-request-modal.
 
 @Component({
   templateUrl: './service-request-dashboard.component.html',
+  standalone: false,
 })
 export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
   private sub!: Subscription;
@@ -19,7 +20,9 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private serviceRequestModal: ServiceRequestModalService
   ) {
-    this.device = this.activatedRoute.parent?.snapshot.data['contextData'] as IManagedObject;
+    this.device = this.activatedRoute.parent?.snapshot.data[
+      'contextData'
+    ] as IManagedObject;
   }
 
   private initWidgets(device = this.device): Widget[] {

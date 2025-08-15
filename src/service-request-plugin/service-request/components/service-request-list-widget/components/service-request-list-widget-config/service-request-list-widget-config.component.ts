@@ -5,5 +5,6 @@ import { ControlContainer, NgForm } from '@angular/forms';
   selector: 'ene-service-request-list-widget-config',
   templateUrl: './service-request-list-widget-config.component.html',
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+  standalone: false,
 })
 export class ServiceRequestListWidgetConfigComponent {}

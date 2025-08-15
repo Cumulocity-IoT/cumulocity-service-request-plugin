@@ -13,6 +13,7 @@ const displayedCommentsLimit = 10;
   selector: 'service-request-list-item',
   templateUrl: './service-request-list-item.component.html',
   styleUrls: ['./service-request-list-item.component.less'],
+  standalone: false,
 })
 export class ServiceRequestListItemComponent {
   comments: ServiceRequestComment[] = [];
@@ -23,16 +24,24 @@ export class ServiceRequestListItemComponent {
 
   @Input('serviceRequest') serviceRequest: ServiceRequestObject;
 
-  constructor(private serviceRequestService: ServiceRequestService, private serviceRequestModal: ServiceRequestModalService ) {}
+  constructor(
+    private serviceRequestService: ServiceRequestService,
+    private serviceRequestModal: ServiceRequestModalService
+  ) {}
 
   async loadComments(): Promise<void> {
     this.loading = true;
-    const comments = await this.serviceRequestService.commentList(this.serviceRequest.id);
+    const comments = await this.serviceRequestService.commentList(
+      this.serviceRequest.id
+    );
 
     this.comments = comments.slice(0, displayedCommentsLimit);
 
     // limit count to 0 if there are less comments than displayedCommentsLimit (would result in negative number)
-    this.additionalCommentsCount = Math.max(0, comments.length - displayedCommentsLimit);
+    this.additionalCommentsCount = Math.max(
+      0,
+      comments.length - displayedCommentsLimit
+    );
 
     this.loading = false;
   }

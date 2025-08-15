@@ -17,6 +17,7 @@ interface RequestFilter {
 @Component({
   templateUrl: './alarm-list-widget.component.html',
   styleUrls: ['./alarm-list-widget.component.less'],
+  standalone: false,
 })
 export class AlarmListWidgetComponent implements OnDestroy {
   @Input() set config(config: AlarmsListWidgetConfig) {

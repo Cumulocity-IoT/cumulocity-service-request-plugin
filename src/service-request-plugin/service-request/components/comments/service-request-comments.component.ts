@@ -13,24 +13,26 @@ import { ServiceRequestCommentsService } from '../../service/service-request-com
   selector: 'service-request-comments',
   templateUrl: './service-request-comments.component.html',
   styleUrls: ['./service-request-comments.component.less'],
-  providers: [ServiceRequestCommentsService],
+  standalone: false,
 })
 export class ServiceRequestCommentsComponent {
-  private _id: string;
-
   loadingComments = false;
+
   formInAction = false;
+
   comments: ServiceRequestComment[] = [];
+
   additionalCommentsCount = 0;
-  attachment: File = null;
+
+  attachment: File | null = null;
 
   form = new FormGroup({
     text: new FormControl('', [Validators.required]),
   });
 
-  @Input('displayedItems') displayedItems: number;
+  @Input('displayedItems') displayedItems!: number;
 
-  @Input('isCreateForm') isCreateForm: boolean;
+  @Input('isCreateForm') isCreateForm!: boolean;
 
   @Input('id')
   set id(id: string) {
@@ -41,9 +43,13 @@ export class ServiceRequestCommentsComponent {
     return this._id;
   }
 
-  @ViewChild('picker') picker: FilePickerComponent;
+  @ViewChild('picker') picker!: FilePickerComponent;
 
-  constructor(private serviceRequestCommentsService: ServiceRequestCommentsService) {}
+  private _id!: string;
+
+  constructor(
+    private serviceRequestCommentsService: ServiceRequestCommentsService
+  ) {}
 
   private async fetchComments(id: string) {
     this.loadingComments = true;
@@ -57,7 +63,10 @@ export class ServiceRequestCommentsComponent {
       this.comments = comments.slice(0, displayedCommentsLimit);
 
       // limit count to 0 if there are less comments than displayedCommentsLimit (would result in negative number)
-      this.additionalCommentsCount = Math.max(0, comments.length - displayedCommentsLimit);
+      this.additionalCommentsCount = Math.max(
+        0,
+        comments.length - displayedCommentsLimit
+      );
     } finally {
       this.loadingComments = false;
     }
@@ -91,7 +100,10 @@ export class ServiceRequestCommentsComponent {
       // use the created comment id to upload the attachment in a second request
       if (this.attachment) {
         if (
-          await this.serviceRequestCommentsService.uploadAttachment(comment.id, this.attachment)
+          await this.serviceRequestCommentsService.uploadAttachment(
+            comment.id,
+            this.attachment
+          )
         ) {
           this.attachment = null;
           this.picker?.clearSelectedFiles();
@@ -111,7 +123,9 @@ export class ServiceRequestCommentsComponent {
       return;
     }
 
-    const file = await this.serviceRequestCommentsService.downloadAttachment(comment.id);
+    const file = await this.serviceRequestCommentsService.downloadAttachment(
+      comment.id
+    );
 
     if (!file) {
       return;

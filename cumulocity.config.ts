@@ -3,10 +3,12 @@ import { author, description, version, name, license } from './package.json';
 
 export default {
   runTime: {
+    name: 'Service Request Plugin',
+    key: 'sag-ps-iot-pkg-service-request-key',
+    contextPath: 'sag-ps-iot-pkg-service-request-plugin',
     author,
     description,
     version,
-    name,
     license,
     contentSecurityPolicy:
       "base-uri 'none'; default-src 'self' 'unsafe-inline' http: https: ws: wss:; connect-src 'self' http: https: ws: wss:;  script-src 'self' *.bugherd.com *.twitter.com *.twimg.com *.aptrinsic.com 'unsafe-inline' 'unsafe-eval' data:; style-src * 'unsafe-inline' blob:; img-src * data: blob:; font-src * data:; frame-src *; worker-src 'self' blob:;",

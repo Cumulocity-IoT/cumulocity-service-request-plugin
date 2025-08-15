@@ -9,6 +9,7 @@ import { ServiceRequestAttachmentsService } from '../../service/service-request-
   selector: 'service-request-attachments',
   templateUrl: './service-request-attachments.component.html',
   styleUrls: ['./service-request-attachments.component.less'],
+  standalone: false,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -17,13 +18,17 @@ import { ServiceRequestAttachmentsService } from '../../service/service-request-
     },
   ],
 })
-export class ServiceRequestAttachmentsComponent implements ControlValueAccessor {
+export class ServiceRequestAttachmentsComponent
+  implements ControlValueAccessor
+{
   private _id: string;
   private multiFileAllowed = false;
 
   attachments: ServiceRequestAttachment[] = [];
 
-  onChange: (attachment: ServiceRequestAttachment | ServiceRequestAttachment[]) => void = null;
+  onChange: (
+    attachment: ServiceRequestAttachment | ServiceRequestAttachment[]
+  ) => void = null;
   onTouched: () => void = null;
 
   @ViewChild('picker') picker: FilePickerComponent;
@@ -36,9 +41,13 @@ export class ServiceRequestAttachmentsComponent implements ControlValueAccessor 
     return this._id;
   }
 
-  constructor(private serviceRequestAttachmentsService: ServiceRequestAttachmentsService) {}
+  constructor(
+    private serviceRequestAttachmentsService: ServiceRequestAttachmentsService
+  ) {}
 
-  writeValue(value: ServiceRequestAttachment | ServiceRequestAttachment[]): void {
+  writeValue(
+    value: ServiceRequestAttachment | ServiceRequestAttachment[]
+  ): void {
     if (!value) {
       this.attachments = [];
 
@@ -63,7 +72,11 @@ export class ServiceRequestAttachmentsComponent implements ControlValueAccessor 
     }
   }
 
-  registerOnChange(onChange: (attachment: ServiceRequestAttachment | ServiceRequestAttachment[]) => void) {
+  registerOnChange(
+    onChange: (
+      attachment: ServiceRequestAttachment | ServiceRequestAttachment[]
+    ) => void
+  ) {
     this.onChange = onChange;
   }
 
@@ -106,7 +119,9 @@ export class ServiceRequestAttachmentsComponent implements ControlValueAccessor 
   }
 
   async download(attachment: ServiceRequestAttachment) {
-    const file = await this.serviceRequestAttachmentsService.downloadAttachment(this.id);
+    const file = await this.serviceRequestAttachmentsService.downloadAttachment(
+      this.id
+    );
 
     if (!file) {
       return;

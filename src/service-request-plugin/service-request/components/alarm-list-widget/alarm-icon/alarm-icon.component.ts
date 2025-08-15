@@ -4,6 +4,7 @@ import { IAlarm } from '@c8y/client';
 @Component({
   selector: 'sr-alarm-icon',
   templateUrl: './alarm-icon.component.html',
+  standalone: false,
 })
 export class AlarmIconComponent {
   @Input() placement: 'top' | 'right' | 'bottom' | 'left' = 'right';

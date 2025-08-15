@@ -5,6 +5,7 @@ import { ServiceRequestPriority } from '../../../../models/service-request.model
   selector: 'ene-service-request-icon',
   templateUrl: './service-request-icon.component.html',
   styleUrls: ['./service-request-icon.component.less'],
+  standalone: false,
 })
 export class ServiceRequestIconComponent {
   @Input('priority') priority: ServiceRequestPriority;

@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators';
   selector: 'sr-device-select',
   templateUrl: './device-select.component.html',
   styleUrls: ['./device-select.component.less'],
+  standalone:false,
   providers: [ManagedObjectRealtimeService],
 })
 export class DeviceSelectComponent implements OnDestroy {
