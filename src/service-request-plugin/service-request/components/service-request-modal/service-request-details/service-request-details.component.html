@@ -11,7 +11,6 @@
         novalidate
         name="service-request-form"
         [formGroup]="serviceRequestForm"
-        (ngSubmit)="submitServiceRequest()"
       >
         <div class="card-block">
           <!-- title -->
@@ -156,6 +155,7 @@
           [class.btn-pending]="requestFormInAction"
           [disabled]="!serviceRequestForm.valid || requestFormInAction"
           title="{{ 'Submit' | translate }}"
+          (click)="submitServiceRequest()"
           translate
         >
           Submit
@@ -185,6 +185,7 @@
             requestFormInAction
           "
           title="{{ 'Update' | translate }}"
+          (click)="submitServiceRequest()"
           translate
         >
           Update

@@ -99,10 +99,6 @@ export class ServiceRequestDetailsComponent implements OnInit {
     if (!this.isEdit) {
       await this.reset();
 
-      console.log('service request', this.serviceRequest);
-      console.log('device', this.device);
-      console.log('alarm', this.alarm);
-
       this.serviceRequest.source = {
         id: this.device.id,
         self: this.device.self,
