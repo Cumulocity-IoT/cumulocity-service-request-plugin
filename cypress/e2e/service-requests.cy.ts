@@ -35,7 +35,7 @@ describe('Service Requests Plugin', () => {
       cy.visitShellAndWaitForSelector(
         `device/${deviceId}/service-requests`,
         'en',
-        'c8y-dashboard'
+        'c8y-dashboard ene-service-request-list-widget-component-widget'
       );
 
       // Check if alarm list widget is present
@@ -133,7 +133,7 @@ describe('Service Requests Plugin', () => {
       cy.visitShellAndWaitForSelector(
         `device/${deviceId}/service-requests`,
         'en',
-        'c8y-dashboard'
+        'c8y-dashboard ene-service-request-list-widget-component-widget'
       );
 
       cy.get('[data-cy="alarm-list-widget-component"]')
