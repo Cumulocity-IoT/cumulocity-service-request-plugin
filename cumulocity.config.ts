@@ -25,7 +25,7 @@ export default {
       },
     ],
     remotes: {
-      'widget-plugin': ['ServiceRequestPluginModule'],
+      'sag-ps-iot-pkg-service-request-plugin': ['ServiceRequestPluginModule'],
     },
   },
   buildTime: {
