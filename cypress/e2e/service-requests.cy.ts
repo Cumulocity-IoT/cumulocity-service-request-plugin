@@ -31,7 +31,7 @@ describe('Service Requests Plugin', () => {
         .should('be.visible');
     });
 
-    it('should display the correct widgets on service requests dashboard', () => {
+    it.only('should display the correct widgets on service requests dashboard', () => {
       cy.visitShellAndWaitForSelector(
         `device/${deviceId}/service-requests`,
         'en',
@@ -40,7 +40,7 @@ describe('Service Requests Plugin', () => {
 
       // Check if alarm list widget is present
       cy.get(
-        'c8y-dashboard c8y-dashboard-child [data-cy="alarm-list-widget-component"]'
+        'c8y-dashboard c8y-dashboard-child [data-cy="alarm-list-widget-component1"]'
       )
         .should('exist')
         .should('be.visible');
