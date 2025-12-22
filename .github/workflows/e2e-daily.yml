@@ -145,9 +145,7 @@ jobs:
         run: |
           npm run build
           mkdir -p dist/apps
-          # Extract package name from package.json and copy built plugin to dist/apps
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          cp -r "dist/$PACKAGE_NAME" dist/apps/
+          cp -r "dist/service-request-plugin" dist/apps/
 
       - name: Copy shell apps to dist/apps
         run: |
