@@ -44,7 +44,6 @@ jobs:
         with:
           path: |
             node_modules
-            packages/*/node_modules
             /home/runner/.cache/Cypress
           key: node-modules-${{ github.sha }}
 
@@ -129,7 +128,6 @@ jobs:
         with:
           path: |
             node_modules
-            packages/*/node_modules
             /home/runner/.cache/Cypress
           key: node-modules-${{ github.sha }}
           fail-on-cache-miss: true
@@ -143,6 +141,7 @@ jobs:
 
       - name: Build Service Request Plugin
         run: |
+          rm -rf dist .angular/cache
           npm run build
           mkdir -p dist/apps
           cp -r "dist/service-request-plugin" dist/apps/
