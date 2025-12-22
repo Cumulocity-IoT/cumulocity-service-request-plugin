@@ -139,9 +139,17 @@ jobs:
           key: shell-apps-${{ needs.download-shell-apps.outputs.shell-version }}
           fail-on-cache-miss: true
 
+      - name: Clean build artifacts
+        run: |
+          echo "Cleaning build artifacts..."
+          rm -rf dist
+          rm -rf .angular/cache
+          rm -rf node_modules/.cache
+          rm -rf dist/apps
+          echo "Clean complete"
+
       - name: Build Service Request Plugin
         run: |
-          rm -rf dist .angular/cache
           npm run build
           mkdir -p dist/apps
           cp -r "dist/service-request-plugin" dist/apps/
