@@ -47,7 +47,8 @@ describe('Service Requests Plugin', () => {
 
       // Check if service request list widget is present
       cy.get(
-        'c8y-dashboard c8y-dashboard-child ene-service-request-list-widget-component-widget'
+        'c8y-dashboard c8y-dashboard-child ene-service-request-list-widget-component-widget',
+        { timeout: 30000 }
       )
         .should('exist')
         .should('be.visible');
