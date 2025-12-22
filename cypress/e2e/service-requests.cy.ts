@@ -40,7 +40,7 @@ describe('Service Requests Plugin', () => {
 
       // Check if alarm list widget is present
       cy.get(
-        'c8y-dashboard c8y-dashboard-child [data-cy="alarm-list-widget-component1"]'
+        'c8y-dashboard c8y-dashboard-child [data-cy="alarm-list-widget-component"]'
       )
         .should('exist')
         .should('be.visible');
