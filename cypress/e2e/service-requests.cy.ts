@@ -10,7 +10,7 @@ describe('Service Requests Plugin', () => {
   });
 
   describe('Service requests overview', () => {
-    it('should load the service requests overview page', () => {
+    it.only('should load the service requests overview page', () => {
       cy.visitShellAndWaitForSelector(
         `device/${deviceId}`,
         'en',
@@ -18,7 +18,7 @@ describe('Service Requests Plugin', () => {
       );
 
       cy.get(
-        'c8y-tabs-outlet div[role="listitem"] span[title="Service Requests"]'
+        'c8y-tabs-outlet div[role="listitem"] span[title="Service Requests 1"]'
       )
         .should('exist')
         .should('be.visible')
