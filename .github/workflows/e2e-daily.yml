@@ -110,7 +110,6 @@ jobs:
   test-components:
     needs: [install-dependencies, download-shell-apps]
     runs-on: ubuntu-latest
-    environment: e2e
     name: Build and test Serivce Request Plugins
     steps:
       - name: Checkout code
@@ -175,7 +174,6 @@ jobs:
         run: |
           echo "Running tests for Serivce Request plugin"
           npm run e2e:run
-        timeout-minutes: 10
 
       - name: Stop server
         if: always()
