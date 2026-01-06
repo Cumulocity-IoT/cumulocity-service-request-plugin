@@ -34,7 +34,7 @@ export class ServiceRequestDashboardComponent implements OnInit, OnDestroy {
         _height: 12,
         _width: 6,
         id: '123456',
-        title: 'Alarms',
+        title: 'Alarms Overview',
         config: {
           device: {
             id: device.id,

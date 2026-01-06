@@ -44,7 +44,6 @@ jobs:
         with:
           path: |
             node_modules
-            packages/*/node_modules
             /home/runner/.cache/Cypress
           key: node-modules-${{ github.sha }}
 
@@ -111,7 +110,6 @@ jobs:
   test-components:
     needs: [install-dependencies, download-shell-apps]
     runs-on: ubuntu-latest
-    environment: e2e
     name: Build and test Serivce Request Plugins
     steps:
       - name: Checkout code
@@ -129,7 +127,6 @@ jobs:
         with:
           path: |
             node_modules
-            packages/*/node_modules
             /home/runner/.cache/Cypress
           key: node-modules-${{ github.sha }}
           fail-on-cache-miss: true
@@ -141,13 +138,20 @@ jobs:
           key: shell-apps-${{ needs.download-shell-apps.outputs.shell-version }}
           fail-on-cache-miss: true
 
+      - name: Clean build artifacts
+        run: |
+          echo "Cleaning build artifacts..."
+          rm -rf dist
+          rm -rf .angular/cache
+          rm -rf node_modules/.cache
+          rm -rf dist/apps
+          echo "Clean complete"
+
       - name: Build Service Request Plugin
         run: |
           npm run build
           mkdir -p dist/apps
-          # Extract package name from package.json and copy built plugin to dist/apps
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          cp -r "dist/$PACKAGE_NAME" dist/apps/
+          cp -r "dist/service-request-plugin" dist/apps/
 
       - name: Copy shell apps to dist/apps
         run: |
@@ -170,7 +174,6 @@ jobs:
         run: |
           echo "Running tests for Serivce Request plugin"
           npm run e2e:run
-        timeout-minutes: 10
 
       - name: Stop server
         if: always()
@@ -181,14 +184,14 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-screenshots-${{ matrix.package }}
-          path: test/cypress/screenshots
+          name: cypress-screenshots
+          path: cypress/screenshots
           if-no-files-found: ignore
 
       - name: Upload Cypress videos (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-videos-${{ matrix.package }}
-          path: test/cypress/videos
+          name: cypress-videos
+          path: cypress/videos
           if-no-files-found: ignore
