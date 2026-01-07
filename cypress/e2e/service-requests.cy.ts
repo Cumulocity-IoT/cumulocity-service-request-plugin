@@ -10,7 +10,7 @@ describe('Service Requests Plugin', () => {
   });
 
   describe('Service requests overview', () => {
-    it.only('should load the service requests overview page', () => {
+    it('should load the service requests overview page', () => {
       cy.visitShellAndWaitForSelector(
         `device/${deviceId}`,
         'en',
@@ -22,7 +22,6 @@ describe('Service Requests Plugin', () => {
       )
         .should('exist')
         .should('be.visible')
-        .click();
 
       cy.get(
         'c8y-dashboard c8y-dashboard-child ene-service-request-list-widget-component-widget'
