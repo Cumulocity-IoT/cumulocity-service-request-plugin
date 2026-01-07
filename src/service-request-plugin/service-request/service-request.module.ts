@@ -22,7 +22,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
       multi: true,
       useValue: [
         {
-          label: 'Service Requests',
+          label: 'Service Requests 1',
           path: SERVICE_REQUEST_PATH,
           icon: 'online-support',
           context: ViewContext.Device,

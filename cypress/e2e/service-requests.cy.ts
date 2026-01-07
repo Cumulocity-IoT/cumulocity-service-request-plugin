@@ -18,11 +18,10 @@ describe('Service Requests Plugin', () => {
       );
 
       cy.get(
-        'c8y-tabs-outlet div[role="listitem"] span[title="Service Requests"]'
+        'c8y-tabs-outlet div[role="listitem"] span[title="Service Requests 1"]'
       )
         .should('exist')
         .should('be.visible')
-        .click();
 
       cy.get(
         'c8y-dashboard c8y-dashboard-child ene-service-request-list-widget-component-widget'

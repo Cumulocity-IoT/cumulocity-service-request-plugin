@@ -47,7 +47,7 @@ export function registerCommands() {
 
       if (Cypress.env('C8Y_SHELL_EXTENSION')) {
         const plugins = Cypress.env('C8Y_SHELL_EXTENSION');
-        const qs = { remotes: plugins };
+        const qs = { remotes: plugins, forceUrlRemotes: true };
 
         cy.visit(`${url}`, { qs });
       } else {
