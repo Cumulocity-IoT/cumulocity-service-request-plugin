@@ -1,5 +1,21 @@
 export const SERVICE_REQUEST_DEFAULT_PAGE_SIZE = 500;
 export const SERVICE_REQUEST_PATH = 'service-requests';
+
+/**
+ * Fragment which marks a managed object as an asset. Only managed objects carrying
+ * this fragment get the service request dashboard in the group/asset context.
+ */
+export const SERVICE_REQUEST_ASSET_FRAGMENT = 'c8y_IsAsset';
+
+/**
+ * Tenant option which optionally restricts the service request dashboard to a set of
+ * asset types. If the option is missing or empty, the dashboard is shown for every asset.
+ *
+ * The value is a list of asset types, either as JSON array (`["c8y_Building", "c8y_Room"]`)
+ * or as a comma separated string (`c8y_Building,c8y_Room`).
+ */
+export const SERVICE_REQUEST_ASSET_TYPES_OPTION_CATEGORY = 'service-request';
+export const SERVICE_REQUEST_ASSET_TYPES_OPTION_KEY = 'asset.types';
 export interface Reference {
   uri: string;
   id?: string;

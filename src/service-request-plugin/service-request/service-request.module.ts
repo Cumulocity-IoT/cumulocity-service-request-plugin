@@ -7,6 +7,7 @@ import { CoreModule, HOOK_ROUTE, ViewContext } from '@c8y/ngx-components';
 import { WidgetsModule as C8yWidgetModule } from '@c8y/ngx-components/widgets';
 
 import { ServiceRequestDashboardComponent } from './components/service-request-dashboard/service-request-dashboard.component';
+import { ServiceRequestAssetGuard } from './factory/service-request-asset.guard';
 import { ServiceRequestDetailsGuard } from './factory/service-request-details.guard';
 import { SERVICE_REQUEST_PATH } from './models/service-request.model';
 
@@ -29,6 +30,15 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
           component: ServiceRequestDashboardComponent,
           priority: 3000,
           canActivate: [ServiceRequestDetailsGuard],
+        },
+        {
+          label: 'Service Requests 1',
+          path: SERVICE_REQUEST_PATH,
+          icon: 'online-support',
+          context: ViewContext.Group,
+          component: ServiceRequestDashboardComponent,
+          priority: 3000,
+          canActivate: [ServiceRequestAssetGuard],
         },
       ],
     },
