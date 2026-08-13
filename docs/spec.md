@@ -4,6 +4,11 @@
 
 Functional requirements below were derived from the current implementation under `src/service-request-plugin`. Each requirement has a unique, stable identifier (`FR-XXX`) that should be kept even if requirements are reordered; new requirements should append the next free number.
 
+This document has two parts:
+
+1. **Baseline (current behavior)** — FR-001 to FR-062, describing what is implemented today.
+2. **Target redesign** — FR-063 onward, describing the new combined alarm/service-request timeline and split-view experience. Requirements here supersede specific baseline requirements where noted; baseline requirements not mentioned as superseded remain in force.
+
 ### Plugin registration & availability
 
 - **FR-001**: The plugin shall register a "Service Requests" navigation tab in the device context (`ViewContext.Device`), routed at path `service-requests`, showing the `online-support` icon.
@@ -92,3 +97,36 @@ Functional requirements below were derived from the current implementation under
 - **FR-060**: A service request shall carry: id, title, optional description, status, optional priority, active flag, timestamps (creation/update/last-updated), owner, type (currently always `'alarm'`), optional source device reference, optional alarm/event/series references, optional custom properties, and an optional attachment.
 - **FR-061**: List and comment-list requests shall default to a page size of 500 when no explicit limit is provided.
 - **FR-062**: All create/update/resolve/comment operations shall surface success or failure via user-facing notifications (success on completion, danger/error with server status text on failure), and log details to the console for diagnostics.
+
+## Target redesign
+
+The redesign aligns the plugin with Cumulocity's standard alarm dashboard conventions (`AlarmListWidgetComponent` / `AlarmsListComponent`, the `c8y-list-group` primitives, and the standard split-view layout pattern), while introducing a combined alarm + service-request timeline. Reference material used for alignment: `@c8y/ngx-components` alarm widget/list types (SDK 1024.8.3), the Codex design-system docs for split view, list-group, badges, and feedback severity.
+
+### Combined timeline (master list)
+
+- **FR-063**: The alarm list widget and service request list widget (FR-004, FR-006–FR-025) shall be replaced by a single combined, chronologically ordered timeline listing both alarms and service requests for the device, using the standard `c8y-list-group`/`c8y-li` list primitives instead of custom bootstrap markup.
+- **FR-064**: Each service request that references an alarm (`alarmRef.id` matching the alarm's `id`) shall be rendered as a distinct, bordered block visually attached to that alarm's row via a connecting arrow, so the alarm-to-request relationship is immediately visible in the timeline.
+- **FR-065**: If a service request has no `alarmRef` (created directly from a device), it shall appear as its own standalone timeline entry with no connecting arrow.
+- **FR-066**: If more than one service request references the same alarm, each linked request shall render as its own bordered block connected to that alarm.
+- **FR-067**: An alarm with no linked service request shall retain the existing create-service-request action (FR-014) so one can be created directly from the timeline.
+- **FR-068**: The timeline shall preserve existing filtering by alarm status/severity (FR-007) and shall additionally support filtering by service request status, using the standard severity/status `btn-group` (icon + label + count badge) pattern instead of multi-select dropdowns.
+- **FR-069**: The timeline shall continue to show a severity icon and status icon per alarm using the standard severity-to-icon mapping (`circle`/`high-priority`/`warning`/`exclamation-circle`) and an occurrence-count badge for alarms with `count > 1`, per the standard badge pattern.
+- **FR-070**: The timeline shall continue to show a priority icon and status per service request block, and shall visually distinguish closed requests (FR-019).
+
+### Split view & detail panel
+
+- **FR-071**: The Service Requests tab shall use the standard split-view layout: the combined timeline occupies the list column, and a detail panel occupies the second column, replacing the modal-based creation/editing flow (supersedes the "modal" framing in FR-026, FR-039, FR-040, and the dashboard action in FR-005).
+- **FR-072**: Selecting an alarm row in the timeline shall display that alarm's details in the detail panel.
+- **FR-073**: Selecting a service-request block in the timeline shall display that service request's details (the existing create/edit form content: title, description, status, priority, attachment, tabs, resolve/update/reset actions, and comments) in the detail panel.
+- **FR-074**: Only one timeline entry (an alarm or a service-request block) shall be active/selected at a time; selecting a new entry shall switch the detail panel's contents accordingly, per the standard split-view single-selection behavior.
+- **FR-075**: The detail panel shall follow standard split-view conventions: sticky header and footer (action buttons), and a "Back" affordance to return to the list on small/tablet screens.
+- **FR-076**: Creating a new service request (from an alarm with no linked request, or from the device-level action) shall populate the detail panel with the creation form rather than opening a modal.
+
+### Open questions for the design mockup phase
+
+The following are not yet fully specified and should be resolved visually during the mockup step before implementation:
+
+- What "alarm details" (FR-072) contains — current implementation has no standalone alarm detail view; needs its own content/actions (e.g. an explicit "Create service request" call-to-action when unlinked).
+- Exact chronological ordering rule for the combined timeline (e.g. by alarm time vs. request creation/update time) when interleaving alarms and requests.
+- Whether the connecting arrow (FR-064) is purely visual or also interactive (e.g. clicking it also selects the linked request).
+- Responsive behavior of the arrow/bordered-block relationship on narrow (tablet/mobile) layouts where split view collapses to a single column.
