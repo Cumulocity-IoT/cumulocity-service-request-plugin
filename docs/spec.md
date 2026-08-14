@@ -93,7 +93,7 @@ This document has two parts:
 
 ### Data & API integration
 
-- **FR-059**: The plugin shall communicate with the `service-request-mgmt` microservice via the following REST operations: list/detail/create/update/resolve service requests; list statuses; list priorities; list/create comments; upload/download request attachments; upload/download comment attachments.
+- **FR-059**: The plugin shall communicate with the `service-request-mgmt` microservice via the following REST operations: list/detail/create/update/resolve service requests; list statuses; list priorities; list/create comments; upload/download request attachments; upload/download comment attachments. REST API details are documented in [https://github.com/Cumulocity-IoT/cumulocity-microservice-service-request-mgmt/blob/develop/docs/openapi.json](https://github.com/Cumulocity-IoT/cumulocity-microservice-service-request-mgmt/blob/develop/docs/openapi.json)
 - **FR-060**: A service request shall carry: id, title, optional description, status, optional priority, active flag, timestamps (creation/update/last-updated), owner, type (currently always `'alarm'`), optional source device reference, optional alarm/event/series references, optional custom properties, and an optional attachment.
 - **FR-061**: List and comment-list requests shall default to a page size of 500 when no explicit limit is provided.
 - **FR-062**: All create/update/resolve/comment operations shall surface success or failure via user-facing notifications (success on completion, danger/error with server status text on failure), and log details to the console for diagnostics.
@@ -144,7 +144,6 @@ A high-fidelity HTML/CSS mockup implementing everything below lives at [`docs/de
 - ~~Exact chronological ordering rule for the combined timeline~~ — resolved by FR-063 (newest-first).
 - ~~Whether the connecting arrow is interactive~~ — resolved by FR-064 (decorative only).
 - Responsive behavior of the timeline/detail relationship on narrow (tablet/mobile) layouts — **still open**; the mockup was only built and verified at desktop widths.
-- The mockup approximates the "online-support" icon (FR-070) with a generic headset glyph, since the actual Delite `dlt-c8y-icon-online-support` glyph wasn't available while building it — needs swapping for the real icon before implementation.
 - The mockup only demonstrates the Alarm and Maintenance request types (FR-077) end to end; Note, Downtime, and Other aren't represented by an example service request yet.
 - Whether `type` (FR-077) is truly immutable after creation, or just not exposed as editable in this UI, needs confirming with product/backend — the mockup assumes the former.
 - The Event reference picker (FR-076) uses two placeholder demo events, since the mockup has no real event data to select from; the actual event-selection UX (e.g. searching/filtering a potentially long event list) still needs designing.
