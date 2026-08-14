@@ -1,0 +1,2489 @@
+<title>Service Request Timeline</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    --bg: #ffffff;
+    --surface-1: #F9FAFB;
+    --surface-2: #F0F2F4;
+    --surface-3: #E8EBED;
+    --border: #E3E5E8;
+    --border-strong: #8B96A0;
+    --text: #212121;
+    --text-muted: #657381;
+    --text-faint: #8B96A0;
+
+    --accent-80: #eff9ef;
+    --accent-70: #d1ecd1;
+    --accent-60: #a5daa5;
+    --accent-50: #6ac26a;
+    --accent-40: #119d11;
+    --accent-30: #0f880f;
+    --accent-20: #0a5c0a;
+    --accent-10: #084708;
+    --accent: var(--accent-40);
+
+    --success: #71A112;
+    --success-bg: #f4fce3;
+    --success-text: #007700;
+    --danger: #d70f0f;
+    --danger-bg: #fdf4f4;
+    --danger-text: #7e0909;
+    --warning: #ff8800;
+    --warning-bg: #fff6db;
+    --warning-text: #4e3a00;
+    --info: #056ad6;
+    --info-bg: #f1f7fd;
+    --info-text: #033c79;
+
+    --sev-critical: #d70f0f;
+    --sev-critical-bg: #fdf4f4;
+    --sev-major: #e57a00;
+    --sev-major-bg: #fff5e9;
+    --sev-minor: #bf8e00;
+    --sev-minor-bg: #fff6db;
+    --sev-warning: #056ad6;
+    --sev-warning-bg: #f1f7fd;
+
+    --radius-s: 2px;
+    --font: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --shadow-card: 0 1px 2px rgba(33, 33, 33, 0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141415;
+      --surface-1: #1e1f1f;
+      --surface-2: #2D2E2F;
+      --surface-3: #434546;
+      --border: #434546;
+      --border-strong: #7D7F82;
+      --text: #f2f2f3;
+      --text-muted: #97999B;
+      --text-faint: #7D7F82;
+
+      --accent-80: #4e3a00;
+      --accent-70: #654b00;
+      --accent-60: #956f00;
+      --accent-50: #bf8e00;
+      --accent-40: #ffbe00;
+      --accent-30: #dea500;
+      --accent-20: #ffe392;
+      --accent-10: #fff6db;
+
+      --success: #8bd17e;
+      --success-bg: #123018;
+      --success-text: #c8f0be;
+      --danger: #ff8a8a;
+      --danger-bg: #3a1416;
+      --danger-text: #ffd6d6;
+      --warning: #ffb020;
+      --warning-bg: #3a2610;
+      --warning-text: #ffe1ab;
+      --info: #5eb1ff;
+      --info-bg: #10233a;
+      --info-text: #cfe6ff;
+
+      --sev-critical: #ff6b6b;
+      --sev-critical-bg: #3a1416;
+      --sev-major: #ffab5c;
+      --sev-major-bg: #3a2610;
+      --sev-minor: #e3c568;
+      --sev-minor-bg: #352d10;
+      --sev-warning: #5eb1ff;
+      --sev-warning-bg: #10233a;
+
+      --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #141415;
+    --surface-1: #1e1f1f;
+    --surface-2: #2D2E2F;
+    --surface-3: #434546;
+    --border: #434546;
+    --border-strong: #7D7F82;
+    --text: #f2f2f3;
+    --text-muted: #97999B;
+    --text-faint: #7D7F82;
+
+    --accent-80: #4e3a00;
+    --accent-70: #654b00;
+    --accent-60: #956f00;
+    --accent-50: #bf8e00;
+    --accent-40: #ffbe00;
+    --accent-30: #dea500;
+    --accent-20: #ffe392;
+    --accent-10: #fff6db;
+
+    --success: #8bd17e;
+    --success-bg: #123018;
+    --success-text: #c8f0be;
+    --danger: #ff8a8a;
+    --danger-bg: #3a1416;
+    --danger-text: #ffd6d6;
+    --warning: #ffb020;
+    --warning-bg: #3a2610;
+    --warning-text: #ffe1ab;
+    --info: #5eb1ff;
+    --info-bg: #10233a;
+    --info-text: #cfe6ff;
+
+    --sev-critical: #ff6b6b;
+    --sev-critical-bg: #3a1416;
+    --sev-major: #ffab5c;
+    --sev-major-bg: #3a2610;
+    --sev-minor: #e3c568;
+    --sev-minor-bg: #352d10;
+    --sev-warning: #5eb1ff;
+    --sev-warning-bg: #10233a;
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-radius: var(--radius-s);
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-height: 560px;
+    overflow: hidden;
+  }
+
+  /* ---------- Top chrome ---------- */
+  .crumbs {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px 0 20px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .crumbs .sep { color: var(--text-faint); }
+  .crumbs .current { color: var(--text); font-weight: 600; }
+
+  .tabstrip {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 22px;
+    padding: 10px 20px 0 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tabstrip button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0 2px 10px 2px;
+    border-bottom: 2px solid transparent;
+  }
+  .tabstrip button:hover { color: var(--text); }
+  .tabstrip button.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: var(--radius-s);
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn svg { width: 14px; height: 14px; flex: none; }
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn.primary:hover { background: var(--accent-30); border-color: var(--accent-30); }
+  .btn.danger-outline {
+    border-color: var(--danger);
+    color: var(--danger);
+    background: transparent;
+  }
+  .btn.danger-outline:hover { background: var(--danger-bg); }
+  .btn.ghost {
+    border-color: transparent;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 4px 8px;
+  }
+  .btn.ghost:hover { background: var(--surface-2); color: var(--text); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.sm { padding: 4px 9px; font-size: 12px; }
+
+  /* ---------- Filter bar (mirrors the standard alarms list filter row) ---------- */
+  .filterbar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .filterbar .filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .dd-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: var(--radius-s);
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+  .dd-filter:hover { background: var(--surface-2); }
+  .dd-filter svg.chevron { width: 10px; height: 10px; color: var(--text-faint); }
+  .dd-filter svg.leading { width: 13px; height: 13px; color: var(--text-muted); }
+  .filterbar .utility { display: flex; align-items: center; gap: 14px; }
+  .mo-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-right: 16px;
+    margin-right: 2px;
+    border-right: 1px solid var(--border);
+  }
+  .mo-chip { display: flex; align-items: center; gap: 6px; }
+  .mo-chip-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-faint);
+  }
+  .mo-chip code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: var(--radius-s);
+    color: var(--text);
+  }
+  .clear-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+  .clear-link:hover { color: var(--text); }
+  .clear-link svg { width: 12px; height: 12px; }
+  .help-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    background: none;
+    color: var(--text-faint);
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---------- Split view: 50/50 by default ---------- */
+  .split {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+    min-height: 0;
+  }
+
+  .list-col {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    background: var(--surface-1);
+    min-height: 0;
+  }
+
+  .list-heading {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px 10px 16px;
+    flex-wrap: wrap;
+  }
+  .list-heading h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+  }
+  .autorefresh {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .autorefresh label { display: flex; align-items: center; gap: 5px; }
+  .autorefresh select {
+    font-family: inherit;
+    font-size: 12px;
+    padding: 3px 5px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-s);
+    background: var(--bg);
+    color: var(--text);
+  }
+  .autorefresh .icon-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-s);
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+  .autorefresh .icon-btn svg { width: 13px; height: 13px; }
+
+  .timeline {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: auto;
+    padding-bottom: 24px;
+  }
+  .day-heading {
+    padding: 10px 16px 6px 80px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+  }
+
+  /* ---------- Timeline spine ---------- */
+  .tl-row {
+    display: flex;
+    align-items: stretch;
+    min-width: 480px;
+  }
+  .tl-time {
+    flex: none;
+    width: 68px;
+    position: relative;
+    border-right: 2px solid var(--border);
+    padding: 12px 12px 12px 0;
+    text-align: right;
+  }
+  .tl-time::after {
+    content: "";
+    position: absolute;
+    right: -5px;
+    top: 22px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: 2px solid var(--surface-1);
+  }
+  .tl-row.sev-CRITICAL .tl-time::after { background: var(--sev-critical); }
+  .tl-row.sev-MAJOR .tl-time::after { background: var(--sev-major); }
+  .tl-row.sev-MINOR .tl-time::after { background: var(--sev-minor); }
+  .tl-row.sev-WARNING .tl-time::after { background: var(--sev-warning); }
+  .tl-time.sub::after {
+    width: 6px;
+    height: 6px;
+    background: var(--bg);
+    border: 2px solid var(--border-strong);
+  }
+  .tl-clock {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Pair layout: alarm box, arrow, service-request box ---------- */
+  .tl-pair {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px 12px 8px 14px;
+    min-width: 0;
+  }
+  .tl-pair.single .tl-box { flex: 1 1 100%; }
+
+  .tl-box {
+    flex: 1 1 50%;
+    min-width: 0;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 9px 10px;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+  }
+  .tl-box:hover { background: var(--surface-2); }
+  .tl-box.selected {
+    background: var(--surface-2);
+    box-shadow: inset 3px 0 0 0 var(--accent);
+  }
+  .tl-box.sr-box {
+    border: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .tl-box.sr-box.selected { border-color: var(--accent-60); }
+  .tl-box.sr-box.closed { opacity: 0.68; }
+
+  .tl-box.sr-empty {
+    border: 1.5px dashed var(--border-strong);
+    background: transparent;
+    color: var(--text-faint);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+    padding: 12px 10px;
+  }
+  .tl-box.sr-empty:hover {
+    background: var(--surface-2);
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+  }
+  .tl-box.sr-empty svg { width: 15px; height: 15px; }
+  .tl-box.sr-empty span { font-size: 11.5px; font-weight: 600; }
+
+  .tl-arrow {
+    flex: none;
+    width: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: var(--border-strong);
+  }
+  .tl-arrow.muted { opacity: 0.55; }
+  .tl-arrow svg { width: 16px; height: 16px; }
+  .tl-arrow .delta {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+
+  /* duo icon: base status glyph + severity corner badge */
+  .duo-icon {
+    flex: none;
+    position: relative;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+  }
+  .duo-icon .status-glyph {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+  }
+  .duo-icon .sev-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 2px solid var(--surface-1);
+  }
+  .tl-box:hover .duo-icon .sev-badge,
+  .tl-box.selected .duo-icon .sev-badge { border-color: var(--surface-2); }
+  .sev-badge.CRITICAL { background: var(--sev-critical); }
+  .sev-badge.MAJOR { background: var(--sev-major); }
+  .sev-badge.MINOR { background: var(--sev-minor); }
+  .sev-badge.WARNING { background: var(--sev-warning); }
+
+  /* "online-support" glyph for service request boxes */
+  .support-icon {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    color: var(--accent-30);
+  }
+
+  .row-main { flex: 1 1 auto; min-width: 0; }
+  .row-title-line { display: flex; align-items: flex-start; gap: 6px; }
+  .row-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .row-title.dimmed { color: var(--text-muted); font-weight: 500; }
+  .count-badge {
+    flex: none;
+    background: var(--surface-3);
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-top: 1px;
+  }
+  .row-sub {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 11px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .row-sub svg { flex: none; width: 11px; height: 11px; }
+
+  .sr-card-top { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .sr-id {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 9px;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .pill.type-tag { background: transparent; border: 1px solid var(--border-strong); color: var(--text-muted); font-weight: 600; }
+  .pill.status-open { background: var(--surface-3); color: var(--text-muted); }
+  .pill.status-progress { background: var(--info-bg); color: var(--info-text); }
+  .pill.status-closed { background: var(--success-bg); color: var(--success-text); }
+  .pill.pri-high { background: var(--accent-30); color: #fff; }
+  .pill.pri-medium { background: var(--accent-70); color: var(--accent-10); }
+  .pill.pri-low { background: transparent; border: 1px solid var(--accent-60); color: var(--accent-30); }
+  .sr-title { font-size: 12.5px; font-weight: 600; margin-top: 4px; }
+  .tl-box.sr-box.closed .sr-title { text-decoration: line-through; text-decoration-color: var(--text-faint); }
+  .sr-sub { margin-top: 3px; color: var(--text-muted); font-size: 11px; }
+
+  .empty-hint {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 12px;
+    padding: 40px 20px;
+  }
+
+  /* ---------- Detail panel ---------- */
+  .detail-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--bg);
+  }
+  .detail-header {
+    flex: 0 0 auto;
+    padding: 18px 24px 14px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .detail-title-block { min-width: 0; }
+  .detail-eyebrow {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-bottom: 4px;
+  }
+  .detail-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .detail-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 20px 24px 28px 24px;
+  }
+  .detail-footer {
+    flex: 0 0 auto;
+    padding: 12px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--surface-1);
+  }
+  .detail-footer .left-actions,
+  .detail-footer .right-actions { display: flex; gap: 8px; }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .info-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+    background: var(--bg);
+    box-shadow: var(--shadow-card);
+    padding: 12px 14px;
+  }
+  .info-card.wide { grid-column: 1 / -1; }
+  .info-card .info-label {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin: 0 0 4px 0;
+  }
+  .info-card .info-value {
+    font-size: 13.5px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .info-card .info-value.with-badge { display: flex; align-items: center; gap: 6px; }
+  .info-card a.info-link {
+    color: var(--info);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .info-card a.info-link:hover { text-decoration: underline; }
+  .info-card .info-sub-link {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+  .info-card .info-sub-link:hover { color: var(--accent); }
+  .info-card code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface-2);
+    padding: 1px 6px;
+    border-radius: var(--radius-s);
+  }
+  .info-card pre {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text-muted);
+  }
+
+  .banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    border-radius: var(--radius-s);
+    padding: 10px 12px;
+    margin-bottom: 20px;
+  }
+  .banner svg { width: 15px; height: 15px; flex: none; color: var(--text-muted); }
+  .banner .banner-text { flex: 1 1 auto; font-size: 12.5px; color: var(--text); }
+  .banner .banner-text small { display: block; color: var(--text-muted); font-size: 11.5px; margin-top: 1px; }
+
+  .section-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-faint);
+    margin: 0 0 10px 0;
+  }
+  .section-block { margin-bottom: 24px; }
+
+  .history-list { display: flex; flex-direction: column; }
+  .history-item {
+    display: flex;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-time {
+    flex: none;
+    width: 118px;
+    color: var(--text-faint);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding-top: 1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .history-dot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    margin-top: 4px;
+  }
+  .history-text { flex: 1 1 auto; }
+  .history-text b { font-weight: 600; }
+
+  .field { margin-bottom: 16px; }
+  label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-faint);
+    margin-bottom: 5px;
+  }
+  .field-optional {
+    text-transform: none;
+    font-weight: 500;
+    letter-spacing: normal;
+    color: var(--text-faint);
+  }
+  form input[type="text"],
+  form textarea,
+  form select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 7px 9px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-s);
+    background: var(--bg);
+    color: var(--text);
+  }
+  form textarea { resize: vertical; min-height: 64px; }
+  form input:focus, form textarea:focus, form select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 0;
+    border-color: var(--accent);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .static-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0 2px 0;
+    min-height: 32px;
+  }
+  .static-status .static-hint {
+    font-size: 11px;
+    color: var(--text-faint);
+    font-weight: 500;
+  }
+
+  /* ---------- Attachments (c8y-file-picker / c8y-drop-area look) ---------- */
+  .drop-area-mock {
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-s);
+    padding: 16px 12px;
+    text-align: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .drop-area-mock:hover,
+  .drop-area-mock:focus-visible {
+    background: var(--surface-2);
+    border-color: var(--text-muted);
+  }
+  .drop-area-mock svg { width: 18px; height: 18px; color: var(--text-faint); }
+  .drop-area-mock .title { font-size: 12.5px; font-weight: 600; color: var(--text); }
+  .drop-area-mock .sub { font-size: 11px; color: var(--text-faint); }
+  .drop-area-mock.sm {
+    flex-direction: row;
+    padding: 7px 10px;
+    gap: 8px;
+    text-align: left;
+  }
+  .drop-area-mock.sm svg { width: 14px; height: 14px; }
+  .drop-area-mock.sm .dz-text { display: flex; flex-direction: column; }
+  .drop-area-mock.sm .title { font-size: 11.5px; }
+  .drop-area-mock.sm .sub { display: none; }
+
+  .attachment-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    border-radius: var(--radius-s);
+    padding: 8px 10px;
+  }
+  .attachment-chip svg { width: 16px; height: 16px; color: var(--text-muted); flex: none; }
+  .attach-info { flex: 1 1 auto; min-width: 0; }
+  .attach-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .attach-size { font-size: 11px; color: var(--text-faint); margin-top: 1px; }
+  .icon-btn-sm {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-s);
+    border: 1px solid transparent;
+    background: none;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-btn-sm:hover { background: var(--surface-2); color: var(--text); }
+  .icon-btn-sm svg { width: 14px; height: 14px; }
+
+  .btn.icon-only { padding: 6px; }
+  .comment-attach-row { margin-bottom: 8px; }
+
+  .comment-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    margin-top: 4px;
+  }
+  .comment-input-row textarea { flex: 1 1 auto; min-height: 40px; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .back-btn { display: none; }
+  @media (max-width: 860px) {
+    .split { grid-template-columns: 1fr; }
+    .split.show-detail .list-col { display: none; }
+    .split:not(.show-detail) .detail-col { display: none; }
+    .back-btn { display: inline-flex; }
+  }
+
+  .assumption-note {
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  .section-label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .section-label-row .section-label { margin: 0; }
+  .section-hint {
+    font-size: 11px;
+    color: var(--text-faint);
+    font-weight: 500;
+    flex: none;
+  }
+
+  .progress-row { display: flex; align-items: center; gap: 8px; padding-top: 2px; }
+  .progress-track {
+    flex: 1 1 auto;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--surface-3);
+    overflow: hidden;
+  }
+  .progress-fill { height: 100%; background: var(--accent-60); border-radius: 3px; }
+  .progress-value {
+    flex: none;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Disclosure (shared by Comments and Raw JSON "show source") ---------- */
+  .raw-json,
+  .disclosure {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+    background: var(--bg);
+  }
+  .raw-json summary,
+  .disclosure summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .raw-json summary::-webkit-details-marker,
+  .disclosure summary::-webkit-details-marker { display: none; }
+  .raw-json summary .chevron,
+  .disclosure summary .chevron {
+    width: 12px;
+    height: 12px;
+    color: var(--text-faint);
+    flex: none;
+    transition: transform 0.15s ease;
+  }
+  .raw-json[open] summary .chevron,
+  .disclosure[open] summary .chevron { transform: rotate(90deg); }
+  .raw-json summary .section-label,
+  .disclosure summary .section-label { flex: 1 1 auto; margin: 0; }
+  .raw-json-pre {
+    margin: 0;
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-1);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .disclosure-body {
+    padding: 14px 14px 2px 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Comments rendered as a Cumulocity-style timeline (matches Audit logs), scrollable when long */
+  .comment-history-list {
+    max-height: 260px;
+    overflow-y: auto;
+    margin: 0 0 12px 0;
+    padding-right: 2px;
+  }
+  .comment-history-list .history-item { align-items: flex-start; }
+  .comment-history-list .history-text .attachment-chip { margin-top: 8px; }
+</style>
+
+<div class="app" id="app">
+
+  <div class="crumbs">
+    <span>Devices</span>
+    <span class="sep">/</span>
+    <span>Cooling Unit 12</span>
+    <span class="sep">/</span>
+    <span class="current">Service requests</span>
+  </div>
+
+  <nav class="tabstrip" aria-label="Device sections">
+    <button type="button">Dashboard</button>
+    <button type="button">Live &amp; Operations</button>
+    <button type="button" class="active" aria-current="page">Service requests</button>
+    <button type="button">Alarms</button>
+    <button type="button">Events</button>
+    <button type="button">Reports</button>
+  </nav>
+
+  <div class="filterbar">
+    <div class="filters">
+      <button type="button" class="dd-filter">
+        All severities
+        <svg class="chevron" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
+      <button type="button" class="dd-filter">
+        <svg class="leading" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" /><path d="M8 5v3.3l2.2 1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        No date filter
+        <svg class="chevron" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
+      <button type="button" class="dd-filter">
+        All request statuses
+        <svg class="chevron" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
+    </div>
+    <div class="utility">
+      <div class="mo-info">
+        <div class="mo-chip" title="Managed object fragment: sr_ServiceObjectId">
+          <span class="mo-chip-label">Service Object</span>
+          <code>SVCOBJ-4471</code>
+        </div>
+        <div class="mo-chip" title="Managed object fragment: sr_ActiveStatus &#8594; { &quot;medium&quot;: 3 }">
+          <span class="mo-chip-label">Active</span>
+          <span class="pill pri-medium">3 Medium</span>
+        </div>
+      </div>
+      <button type="button" class="btn primary sm" id="newRequestBtn">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+        New service request
+      </button>
+      <button type="button" class="clear-link">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1m-7 0 .7 8.4A1.5 1.5 0 0 0 5.2 14h5.6a1.5 1.5 0 0 0 1.5-1.6L13 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        Clear all
+      </button>
+      <button type="button" class="help-btn" title="About this page" aria-label="About this page">?</button>
+    </div>
+  </div>
+
+  <div class="split" id="split">
+
+    <!-- LIST COLUMN -->
+    <div class="list-col">
+      <div class="list-heading">
+        <h2>Timeline</h2>
+        <div class="autorefresh">
+          <label><input type="checkbox" checked /> Auto refresh</label>
+          <select aria-label="Refresh interval in seconds">
+            <option>15 s</option>
+            <option selected>30 s</option>
+            <option>60 s</option>
+          </select>
+          <button type="button" class="icon-btn" aria-label="Refresh now" title="Refresh now">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3.2h-3.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="timeline" id="timeline">
+
+        <div class="day-heading">Today</div>
+
+        <!-- Entry 1: CRITICAL alarm, linked to SR-042 -->
+        <div class="entry" data-kind="alarm" data-sev="CRITICAL" data-id="alarm-1">
+          <div class="tl-row sev-CRITICAL">
+            <div class="tl-time"><span class="tl-clock">10:02</span></div>
+            <div class="tl-pair">
+              <div class="tl-box alarm-box" data-select="alarm-1" tabindex="0" role="button" aria-pressed="false">
+                <span class="duo-icon">
+                  <svg class="status-glyph" viewBox="0 0 16 16" fill="none"><path d="M8 2.5c-2 0-3.2 1.6-3.2 3.8v1.9c0 .7-.3 1.4-.8 1.9l-.3.3h8.6l-.3-.3a2.7 2.7 0 0 1-.8-1.9V6.3c0-2.2-1.2-3.8-3.2-3.8Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M6.5 12.5a1.6 1.6 0 0 0 3 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" /></svg>
+                  <span class="sev-badge CRITICAL"></span>
+                </span>
+                <div class="row-main">
+                  <div class="row-title-line">
+                    <span class="row-title">Discharge temperature exceeds 8&deg;C threshold</span>
+                    <span class="count-badge" title="3 occurrences since 07:48">&times;3</span>
+                  </div>
+                  <div class="row-sub">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M3 6h10M5.5 3v3M10.5 3v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><rect x="3" y="6" width="10" height="7.5" rx="1" stroke="currentColor" stroke-width="1.2" /></svg>
+                    Cooling Unit 12
+                  </div>
+                </div>
+              </div>
+              <div class="tl-arrow" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9.5 4l3.5 4-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <span class="delta">+5 min</span>
+              </div>
+              <div class="tl-box sr-box" data-select="sr-042" tabindex="0" role="button" aria-pressed="false">
+                <span class="support-icon">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M3 9V7a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><rect x="1.8" y="8.4" width="2.6" height="4" rx="1" stroke="currentColor" stroke-width="1.2" /><rect x="11.6" y="8.4" width="2.6" height="4" rx="1" stroke="currentColor" stroke-width="1.2" /><path d="M12.9 12.4v.4a2 2 0 0 1-2 2h-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" /></svg>
+                </span>
+                <div class="row-main">
+                  <div class="sr-card-top">
+                    <span class="sr-id">SR-042</span>
+                    <span class="pill type-tag">Alarm</span>
+                    <span class="pill status-open">Open</span>
+                    <span class="pill pri-high">High</span>
+                  </div>
+                  <div class="sr-title">Compressor discharge temperature investigation</div>
+                  <div class="sr-sub">Updated 9 min ago &middot; 2 comments</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 2: MAJOR alarm, unlinked -->
+        <div class="entry" data-kind="alarm" data-sev="MAJOR" data-id="alarm-2">
+          <div class="tl-row sev-MAJOR">
+            <div class="tl-time"><span class="tl-clock">09:30</span></div>
+            <div class="tl-pair">
+              <div class="tl-box alarm-box" data-select="alarm-2" tabindex="0" role="button" aria-pressed="false">
+                <span class="duo-icon">
+                  <svg class="status-glyph" viewBox="0 0 16 16" fill="none"><path d="M8 2.5c-2 0-3.2 1.6-3.2 3.8v1.9c0 .7-.3 1.4-.8 1.9l-.3.3h8.6l-.3-.3a2.7 2.7 0 0 1-.8-1.9V6.3c0-2.2-1.2-3.8-3.2-3.8Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M6.5 12.5a1.6 1.6 0 0 0 3 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" /></svg>
+                  <span class="sev-badge MAJOR"></span>
+                </span>
+                <div class="row-main">
+                  <div class="row-title-line">
+                    <span class="row-title">Compressor vibration threshold exceeded</span>
+                  </div>
+                  <div class="row-sub">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M3 6h10M5.5 3v3M10.5 3v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><rect x="3" y="6" width="10" height="7.5" rx="1" stroke="currentColor" stroke-width="1.2" /></svg>
+                    Cooling Unit 12
+                  </div>
+                </div>
+              </div>
+              <div class="tl-arrow muted" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9.5 4l3.5 4-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <div class="tl-box sr-empty" data-create-from="alarm-2" tabindex="0" role="button">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+                <span>Create service request</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry 3: WARNING alarm, unlinked -->
+        <div class="entry" data-kind="alarm" data-sev="WARNING" data-id="alarm-3">
+          <div class="tl-row sev-WARNING">
+            <div class="tl-time"><span class="tl-clock">09:00</span></div>
+            <div class="tl-pair">
+              <div class="tl-box alarm-box" data-select="alarm-3" tabindex="0" role="button" aria-pressed="false">
+                <span class="duo-icon">
+                  <svg class="status-glyph" viewBox="0 0 16 16" fill="none"><path d="M8 2.5c-2 0-3.2 1.6-3.2 3.8v1.9c0 .7-.3 1.4-.8 1.9l-.3.3h8.6l-.3-.3a2.7 2.7 0 0 1-.8-1.9V6.3c0-2.2-1.2-3.8-3.2-3.8Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="m3 3 10 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" /></svg>
+                  <span class="sev-badge WARNING"></span>
+                </span>
+                <div class="row-main">
+                  <div class="row-title-line">
+                    <span class="row-title">Door sensor offline intermittently</span>
+                  </div>
+                  <div class="row-sub">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M3 6h10M5.5 3v3M10.5 3v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><rect x="3" y="6" width="10" height="7.5" rx="1" stroke="currentColor" stroke-width="1.2" /></svg>
+                    Cooling Unit 12
+                  </div>
+                </div>
+              </div>
+              <div class="tl-arrow muted" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9.5 4l3.5 4-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <div class="tl-box sr-empty" data-create-from="alarm-3" tabindex="0" role="button">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+                <span>Create service request</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Standalone SR, no alarm -->
+        <div class="entry standalone-sr" data-kind="sr" data-status="progress" data-id="sr-035">
+          <div class="tl-row">
+            <div class="tl-time sub"><span class="tl-clock">2 days ago</span></div>
+            <div class="tl-pair single">
+              <div class="tl-box sr-box" data-select="sr-035" tabindex="0" role="button" aria-pressed="false">
+                <span class="support-icon">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M3 9V7a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><rect x="1.8" y="8.4" width="2.6" height="4" rx="1" stroke="currentColor" stroke-width="1.2" /><rect x="11.6" y="8.4" width="2.6" height="4" rx="1" stroke="currentColor" stroke-width="1.2" /><path d="M12.9 12.4v.4a2 2 0 0 1-2 2h-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" /></svg>
+                </span>
+                <div class="row-main">
+                  <div class="sr-card-top">
+                    <span class="sr-id">SR-035</span>
+                    <span class="pill type-tag">Maintenance</span>
+                    <span class="pill status-progress">In progress</span>
+                    <span class="pill pri-medium">Medium</span>
+                  </div>
+                  <div class="sr-title">Quarterly compressor maintenance</div>
+                  <div class="sr-sub">Not linked to an alarm</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-heading">Yesterday</div>
+
+        <!-- Entry 4: MINOR alarm, linked to closed SR-039 -->
+        <div class="entry" data-kind="alarm" data-sev="MINOR" data-id="alarm-4">
+          <div class="tl-row sev-MINOR">
+            <div class="tl-time"><span class="tl-clock">16:40</span></div>
+            <div class="tl-pair">
+              <div class="tl-box alarm-box" data-select="alarm-4" tabindex="0" role="button" aria-pressed="false">
+                <span class="duo-icon">
+                  <svg class="status-glyph" viewBox="0 0 16 16" fill="none"><path d="M8 2.5c-2 0-3.2 1.6-3.2 3.8v1.9c0 .7-.3 1.4-.8 1.9l-.3.3h8.6l-.3-.3a2.7 2.7 0 0 1-.8-1.9V6.3c0-2.2-1.2-3.8-3.2-3.8Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="m3 3 10 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" /></svg>
+                  <span class="sev-badge MINOR"></span>
+                </span>
+                <div class="row-main">
+                  <div class="row-title-line">
+                    <span class="row-title dimmed">Ambient humidity above optimal range</span>
+                    <span class="count-badge" title="2 occurrences">&times;2</span>
+                  </div>
+                  <div class="row-sub">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M3 6h10M5.5 3v3M10.5 3v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><rect x="3" y="6" width="10" height="7.5" rx="1" stroke="currentColor" stroke-width="1.2" /></svg>
+                    Cooling Unit 12
+                  </div>
+                </div>
+              </div>
+              <div class="tl-arrow" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9.5 4l3.5 4-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <span class="delta">+7 min</span>
+              </div>
+              <div class="tl-box sr-box closed" data-select="sr-039" tabindex="0" role="button" aria-pressed="false">
+                <span class="support-icon">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M3 9V7a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><rect x="1.8" y="8.4" width="2.6" height="4" rx="1" stroke="currentColor" stroke-width="1.2" /><rect x="11.6" y="8.4" width="2.6" height="4" rx="1" stroke="currentColor" stroke-width="1.2" /><path d="M12.9 12.4v.4a2 2 0 0 1-2 2h-1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" /></svg>
+                </span>
+                <div class="row-main">
+                  <div class="sr-card-top">
+                    <span class="sr-id">SR-039</span>
+                    <span class="pill type-tag">Alarm</span>
+                    <span class="pill status-closed">Closed</span>
+                    <span class="pill pri-low">Low</span>
+                  </div>
+                  <div class="sr-title">Humidity sensor calibration</div>
+                  <div class="sr-sub">Resolved yesterday, 18:12</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DETAIL COLUMN -->
+    <div class="detail-col" id="detailCol">
+
+      <!-- ===== VIEW: alarm-1 (linked) ===== -->
+      <div class="view" data-view="alarm-1">
+        <div class="detail-header">
+          <div class="detail-title-block">
+            <div class="detail-eyebrow">Alarm on Cooling Unit 12</div>
+            <h2 class="detail-title">Discharge temperature exceeds 8&deg;C threshold</h2>
+          </div>
+          <button class="btn ghost back-btn" data-back="1">&larr; Back</button>
+        </div>
+        <div class="detail-body">
+          <div class="banner">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <div class="banner-text">
+              Linked to <b>SR-042</b> &middot; Compressor discharge temperature investigation
+              <small>Created 5 min after this alarm was raised</small>
+            </div>
+            <button class="btn sm" data-select="sr-042">Open</button>
+          </div>
+          <div class="info-grid">
+            <div class="info-card">
+              <p class="info-label">Status</p>
+              <p class="info-value">ACTIVE: triggered 2h 14m ago</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Severity</p>
+              <p class="info-value with-badge"><span class="sev-badge CRITICAL" style="position:static; width:10px; height:10px; border:none;"></span>Critical</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Source</p>
+              <p class="info-value"><a class="info-link" href="#">Cooling Unit 12</a></p>
+              <a class="info-sub-link" href="#">Device Management &#8599;</a>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Type</p>
+              <p class="info-value"><code>TempAlm</code></p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Number of occurrences</p>
+              <p class="info-value">3</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">First occurrence</p>
+              <p class="info-value">Today, 07:48</p>
+            </div>
+            <div class="info-card wide">
+              <p class="info-label">Custom data</p>
+              <pre>{ "threshold_c": 8.0, "reading_c": 8.6, "sensor": "TC-14" }</pre>
+            </div>
+          </div>
+          <div class="section-block">
+            <p class="section-label">Audit logs</p>
+            <div class="history-list">
+              <div class="history-item"><span class="history-time">10:02</span><span class="history-dot"></span><span class="history-text"><b>Recurred</b> &mdash; discharge temp reached 8.6&deg;C</span></div>
+              <div class="history-item"><span class="history-time">09:15</span><span class="history-dot"></span><span class="history-text"><b>Recurred</b> &mdash; discharge temp reached 8.3&deg;C</span></div>
+              <div class="history-item"><span class="history-time">07:48</span><span class="history-dot"></span><span class="history-text"><b>Raised</b> &mdash; discharge temp reached 8.1&deg;C, threshold 8.0&deg;C</span></div>
+            </div>
+          </div>
+          <div class="section-block">
+            <details class="raw-json">
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Raw JSON</p>
+                <button type="button" class="icon-btn-sm" data-copy-json title="Copy JSON">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M6 6h6v7H6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M4 10V3h6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+                </button>
+              </summary>
+              <pre class="raw-json-pre" data-json>{
+  "id": "452328",
+  "source": { "id": "35196412", "self": "https://windy-dev.eu-latest.cumulocity.com/inventory/managedObjects/35196412" },
+  "type": "TempAlm",
+  "text": "Discharge temperature exceeds 8°C threshold",
+  "severity": "CRITICAL",
+  "status": "ACTIVE",
+  "count": 3,
+  "firstOccurrenceTime": "2026-08-14T07:48:00.000Z",
+  "creationTime": "2026-08-14T07:48:00.000Z",
+  "time": "2026-08-14T10:02:00.000Z",
+  "c8y_TempAlarmDetails": { "threshold_c": 8.0, "reading_c": 8.6, "sensor": "TC-14" }
+}</pre>
+            </details>
+          </div>
+        </div>
+        <div class="detail-footer">
+          <div class="left-actions">
+            <button class="btn">Acknowledge</button>
+            <button class="btn">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW: alarm-2 (unlinked) ===== -->
+      <div class="view" data-view="alarm-2">
+        <div class="detail-header">
+          <div class="detail-title-block">
+            <div class="detail-eyebrow">Alarm on Cooling Unit 12</div>
+            <h2 class="detail-title">Compressor vibration threshold exceeded</h2>
+          </div>
+          <button class="btn ghost back-btn" data-back="1">&larr; Back</button>
+        </div>
+        <div class="detail-body">
+          <div class="info-grid">
+            <div class="info-card">
+              <p class="info-label">Status</p>
+              <p class="info-value">ACTIVE: triggered 32 min ago</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Severity</p>
+              <p class="info-value with-badge"><span class="sev-badge MAJOR" style="position:static; width:10px; height:10px; border:none;"></span>Major</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Source</p>
+              <p class="info-value"><a class="info-link" href="#">Cooling Unit 12</a></p>
+              <a class="info-sub-link" href="#">Device Management &#8599;</a>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Type</p>
+              <p class="info-value"><code>VibAlm</code></p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Number of occurrences</p>
+              <p class="info-value">1</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">First occurrence</p>
+              <p class="info-value">Today, 09:30</p>
+            </div>
+          </div>
+          <div class="section-block">
+            <p class="section-label">Audit logs</p>
+            <div class="history-list">
+              <div class="history-item"><span class="history-time">09:30</span><span class="history-dot"></span><span class="history-text"><b>Raised</b> &mdash; vibration 4.2&nbsp;mm/s, threshold 3.5&nbsp;mm/s</span></div>
+            </div>
+          </div>
+          <div class="section-block">
+            <details class="raw-json">
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Raw JSON</p>
+                <button type="button" class="icon-btn-sm" data-copy-json title="Copy JSON">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M6 6h6v7H6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M4 10V3h6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+                </button>
+              </summary>
+              <pre class="raw-json-pre" data-json>{
+  "id": "452340",
+  "source": { "id": "35196412", "self": "https://windy-dev.eu-latest.cumulocity.com/inventory/managedObjects/35196412" },
+  "type": "VibAlm",
+  "text": "Compressor vibration threshold exceeded",
+  "severity": "MAJOR",
+  "status": "ACTIVE",
+  "count": 1,
+  "firstOccurrenceTime": "2026-08-14T09:30:00.000Z",
+  "creationTime": "2026-08-14T09:30:00.000Z",
+  "time": "2026-08-14T09:30:00.000Z"
+}</pre>
+            </details>
+          </div>
+        </div>
+        <div class="detail-footer">
+          <div class="left-actions">
+            <button class="btn">Acknowledge</button>
+            <button class="btn">Clear</button>
+            <button class="btn primary" data-create-from="alarm-2">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+              Create service request
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW: alarm-3 (unlinked, acknowledged) ===== -->
+      <div class="view" data-view="alarm-3">
+        <div class="detail-header">
+          <div class="detail-title-block">
+            <div class="detail-eyebrow">Alarm on Cooling Unit 12</div>
+            <h2 class="detail-title">Door sensor offline intermittently</h2>
+          </div>
+          <button class="btn ghost back-btn" data-back="1">&larr; Back</button>
+        </div>
+        <div class="detail-body">
+          <div class="info-grid">
+            <div class="info-card">
+              <p class="info-label">Status</p>
+              <p class="info-value">ACKNOWLEDGED by admin</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Severity</p>
+              <p class="info-value with-badge"><span class="sev-badge WARNING" style="position:static; width:10px; height:10px; border:none;"></span>Warning</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Source</p>
+              <p class="info-value"><a class="info-link" href="#">Cooling Unit 12</a></p>
+              <a class="info-sub-link" href="#">Device Management &#8599;</a>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Type</p>
+              <p class="info-value"><code>DoorAlm</code></p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Number of occurrences</p>
+              <p class="info-value">1</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">First occurrence</p>
+              <p class="info-value">Today, 09:00</p>
+            </div>
+          </div>
+          <div class="section-block">
+            <p class="section-label">Audit logs</p>
+            <div class="history-list">
+              <div class="history-item"><span class="history-time">09:12</span><span class="history-dot"></span><span class="history-text"><b>Acknowledged</b> by admin</span></div>
+              <div class="history-item"><span class="history-time">09:00</span><span class="history-dot"></span><span class="history-text"><b>Raised</b> &mdash; connectivity lost for 46s</span></div>
+            </div>
+          </div>
+          <div class="section-block">
+            <details class="raw-json">
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Raw JSON</p>
+                <button type="button" class="icon-btn-sm" data-copy-json title="Copy JSON">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M6 6h6v7H6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M4 10V3h6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+                </button>
+              </summary>
+              <pre class="raw-json-pre" data-json>{
+  "id": "452351",
+  "source": { "id": "35196412", "self": "https://windy-dev.eu-latest.cumulocity.com/inventory/managedObjects/35196412" },
+  "type": "DoorAlm",
+  "text": "Door sensor offline intermittently",
+  "severity": "WARNING",
+  "status": "ACKNOWLEDGED",
+  "count": 1,
+  "firstOccurrenceTime": "2026-08-14T09:00:00.000Z",
+  "creationTime": "2026-08-14T09:00:00.000Z",
+  "time": "2026-08-14T09:12:00.000Z"
+}</pre>
+            </details>
+          </div>
+        </div>
+        <div class="detail-footer">
+          <div class="left-actions">
+            <button class="btn" disabled>Acknowledge</button>
+            <button class="btn">Clear</button>
+            <button class="btn primary" data-create-from="alarm-3">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+              Create service request
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW: alarm-4 (linked to closed SR) ===== -->
+      <div class="view" data-view="alarm-4">
+        <div class="detail-header">
+          <div class="detail-title-block">
+            <div class="detail-eyebrow">Alarm on Cooling Unit 12</div>
+            <h2 class="detail-title">Ambient humidity above optimal range</h2>
+          </div>
+          <button class="btn ghost back-btn" data-back="1">&larr; Back</button>
+        </div>
+        <div class="detail-body">
+          <div class="banner">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <div class="banner-text">
+              Linked to <b>SR-039</b> &middot; Humidity sensor calibration (Closed)
+              <small>Created 7 min after this alarm was raised</small>
+            </div>
+            <button class="btn sm" data-select="sr-039">Open</button>
+          </div>
+          <div class="info-grid">
+            <div class="info-card">
+              <p class="info-label">Status</p>
+              <p class="info-value">CLEARED</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Severity</p>
+              <p class="info-value with-badge"><span class="sev-badge MINOR" style="position:static; width:10px; height:10px; border:none;"></span>Minor</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Source</p>
+              <p class="info-value"><a class="info-link" href="#">Cooling Unit 12</a></p>
+              <a class="info-sub-link" href="#">Device Management &#8599;</a>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Type</p>
+              <p class="info-value"><code>HumAlm</code></p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">Number of occurrences</p>
+              <p class="info-value">2</p>
+            </div>
+            <div class="info-card">
+              <p class="info-label">First occurrence</p>
+              <p class="info-value">Yesterday, 15:58</p>
+            </div>
+          </div>
+          <div class="section-block">
+            <p class="section-label">Audit logs</p>
+            <div class="history-list">
+              <div class="history-item"><span class="history-time">Yest. 18:12</span><span class="history-dot"></span><span class="history-text"><b>Cleared</b> &mdash; humidity back within range</span></div>
+              <div class="history-item"><span class="history-time">Yest. 16:40</span><span class="history-dot"></span><span class="history-text"><b>Recurred</b></span></div>
+              <div class="history-item"><span class="history-time">Yest. 15:58</span><span class="history-dot"></span><span class="history-text"><b>Raised</b> &mdash; 78% RH, threshold 70% RH</span></div>
+            </div>
+          </div>
+          <div class="section-block">
+            <details class="raw-json">
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Raw JSON</p>
+                <button type="button" class="icon-btn-sm" data-copy-json title="Copy JSON">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M6 6h6v7H6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M4 10V3h6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+                </button>
+              </summary>
+              <pre class="raw-json-pre" data-json>{
+  "id": "452301",
+  "source": { "id": "35196412", "self": "https://windy-dev.eu-latest.cumulocity.com/inventory/managedObjects/35196412" },
+  "type": "HumAlm",
+  "text": "Ambient humidity above optimal range",
+  "severity": "MINOR",
+  "status": "CLEARED",
+  "count": 2,
+  "firstOccurrenceTime": "2026-08-13T15:58:00.000Z",
+  "creationTime": "2026-08-13T15:58:00.000Z",
+  "time": "2026-08-13T18:12:00.000Z"
+}</pre>
+            </details>
+          </div>
+        </div>
+        <div class="detail-footer">
+          <div class="left-actions">
+            <button class="btn" disabled>Acknowledge</button>
+            <button class="btn" disabled>Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW: sr-042 (open, high priority, linked) ===== -->
+      <div class="view" data-view="sr-042">
+        <div class="detail-header">
+          <div class="detail-title-block">
+            <div class="detail-eyebrow">SR-042 &middot; Service request &middot; Alarm</div>
+            <h2 class="detail-title">Compressor discharge temperature investigation</h2>
+          </div>
+          <button class="btn ghost back-btn" data-back="1">&larr; Back</button>
+        </div>
+        <div class="detail-body">
+          <div class="section-block">
+            <p class="section-label">Service Request</p>
+            <div class="banner">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M8 2 14 13H2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></svg>
+              <div class="banner-text">Created from alarm &middot; Discharge temperature exceeds 8&deg;C threshold</div>
+              <button class="btn sm" data-select="alarm-1">Open alarm</button>
+            </div>
+            <div class="info-grid">
+              <div class="info-card">
+                <p class="info-label">Opened by</p>
+                <p class="info-value">A. Pester, 09:53</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Source</p>
+                <p class="info-value"><a class="info-link" href="#">Cooling Unit 12</a></p>
+              </div>
+            </div>
+            <form onsubmit="return false;">
+              <div class="field">
+                <label for="f1-title">Title</label>
+                <input type="text" id="f1-title" value="Compressor discharge temperature investigation" />
+              </div>
+              <div class="field">
+                <label for="f1-desc">Description</label>
+                <textarea id="f1-desc">Discharge temperature has spiked three times since this morning. Technician requested to inspect the compressor discharge valve and refrigerant charge.</textarea>
+              </div>
+              <div class="field-row cols-3">
+                <div class="field">
+                  <label for="f1-type">Type</label>
+                  <div class="static-status" id="f1-type">
+                    <span class="pill type-tag">Alarm</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="f1-status">Status</label>
+                  <div class="static-status" id="f1-status">
+                    <span class="pill status-open">Open</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="f1-priority">Priority</label>
+                  <select id="f1-priority"><option>Low</option><option>Medium</option><option selected>High</option></select>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="section-block">
+            <div class="section-label-row">
+              <p class="section-label">Field Service Status</p>
+              <span class="section-hint">Synced from FSM &middot; read-only</span>
+            </div>
+            <div class="info-grid">
+              <div class="info-card">
+                <p class="info-label">Assignee</p>
+                <p class="info-value">M. Novak</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Scheduled window</p>
+                <p class="info-value">Today, 14:00&ndash;16:00</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Due</p>
+                <p class="info-value">Today, 18:00</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Progress</p>
+                <div class="progress-row">
+                  <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+                  <span class="progress-value">40%</span>
+                </div>
+              </div>
+              <div class="info-card">
+                <p class="info-label">FSM task</p>
+                <p class="info-value"><a class="info-link" href="#">FSM-88213 &#8599;</a></p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">External ID</p>
+                <p class="info-value"><code>EXT-SR-77291</code></p>
+              </div>
+            </div>
+          </div>
+          <div class="section-block">
+            <p class="section-label">Attachment</p>
+            <div class="attach-slot" data-attach-slot>
+              <div class="attachment-chip">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M4 2h5l3 3v9H4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M9 2v3h3" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+                <div class="attach-info">
+                  <div class="attach-name">Thermal_scan_0842.jpg</div>
+                  <div class="attach-size">2.4 MB</div>
+                </div>
+                <button type="button" class="icon-btn-sm" data-download title="Download">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M3 12.5h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                </button>
+                <button type="button" class="icon-btn-sm" data-remove title="Remove">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="section-block">
+            <details class="disclosure" open>
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Comments (7)</p>
+              </summary>
+              <div class="disclosure-body">
+                <div class="history-list comment-history-list">
+                  <div class="history-item">
+                    <span class="history-time">15:41</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>System</b> &mdash; Progress updated to 40%.</div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">15:40</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>M. Novak</b> &mdash; Found discharge valve seal worn; replacing part now.</div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">14:05</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>M. Novak</b> &mdash; Arrived on site, starting inspection.</div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">12:30</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>System</b> &mdash; Priority escalated to High by FSM rule engine.</div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">10:15</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>M. Novak</b> &mdash; On my way, ETA 14:00 confirmed.</div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">09:55</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text">
+                      <b>A. Pester</b> &mdash; Dispatching a technician this afternoon, ETA 14:00.
+                      <div class="attachment-chip">
+                        <svg viewBox="0 0 16 16" fill="none"><path d="M4 2h5l3 3v9H4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M9 2v3h3" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+                        <div class="attach-info">
+                          <div class="attach-name">Dispatch_note.pdf</div>
+                          <div class="attach-size">86 KB</div>
+                        </div>
+                        <button type="button" class="icon-btn-sm" data-download title="Download">
+                          <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M3 12.5h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">09:53</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>System</b> &mdash; Service request created from alarm.</div>
+                  </div>
+                </div>
+                <div class="comment-attach-row" data-attach-slot style="display:none;">
+                  <div class="drop-area-mock sm" data-drop-trigger tabindex="0" role="button" aria-label="Upload file, drop file here">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M8 10.5V3.5M5 6.5l3-3 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M3 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                    <div class="dz-text"><span class="title">Upload file</span><span class="sub">Drop file here, or click to browse</span></div>
+                  </div>
+                  <input type="file" hidden data-file-input />
+                </div>
+                <div class="comment-input-row">
+                  <textarea placeholder="Add a comment&hellip;"></textarea>
+                  <button type="button" class="btn sm icon-only" data-attach-toggle title="Attach file" aria-label="Attach file">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M9.8 3.7 4.9 8.6a2.3 2.3 0 0 0 3.3 3.3l4.4-4.4a1.4 1.4 0 0 0-2-2L6.4 9.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  </button>
+                  <button class="btn sm">Post</button>
+                </div>
+              </div>
+            </details>
+          </div>
+          <div class="section-block">
+            <details class="raw-json">
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Raw JSON</p>
+                <button type="button" class="icon-btn-sm" data-copy-json title="Copy JSON">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M6 6h6v7H6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M4 10V3h6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+                </button>
+              </summary>
+              <pre class="raw-json-pre" data-json>{
+  "id": "42",
+  "type": "alarm",
+  "status": { "id": "OPEN", "name": "Open" },
+  "priority": { "name": "High", "ordinal": 3 },
+  "title": "Compressor discharge temperature investigation",
+  "description": "Discharge temperature has spiked three times since this morning. Technician requested to inspect the compressor discharge valve and refrigerant charge.",
+  "source": { "id": "35196412", "name": "Cooling Unit 12", "self": "https://windy-dev.eu-latest.cumulocity.com/inventory/managedObjects/35196412" },
+  "alarmRef": { "id": "452328", "uri": "https://windy-dev.eu-latest.cumulocity.com/alarm/alarms/452328" },
+  "eventRef": null,
+  "seriesRef": null,
+  "creationTime": "2026-08-14T09:53:00.000Z",
+  "lastUpdated": "2026-08-14T09:55:00.000Z",
+  "owner": "alexander.pester@cumulocity.com",
+  "isActive": true,
+  "isClosed": false,
+  "externalId": "EXT-SR-77291",
+  "attachment": { "name": "Thermal_scan_0842.jpg", "length": 2516582, "type": "image/jpeg" },
+  "order": { "id": "SO-1042", "self": "https://fsm.example.com/service-orders/SO-1042" },
+  "fieldAssignee": "M. Novak",
+  "fieldScheduleStart": "2026-08-14T14:00:00.000Z",
+  "fieldScheduleEnd": "2026-08-14T16:00:00.000Z",
+  "fieldScheduleDue": "2026-08-14T18:00:00.000Z",
+  "fieldProgressPercentage": 40,
+  "fsmLink": "https://fsm.example.com/tasks/FSM-88213",
+  "customProperties": { "threshold_c": 8.0, "reading_c": 8.6, "sensor": "TC-14" }
+}</pre>
+            </details>
+          </div>
+        </div>
+        <div class="detail-footer">
+          <div class="left-actions">
+            <button class="btn">Reset</button>
+          </div>
+          <div class="right-actions">
+            <button class="btn danger-outline">Resolve</button>
+            <button class="btn primary">Update</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW: sr-035 (standalone, in progress) ===== -->
+      <div class="view" data-view="sr-035">
+        <div class="detail-header">
+          <div class="detail-title-block">
+            <div class="detail-eyebrow">SR-035 &middot; Service request &middot; Maintenance</div>
+            <h2 class="detail-title">Quarterly compressor maintenance</h2>
+          </div>
+          <button class="btn ghost back-btn" data-back="1">&larr; Back</button>
+        </div>
+        <div class="detail-body">
+          <div class="section-block">
+            <p class="section-label">Service Request</p>
+            <div class="info-grid">
+              <div class="info-card">
+                <p class="info-label">Opened by</p>
+                <p class="info-value">admin, 2 days ago</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Source</p>
+                <p class="info-value"><a class="info-link" href="#">Cooling Unit 12</a></p>
+              </div>
+            </div>
+            <form onsubmit="return false;">
+              <div class="field">
+                <label for="f2-title">Title</label>
+                <input type="text" id="f2-title" value="Quarterly compressor maintenance" />
+              </div>
+              <div class="field">
+                <label for="f2-desc">Description</label>
+                <textarea id="f2-desc">Scheduled preventive maintenance: inspect compressor belts, check refrigerant charge, clean condenser coils.</textarea>
+              </div>
+              <div class="field-row cols-3">
+                <div class="field">
+                  <label for="f2-type">Type</label>
+                  <div class="static-status" id="f2-type">
+                    <span class="pill type-tag">Maintenance</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="f2-status">Status</label>
+                  <div class="static-status" id="f2-status">
+                    <span class="pill status-progress">In progress</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="f2-priority">Priority</label>
+                  <select id="f2-priority"><option>Low</option><option selected>Medium</option><option>High</option></select>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="section-block">
+            <div class="section-label-row">
+              <p class="section-label">Field Service Status</p>
+              <span class="section-hint">Synced from FSM &middot; read-only</span>
+            </div>
+            <div class="info-grid">
+              <div class="info-card">
+                <p class="info-label">Assignee</p>
+                <p class="info-value">J. Alvarez</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Scheduled window</p>
+                <p class="info-value">Tomorrow, 09:00&ndash;12:00</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Due</p>
+                <p class="info-value">Sun, 17:00</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Progress</p>
+                <div class="progress-row">
+                  <div class="progress-track"><div class="progress-fill" style="width:65%"></div></div>
+                  <span class="progress-value">65%</span>
+                </div>
+              </div>
+              <div class="info-card">
+                <p class="info-label">FSM task</p>
+                <p class="info-value"><a class="info-link" href="#">FSM-88190 &#8599;</a></p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">External ID</p>
+                <p class="info-value"><code>EXT-SR-77264</code></p>
+              </div>
+            </div>
+          </div>
+          <div class="section-block">
+            <p class="section-label">Attachment</p>
+            <div class="attach-slot" data-attach-slot>
+              <div class="drop-area-mock" data-drop-trigger tabindex="0" role="button" aria-label="Upload file, drop file here">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M8 10.5V3.5M5 6.5l3-3 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M3 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                <div class="dz-text"><span class="title">Upload file</span><span class="sub">Drop file here, or click to browse</span></div>
+              </div>
+              <input type="file" hidden data-file-input />
+            </div>
+          </div>
+          <div class="section-block">
+            <details class="disclosure" open>
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Comments (3)</p>
+              </summary>
+              <div class="disclosure-body">
+                <div class="history-list comment-history-list">
+                  <div class="history-item">
+                    <span class="history-time">Today, 07:40</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>System</b> &mdash; Reminder: scheduled window starts tomorrow 09:00.</div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">Yest. 08:20</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>M. Torres</b> &mdash; Parts ordered, on site Thursday.</div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">2d ago, 08:05</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>System</b> &mdash; Service request created.</div>
+                  </div>
+                </div>
+                <div class="comment-attach-row" data-attach-slot style="display:none;">
+                  <div class="drop-area-mock sm" data-drop-trigger tabindex="0" role="button" aria-label="Upload file, drop file here">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M8 10.5V3.5M5 6.5l3-3 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M3 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                    <div class="dz-text"><span class="title">Upload file</span><span class="sub">Drop file here, or click to browse</span></div>
+                  </div>
+                  <input type="file" hidden data-file-input />
+                </div>
+                <div class="comment-input-row">
+                  <textarea placeholder="Add a comment&hellip;"></textarea>
+                  <button type="button" class="btn sm icon-only" data-attach-toggle title="Attach file" aria-label="Attach file">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M9.8 3.7 4.9 8.6a2.3 2.3 0 0 0 3.3 3.3l4.4-4.4a1.4 1.4 0 0 0-2-2L6.4 9.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  </button>
+                  <button class="btn sm">Post</button>
+                </div>
+              </div>
+            </details>
+          </div>
+          <div class="section-block">
+            <details class="raw-json">
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Raw JSON</p>
+                <button type="button" class="icon-btn-sm" data-copy-json title="Copy JSON">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M6 6h6v7H6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M4 10V3h6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+                </button>
+              </summary>
+              <pre class="raw-json-pre" data-json>{
+  "id": "35",
+  "type": "maintenance",
+  "status": { "id": "IN_PROGRESS", "name": "In progress" },
+  "priority": { "name": "Medium", "ordinal": 2 },
+  "title": "Quarterly compressor maintenance",
+  "description": "Scheduled preventive maintenance: inspect compressor belts, check refrigerant charge, clean condenser coils.",
+  "source": { "id": "35196412", "name": "Cooling Unit 12", "self": "https://windy-dev.eu-latest.cumulocity.com/inventory/managedObjects/35196412" },
+  "alarmRef": null,
+  "eventRef": null,
+  "seriesRef": null,
+  "creationTime": "2026-08-12T08:00:00.000Z",
+  "lastUpdated": "2026-08-13T08:20:00.000Z",
+  "owner": "admin",
+  "isActive": true,
+  "isClosed": false,
+  "externalId": "EXT-SR-77264",
+  "attachment": null,
+  "order": { "id": "SO-1035", "self": "https://fsm.example.com/service-orders/SO-1035" },
+  "fieldAssignee": "J. Alvarez",
+  "fieldScheduleStart": "2026-08-15T09:00:00.000Z",
+  "fieldScheduleEnd": "2026-08-15T12:00:00.000Z",
+  "fieldScheduleDue": "2026-08-16T17:00:00.000Z",
+  "fieldProgressPercentage": 65,
+  "fsmLink": "https://fsm.example.com/tasks/FSM-88190",
+  "customProperties": null
+}</pre>
+            </details>
+          </div>
+        </div>
+        <div class="detail-footer">
+          <div class="left-actions">
+            <button class="btn">Reset</button>
+          </div>
+          <div class="right-actions">
+            <button class="btn danger-outline">Resolve</button>
+            <button class="btn primary">Update</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW: sr-039 (closed) ===== -->
+      <div class="view" data-view="sr-039">
+        <div class="detail-header">
+          <div class="detail-title-block">
+            <div class="detail-eyebrow">SR-039 &middot; Service request &middot; Alarm &middot; Closed</div>
+            <h2 class="detail-title">Humidity sensor calibration</h2>
+          </div>
+          <button class="btn ghost back-btn" data-back="1">&larr; Back</button>
+        </div>
+        <div class="detail-body">
+          <div class="section-block">
+            <p class="section-label">Service Request</p>
+            <div class="banner">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9.2 4.8 12.5 8l-3.3 3.2M6.8 4.8 3.5 8l3.3 3.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <div class="banner-text">Created from alarm &middot; Ambient humidity above optimal range</div>
+              <button class="btn sm" data-select="alarm-4">Open alarm</button>
+            </div>
+            <div class="info-grid">
+              <div class="info-card">
+                <p class="info-label">Opened by</p>
+                <p class="info-value">admin, yesterday</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Resolved</p>
+                <p class="info-value">Yesterday, 18:12</p>
+              </div>
+            </div>
+            <form onsubmit="return false;">
+              <div class="field">
+                <label for="f3-title">Title</label>
+                <input type="text" id="f3-title" value="Humidity sensor calibration" disabled />
+              </div>
+              <div class="field">
+                <label for="f3-desc">Description</label>
+                <textarea id="f3-desc" disabled>Recalibrated humidity probe on evaporator inlet; readings back within tolerance.</textarea>
+              </div>
+              <div class="field-row cols-3">
+                <div class="field">
+                  <label for="f3-type">Type</label>
+                  <div class="static-status" id="f3-type">
+                    <span class="pill type-tag">Alarm</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="f3-status">Status</label>
+                  <div class="static-status" id="f3-status">
+                    <span class="pill status-closed">Closed</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="f3-priority">Priority</label>
+                  <select id="f3-priority" disabled><option selected>Low</option><option>Medium</option><option>High</option></select>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="section-block">
+            <div class="section-label-row">
+              <p class="section-label">Field Service Status</p>
+              <span class="section-hint">Synced from FSM &middot; read-only</span>
+            </div>
+            <div class="info-grid">
+              <div class="info-card">
+                <p class="info-label">Assignee</p>
+                <p class="info-value">A. Kruger</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Scheduled window</p>
+                <p class="info-value">Yesterday, 15:00&ndash;18:00</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Due</p>
+                <p class="info-value">Yesterday, 18:00</p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">Progress</p>
+                <div class="progress-row">
+                  <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+                  <span class="progress-value">100%</span>
+                </div>
+              </div>
+              <div class="info-card">
+                <p class="info-label">FSM task</p>
+                <p class="info-value"><a class="info-link" href="#">FSM-88055 &#8599;</a></p>
+              </div>
+              <div class="info-card">
+                <p class="info-label">External ID</p>
+                <p class="info-value"><code>EXT-SR-77103</code></p>
+              </div>
+            </div>
+          </div>
+          <div class="section-block">
+            <p class="section-label">Attachment</p>
+            <div class="attachment-chip">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 2h5l3 3v9H4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M9 2v3h3" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+              <div class="attach-info">
+                <div class="attach-name">Calibration_report.pdf</div>
+                <div class="attach-size">410 KB</div>
+              </div>
+              <button type="button" class="icon-btn-sm" data-download title="Download">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M3 12.5h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="section-block">
+            <details class="disclosure" open>
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Comments (3)</p>
+              </summary>
+              <div class="disclosure-body">
+                <div class="history-list comment-history-list">
+                  <div class="history-item">
+                    <span class="history-time">Yest. 18:12</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>System</b> &mdash; Service request resolved.</div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">Yest. 15:00</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>A. Kruger</b> &mdash; Arrived on site, recalibrating humidity probe.</div>
+                  </div>
+                  <div class="history-item">
+                    <span class="history-time">Yest. 09:40</span>
+                    <span class="history-dot"></span>
+                    <div class="history-text"><b>System</b> &mdash; Service request created from alarm.</div>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+          <div class="section-block">
+            <details class="raw-json">
+              <summary>
+                <svg class="chevron" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <p class="section-label">Raw JSON</p>
+                <button type="button" class="icon-btn-sm" data-copy-json title="Copy JSON">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M6 6h6v7H6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M4 10V3h6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+                </button>
+              </summary>
+              <pre class="raw-json-pre" data-json>{
+  "id": "39",
+  "type": "alarm",
+  "status": { "id": "CLOSED", "name": "Closed" },
+  "priority": { "name": "Low", "ordinal": 1 },
+  "title": "Humidity sensor calibration",
+  "description": "Recalibrated humidity probe on evaporator inlet; readings back within tolerance.",
+  "source": { "id": "35196412", "name": "Cooling Unit 12", "self": "https://windy-dev.eu-latest.cumulocity.com/inventory/managedObjects/35196412" },
+  "alarmRef": { "id": "452301", "uri": "https://windy-dev.eu-latest.cumulocity.com/alarm/alarms/452301" },
+  "eventRef": null,
+  "seriesRef": null,
+  "creationTime": "2026-08-13T09:40:00.000Z",
+  "lastUpdated": "2026-08-13T18:12:00.000Z",
+  "owner": "admin",
+  "isActive": false,
+  "isClosed": true,
+  "externalId": "EXT-SR-77103",
+  "attachment": { "name": "Calibration_report.pdf", "length": 419840, "type": "application/pdf" },
+  "order": { "id": "SO-1039", "self": "https://fsm.example.com/service-orders/SO-1039" },
+  "fieldAssignee": "A. Kruger",
+  "fieldScheduleStart": "2026-08-13T15:00:00.000Z",
+  "fieldScheduleEnd": "2026-08-13T18:00:00.000Z",
+  "fieldScheduleDue": "2026-08-13T18:00:00.000Z",
+  "fieldProgressPercentage": 100,
+  "fsmLink": "https://fsm.example.com/tasks/FSM-88055",
+  "customProperties": null
+}</pre>
+            </details>
+          </div>
+        </div>
+        <div class="detail-footer">
+          <div class="left-actions"></div>
+          <div class="right-actions">
+            <span class="assumption-note">This request is closed and read-only.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW: new (blank creation form) ===== -->
+      <div class="view" data-view="new">
+        <div class="detail-header">
+          <div class="detail-title-block">
+            <div class="detail-eyebrow">New service request</div>
+            <h2 class="detail-title" id="newTitleHeading">For Cooling Unit 12</h2>
+          </div>
+          <button class="btn ghost back-btn" data-back="1">&larr; Back</button>
+        </div>
+        <div class="detail-body">
+          <div class="section-block">
+            <p class="section-label">Service Request</p>
+            <div class="banner" id="newFromAlarmNote" style="display:none;">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M8 2 14 13H2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></svg>
+              <div class="banner-text" id="newFromAlarmText"></div>
+            </div>
+            <form onsubmit="return false;">
+              <div class="field">
+                <label for="fn-title">Title</label>
+                <input type="text" id="fn-title" placeholder="e.g. Compressor vibration investigation" />
+              </div>
+              <div class="field">
+                <label for="fn-desc">Description</label>
+                <textarea id="fn-desc" placeholder="What needs attention?"></textarea>
+              </div>
+              <div class="field-row" id="newRefsSection">
+                <div class="field">
+                  <label for="fn-alarm-ref">Alarm reference <span class="field-optional">(optional)</span></label>
+                  <select id="fn-alarm-ref">
+                    <option value="" selected>&mdash; None &mdash;</option>
+                    <option value="alarm-2">Compressor vibration threshold exceeded</option>
+                    <option value="alarm-3">Door sensor offline intermittently</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="fn-event-ref">Event reference <span class="field-optional">(optional)</span></label>
+                  <select id="fn-event-ref">
+                    <option value="" selected>&mdash; None &mdash;</option>
+                    <option value="evt-1">Firmware updated to v2.3.1</option>
+                    <option value="evt-2">Manual inspection logged by technician</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field-row cols-3">
+                <div class="field">
+                  <label for="fn-type">Type</label>
+                  <select id="fn-type">
+                    <option>Alarm</option>
+                    <option>Note</option>
+                    <option>Maintenance</option>
+                    <option>Downtime</option>
+                    <option selected>Other</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="fn-status">Status</label>
+                  <div class="static-status" id="fn-status">
+                    <span class="pill status-open">Open</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="fn-priority">Priority</label>
+                  <select id="fn-priority"><option>Low</option><option selected>Medium</option><option>High</option></select>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="section-block">
+            <p class="section-label">Attachment</p>
+            <div class="attach-slot" data-attach-slot>
+              <div class="drop-area-mock" data-drop-trigger tabindex="0" role="button" aria-label="Upload file, drop file here">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M8 10.5V3.5M5 6.5l3-3 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M3 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                <div class="dz-text"><span class="title">Upload file</span><span class="sub">Drop file here, or click to browse</span></div>
+              </div>
+              <input type="file" hidden data-file-input />
+            </div>
+          </div>
+        </div>
+        <div class="detail-footer">
+          <div class="left-actions"></div>
+          <div class="right-actions">
+            <button class="btn">Cancel</button>
+            <button class="btn primary">Submit</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="view active" data-view="__empty">
+        <div class="empty-hint">Select an alarm or service request from the timeline to see its details.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var timeline = document.getElementById('timeline');
+    var detailCol = document.getElementById('detailCol');
+    var split = document.getElementById('split');
+
+    function selectView(id) {
+      detailCol.querySelectorAll('.view').forEach(function (v) {
+        v.classList.toggle('active', v.getAttribute('data-view') === id);
+      });
+      timeline.querySelectorAll('.tl-box[data-select]').forEach(function (el) {
+        var match = el.getAttribute('data-select') === id;
+        el.classList.toggle('selected', match);
+        el.setAttribute('aria-pressed', match ? 'true' : 'false');
+      });
+      split.classList.add('show-detail');
+    }
+
+    timeline.addEventListener('click', function (e) {
+      var createBtn = e.target.closest('[data-create-from]');
+      if (createBtn) {
+        openNewForm(createBtn.getAttribute('data-create-from'));
+        return;
+      }
+      var target = e.target.closest('[data-select]');
+      if (target) selectView(target.getAttribute('data-select'));
+    });
+
+    timeline.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var createBtn = e.target.closest('[data-create-from]');
+      if (createBtn) { e.preventDefault(); openNewForm(createBtn.getAttribute('data-create-from')); return; }
+      var target = e.target.closest('[data-select]');
+      if (target) { e.preventDefault(); selectView(target.getAttribute('data-select')); }
+    });
+
+    detailCol.addEventListener('click', function (e) {
+      var jump = e.target.closest('[data-select]');
+      if (jump) { selectView(jump.getAttribute('data-select')); return; }
+      var createBtn = e.target.closest('[data-create-from]');
+      if (createBtn) { openNewForm(createBtn.getAttribute('data-create-from')); return; }
+      var back = e.target.closest('[data-back]');
+      if (back) { split.classList.remove('show-detail'); }
+    });
+
+    var alarmTitles = {
+      'alarm-2': 'Compressor vibration threshold exceeded',
+      'alarm-3': 'Door sensor offline intermittently'
+    };
+
+    function openNewForm(fromAlarmId) {
+      var note = document.getElementById('newFromAlarmNote');
+      var text = document.getElementById('newFromAlarmText');
+      var heading = document.getElementById('newTitleHeading');
+      var titleInput = document.getElementById('fn-title');
+      var typeSelect = document.getElementById('fn-type');
+      var refsSection = document.getElementById('newRefsSection');
+      var alarmRefSelect = document.getElementById('fn-alarm-ref');
+      var eventRefSelect = document.getElementById('fn-event-ref');
+      if (fromAlarmId && alarmTitles[fromAlarmId]) {
+        note.style.display = 'flex';
+        text.textContent = 'Pre-filled from alarm: "' + alarmTitles[fromAlarmId] + '"';
+        titleInput.value = alarmTitles[fromAlarmId];
+        heading.textContent = 'From alarm on Cooling Unit 12';
+        typeSelect.value = 'Alarm';
+        refsSection.style.display = 'none';
+      } else {
+        note.style.display = 'none';
+        titleInput.value = '';
+        heading.textContent = 'For Cooling Unit 12';
+        typeSelect.value = 'Other';
+        refsSection.style.display = 'grid';
+        alarmRefSelect.value = '';
+        eventRefSelect.value = '';
+      }
+      selectView('new');
+    }
+
+    document.getElementById('newRequestBtn').addEventListener('click', function () {
+      openNewForm(null);
+    });
+
+    // ---- Attachments: c8y-file-picker style drop area / chip, one file per slot ----
+    var DROP_ICON = '<svg viewBox="0 0 16 16" fill="none"><path d="M8 10.5V3.5M5 6.5l3-3 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M3 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>';
+    var FILE_ICON = '<svg viewBox="0 0 16 16" fill="none"><path d="M4 2h5l3 3v9H4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><path d="M9 2v3h3" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>';
+    var DOWNLOAD_ICON = '<svg viewBox="0 0 16 16" fill="none"><path d="M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M3 12.5h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>';
+    var REMOVE_ICON = '<svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>';
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function resetSlot(slot, compact) {
+      slot.innerHTML =
+        '<div class="drop-area-mock' + (compact ? ' sm' : '') + '" data-drop-trigger tabindex="0" role="button" aria-label="Upload file, drop file here">' +
+          DROP_ICON +
+          '<div class="dz-text"><span class="title">Upload file</span><span class="sub">Drop file here, or click to browse</span></div>' +
+        '</div>' +
+        '<input type="file" hidden data-file-input />';
+      wireSlot(slot, compact);
+    }
+
+    function renderChip(slot, file, compact) {
+      slot.innerHTML =
+        '<div class="attachment-chip">' +
+          FILE_ICON +
+          '<div class="attach-info"><div class="attach-name"></div><div class="attach-size"></div></div>' +
+          '<button type="button" class="icon-btn-sm" data-download title="Download">' + DOWNLOAD_ICON + '</button>' +
+          '<button type="button" class="icon-btn-sm" data-remove title="Remove">' + REMOVE_ICON + '</button>' +
+        '</div>';
+      slot.querySelector('.attach-name').textContent = file.name;
+      slot.querySelector('.attach-size').textContent = formatSize(file.size);
+      slot.querySelector('[data-remove]').addEventListener('click', function (e) {
+        e.stopPropagation();
+        resetSlot(slot, compact);
+      });
+    }
+
+    function wireSlot(slot, compact) {
+      var trigger = slot.querySelector('[data-drop-trigger]');
+      var input = slot.querySelector('[data-file-input]');
+      if (!trigger || !input) return;
+      trigger.addEventListener('click', function () { input.click(); });
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+      });
+      input.addEventListener('change', function () {
+        if (input.files && input.files[0]) renderChip(slot, input.files[0], compact);
+      });
+    }
+
+    document.querySelectorAll('[data-attach-slot]').forEach(function (slot) {
+      var compact = slot.classList.contains('comment-attach-row');
+      wireSlot(slot, compact);
+      var removeBtn = slot.querySelector('[data-remove]');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          resetSlot(slot, compact);
+        });
+      }
+    });
+
+    document.querySelectorAll('[data-attach-toggle]').forEach(function (toggleBtn) {
+      toggleBtn.addEventListener('click', function () {
+        var row = toggleBtn.closest('.comment-input-row').previousElementSibling;
+        if (row && row.classList.contains('comment-attach-row')) {
+          row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-copy-json]').forEach(function (copyBtn) {
+      copyBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var pre = copyBtn.closest('.raw-json').querySelector('[data-json]');
+        var text = pre ? pre.textContent : '';
+        var restoreTitle = copyBtn.getAttribute('title');
+        function flash(label) {
+          copyBtn.setAttribute('title', label);
+          setTimeout(function () { copyBtn.setAttribute('title', restoreTitle); }, 1400);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () { flash('Copied'); }).catch(function () { flash('Copy failed'); });
+        } else {
+          flash('Copy unsupported');
+        }
+      });
+    });
+  })();
+</script>

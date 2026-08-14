@@ -3,3 +3,5 @@ dist
 .vscode
 .angular
 .env
+.playwright-mcp
+.claude
