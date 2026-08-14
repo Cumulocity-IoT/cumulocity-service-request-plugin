@@ -113,7 +113,7 @@ A high-fidelity HTML/CSS mockup implementing everything below lives at [`docs/de
 - **FR-067**: An alarm with no linked service request shall show an empty, dashed placeholder box directly beside it in the timeline (in place of a service-request box) with a "Create service request" call to action, so one can be created without leaving the timeline.
 - **FR-068**: The timeline's severity/date/status filters (FR-007) apply to alarms only. All service requests that are not closed shall always be shown in the timeline regardless of the current alarm filter selection — the alarm filters have no effect on which service requests are visible.
 - **FR-069**: The timeline shall continue to show a severity icon and status icon per alarm using the standard severity-to-icon mapping (`circle`/`high-priority`/`warning`/`exclamation-circle`) and an occurrence-count badge for alarms with `count > 1`, per the standard badge pattern.
-- **FR-070**: Each service-request box shall show a distinct "online-support" icon (visually distinguishing it from the alarm's severity-badged icon), the request's status and priority pills, and its type (see FR-077); closed requests shall remain visually distinguished (FR-019).
+- **FR-070**: Each service-request box shall show a distinct duo-color "c8y-support" icon (visually distinguishing it from the alarm's severity-badged icon), the request's status and priority pills, and its type (see FR-077); closed requests shall remain visually distinguished (FR-019).
 
 ### Split view & detail panel
 
