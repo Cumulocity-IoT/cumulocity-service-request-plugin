@@ -144,6 +144,6 @@ A high-fidelity HTML/CSS mockup implementing everything below lives at [`docs/de
 - ~~Exact chronological ordering rule for the combined timeline~~ — resolved by FR-063 (newest-first).
 - ~~Whether the connecting arrow is interactive~~ — resolved by FR-064 (decorative only).
 - Responsive behavior of the timeline/detail relationship on narrow (tablet/mobile) layouts — **still open**; the mockup was only built and verified at desktop widths.
-- The mockup only demonstrates the Alarm and Maintenance request types (FR-077) end to end; Note, Downtime, and Other aren't represented by an example service request yet.
+- This version focuses on the alarm-to-service-request flow end to end (FR-063–FR-076, FR-082). The Note, Maintenance, Downtime, and Other request types (FR-077) are enumerated and selectable, and Maintenance has one example in the timeline, but detailed handling of these non-alarm types (e.g. type-specific fields, distinct workflows) is intentionally deferred to a future version.
 - Whether `type` (FR-077) is truly immutable after creation, or just not exposed as editable in this UI, needs confirming with product/backend — the mockup assumes the former.
 - The Event reference picker (FR-076) uses two placeholder demo events, since the mockup has no real event data to select from; the actual event-selection UX (e.g. searching/filtering a potentially long event list) still needs designing.
