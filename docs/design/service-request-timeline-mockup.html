@@ -487,19 +487,34 @@
     background: transparent;
     color: var(--text-faint);
     flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px;
+    cursor: default;
+  }
+  .sr-empty-action {
+    display: flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    padding: 6px 8px;
+    border-radius: var(--radius-s);
+    cursor: pointer;
     text-align: center;
-    gap: 4px;
-    padding: 12px 10px;
   }
-  .tl-box.sr-empty:hover {
+  .sr-empty-action:hover {
     background: var(--surface-2);
-    border-color: var(--text-muted);
     color: var(--text-muted);
   }
-  .tl-box.sr-empty svg { width: 15px; height: 15px; }
-  .tl-box.sr-empty span { font-size: 11.5px; font-weight: 600; }
+  .sr-empty-action svg { width: 15px; height: 15px; flex: none; }
+  .sr-empty-action span { font-size: 11.5px; font-weight: 600; }
+  .sr-empty-action.secondary { color: var(--text-faint); }
+  .sr-empty-divider { height: 1px; background: var(--border); margin: 0 6px; }
 
   .tl-arrow {
     flex: none;
@@ -1024,6 +1039,84 @@
   }
   .comment-history-list .history-item { align-items: flex-start; }
   .comment-history-list .history-text .attachment-chip { margin-top: 8px; }
+
+  /* ---------- "Add existing service request" lookup modal ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 21, 0.4);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+    z-index: 50;
+  }
+  .modal-overlay[hidden] { display: none; }
+  .modal-dialog {
+    width: 440px;
+    max-width: calc(100vw - 32px);
+    max-height: 70vh;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 12px 32px rgba(20, 20, 21, 0.28);
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 8px 12px 16px;
+    border-bottom: 1px solid var(--border);
+    flex: none;
+  }
+  .modal-header h3 { margin: 0; font-size: 14px; font-weight: 700; color: var(--text); }
+  .modal-body {
+    padding: 12px 16px 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+  }
+  .modal-search {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-s);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+  }
+  .modal-list {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+  }
+  .modal-list-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+    background: var(--bg);
+    padding: 8px 10px;
+    cursor: pointer;
+    font: inherit;
+    color: var(--text);
+  }
+  .modal-list-item:hover { background: var(--surface-2); border-color: var(--border-strong); }
+  .modal-list-item .mli-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .modal-list-item .mli-id { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+  .modal-list-item .mli-title { font-size: 12.5px; }
+  .modal-list-item .mli-sub { font-size: 11px; color: var(--text-faint); }
+  .modal-empty { font-size: 12.5px; color: var(--text-faint); text-align: center; margin: 12px 0; }
 </style>
 
 <div class="app" id="app">
@@ -1147,7 +1240,7 @@
                     <span class="pill pri-high">High</span>
                   </div>
                   <div class="sr-title">Compressor discharge temperature investigation</div>
-                  <div class="sr-sub">Updated 9 min ago &middot; 2 comments</div>
+                  <div class="sr-sub" data-sr-sub="sr-042">Updated 9 min ago &middot; 2 comments</div>
                 </div>
               </div>
             </div>
@@ -1177,9 +1270,16 @@
               <div class="tl-arrow muted" aria-hidden="true">
                 <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9.5 4l3.5 4-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
               </div>
-              <div class="tl-box sr-empty" data-create-from="alarm-2" tabindex="0" role="button">
-                <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
-                <span>Create service request</span>
+              <div class="tl-box sr-empty" data-empty-for="alarm-2">
+                <button type="button" class="sr-empty-action" data-create-from="alarm-2">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+                  <span>Create service request</span>
+                </button>
+                <div class="sr-empty-divider"></div>
+                <button type="button" class="sr-empty-action secondary" data-link-existing="alarm-2">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M6.5 9.5 9.5 6.5M7 5.5l.6-.6a2.1 2.1 0 0 1 3 3l-.6.6M9 10.5l-.6.6a2.1 2.1 0 0 1-3-3l.6-.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  <span>Add existing service request</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1208,9 +1308,16 @@
               <div class="tl-arrow muted" aria-hidden="true">
                 <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9.5 4l3.5 4-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
               </div>
-              <div class="tl-box sr-empty" data-create-from="alarm-3" tabindex="0" role="button">
-                <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
-                <span>Create service request</span>
+              <div class="tl-box sr-empty" data-empty-for="alarm-3">
+                <button type="button" class="sr-empty-action" data-create-from="alarm-3">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+                  <span>Create service request</span>
+                </button>
+                <div class="sr-empty-divider"></div>
+                <button type="button" class="sr-empty-action secondary" data-link-existing="alarm-3">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M6.5 9.5 9.5 6.5M7 5.5l.6-.6a2.1 2.1 0 0 1 3 3l-.6.6M9 10.5l-.6.6a2.1 2.1 0 0 1-3-3l.6-.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  <span>Add existing service request</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1236,7 +1343,7 @@
                     <span class="pill pri-medium">Medium</span>
                   </div>
                   <div class="sr-title">Quarterly compressor maintenance</div>
-                  <div class="sr-sub">Not linked to an alarm</div>
+                  <div class="sr-sub" data-sr-sub="sr-035">Not linked to an alarm</div>
                 </div>
               </div>
             </div>
@@ -1463,6 +1570,10 @@
               <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
               Create service request
             </button>
+            <button class="btn" data-link-existing="alarm-2">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M6.5 9.5 9.5 6.5M7 5.5l.6-.6a2.1 2.1 0 0 1 3 3l-.6.6M9 10.5l-.6.6a2.1 2.1 0 0 1-3-3l.6-.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              Add existing service request
+            </button>
           </div>
         </div>
       </div>
@@ -1542,6 +1653,10 @@
             <button class="btn primary" data-create-from="alarm-3">
               <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
               Create service request
+            </button>
+            <button class="btn" data-link-existing="alarm-3">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M6.5 9.5 9.5 6.5M7 5.5l.6-.6a2.1 2.1 0 0 1 3 3l-.6.6M9 10.5l-.6.6a2.1 2.1 0 0 1-3-3l.6-.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              Add existing service request
             </button>
           </div>
         </div>
@@ -2324,6 +2439,26 @@
   </div>
 </div>
 
+<!-- "Add existing service request" lookup: searches existing requests client-side (the
+     service-request-mgmt list API has no title-search query param) and, on selection, links
+     the alarm via the dedicated PUT /service/request/{id}/alarm endpoint rather than
+     resending the whole alarmRefList. -->
+<div class="modal-overlay" id="linkExistingOverlay" hidden>
+  <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="linkExistingTitle">
+    <div class="modal-header">
+      <h3 id="linkExistingTitle">Add existing service request</h3>
+      <button type="button" class="icon-btn-sm" id="linkExistingClose" aria-label="Close">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="text" id="linkExistingSearch" class="modal-search" placeholder="Search by title or ID&hellip;" autocomplete="off" />
+      <div class="modal-list" id="linkExistingResults"></div>
+      <p class="modal-empty" id="linkExistingEmpty" hidden>No matching service requests.</p>
+    </div>
+  </div>
+</div>
+
 <script>
   (function () {
     var timeline = document.getElementById('timeline');
@@ -2348,6 +2483,11 @@
         openNewForm(createBtn.getAttribute('data-create-from'));
         return;
       }
+      var linkBtn = e.target.closest('[data-link-existing]');
+      if (linkBtn) {
+        openLinkExistingModal(linkBtn.getAttribute('data-link-existing'));
+        return;
+      }
       var target = e.target.closest('[data-select]');
       if (target) selectView(target.getAttribute('data-select'));
     });
@@ -2356,6 +2496,8 @@
       if (e.key !== 'Enter' && e.key !== ' ') return;
       var createBtn = e.target.closest('[data-create-from]');
       if (createBtn) { e.preventDefault(); openNewForm(createBtn.getAttribute('data-create-from')); return; }
+      var linkBtn = e.target.closest('[data-link-existing]');
+      if (linkBtn) { e.preventDefault(); openLinkExistingModal(linkBtn.getAttribute('data-link-existing')); return; }
       var target = e.target.closest('[data-select]');
       if (target) { e.preventDefault(); selectView(target.getAttribute('data-select')); }
     });
@@ -2365,6 +2507,8 @@
       if (jump) { selectView(jump.getAttribute('data-select')); return; }
       var createBtn = e.target.closest('[data-create-from]');
       if (createBtn) { openNewForm(createBtn.getAttribute('data-create-from')); return; }
+      var linkBtn = e.target.closest('[data-link-existing]');
+      if (linkBtn) { openLinkExistingModal(linkBtn.getAttribute('data-link-existing')); return; }
       var back = e.target.closest('[data-back]');
       if (back) { split.classList.remove('show-detail'); }
     });
@@ -2404,6 +2548,192 @@
 
     document.getElementById('newRequestBtn').addEventListener('click', function () {
       openNewForm(null);
+    });
+
+    // ---- "Add existing service request": link the current alarm to an existing request ----
+    // Relationship: one service request can reference many alarms (its alarmRefList), but a
+    // given alarm links to at most one service request. Linking here simulates calling the
+    // dedicated PUT /service/request/{id}/alarm endpoint (a single ServiceRequestDataRef body)
+    // rather than resending the whole alarmRefList. The lookup list is filtered client-side
+    // since the list API has no title-search query parameter.
+    var alarmDisplay = {
+      'alarm-1': { title: 'Discharge temperature exceeds 8°C threshold' },
+      'alarm-2': { title: 'Compressor vibration threshold exceeded' },
+      'alarm-3': { title: 'Door sensor offline intermittently' },
+      'alarm-4': { title: 'Ambient humidity above optimal range' }
+    };
+
+    var linkableRequests = {
+      'sr-042': {
+        code: 'SR-042', title: 'Compressor discharge temperature investigation',
+        type: 'Alarm', statusClass: 'status-open', statusLabel: 'Open',
+        priorityClass: 'pri-high', priorityLabel: 'High',
+        linkedAlarms: ['alarm-1']
+      },
+      'sr-035': {
+        code: 'SR-035', title: 'Quarterly compressor maintenance',
+        type: 'Maintenance', statusClass: 'status-progress', statusLabel: 'In progress',
+        priorityClass: 'pri-medium', priorityLabel: 'Medium',
+        linkedAlarms: []
+      }
+    };
+
+    var SUPPORT_ICON_SVG = '<svg viewBox="0 0 32 32" fill="none">' +
+      '<path d="M25.8129 25.4447C21.9936 24.5625 18.4381 23.7896 20.1599 20.5379C20.6036 19.6983 20.9807 18.8921 21.3006 18.1191C20.3371 18.6709 19.2656 19.096 18.6806 19.2426L18.4314 18.0592C19.7068 17.6954 21.0821 17.0157 22.0416 16.0176C24.0805 9.0385 20.6356 5.34703 16.014 5.34703C10.3716 5.34703 6.61212 10.8429 11.8694 20.5379C13.6432 23.8082 9.95444 24.5811 6.21769 25.4447C2.91006 26.207 2.6875 27.8235 2.6875 30.6207V32H29.3404V30.6207C29.3404 27.8235 29.1179 26.207 25.8129 25.4447ZM16.022 20.1394C15.5329 20.2407 15.0531 19.9249 14.9532 19.4344C14.8506 18.9441 15.1678 18.4629 15.6555 18.363L17.6038 17.9299L17.9676 19.7077L16.022 20.1394Z" fill="currentColor" />' +
+      '<path class="support-icon-accent" d="M8.97245 7.97944C7.84457 10.1286 7.71407 12.8589 8.5557 15.9589C6.44239 15.9589 5.31982 13.9494 5.31982 11.9479C5.31982 9.95969 6.42507 7.97944 8.97245 7.97944ZM22.9571 7.97944C25.5045 7.97944 26.6258 9.965 26.6258 11.9559C26.6258 13.9547 25.4939 15.9589 23.3526 15.9589C24.1889 12.8416 24.0651 10.1112 22.9571 7.97944ZM15.9728 0C20.0742 0 22.8653 3.0415 23.5683 6.982H21.9544C21.23 4.0775 18.9396 2.30341 15.9728 2.31003C13.0059 2.30338 10.7156 4.07747 9.99114 6.982H8.37726C9.08032 3.0415 11.8714 0 15.9728 0Z" fill="currentColor" />' +
+      '</svg>';
+
+    function srBoxHtml(reqId, req) {
+      var sub = req.linkedAlarms.length > 1 ? ('Linked to ' + req.linkedAlarms.length + ' alarms') : 'Linked just now';
+      return '<div class="tl-box sr-box" data-select="' + reqId + '" tabindex="0" role="button" aria-pressed="false">' +
+          '<span class="support-icon">' + SUPPORT_ICON_SVG + '</span>' +
+          '<div class="row-main">' +
+            '<div class="sr-card-top">' +
+              '<span class="sr-id">' + req.code + '</span>' +
+              '<span class="pill type-tag">' + req.type + '</span>' +
+              '<span class="pill ' + req.statusClass + '">' + req.statusLabel + '</span>' +
+              '<span class="pill ' + req.priorityClass + '">' + req.priorityLabel + '</span>' +
+            '</div>' +
+            '<div class="sr-title">' + req.title + '</div>' +
+            '<div class="sr-sub" data-sr-sub="' + reqId + '">' + sub + '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function addRequestRefBanner(alarmViewId, reqId, code, title) {
+      var view = document.querySelector('[data-view="' + alarmViewId + '"]');
+      if (!view) return;
+      var body = view.querySelector('.detail-body');
+      var banner = document.createElement('div');
+      banner.className = 'banner';
+      banner.innerHTML =
+        '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>' +
+        '<div class="banner-text">Linked to <b>' + code + '</b> &middot; ' + title + '<small>Linked just now</small></div>' +
+        '<button type="button" class="btn sm" data-select="' + reqId + '">Open</button>';
+      body.insertBefore(banner, body.firstChild);
+    }
+
+    function addAlarmRefBanner(requestViewId, alarmId, label) {
+      var view = document.querySelector('[data-view="' + requestViewId + '"]');
+      if (!view) return;
+      var block = view.querySelector('.section-block');
+      var banners = block.querySelectorAll(':scope > .banner');
+      var anchor = banners.length ? banners[banners.length - 1] : block.querySelector('.section-label');
+      var banner = document.createElement('div');
+      banner.className = 'banner';
+      banner.innerHTML =
+        '<svg viewBox="0 0 16 16" fill="none"><path d="M8 2 14 13H2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></svg>' +
+        '<div class="banner-text">' + label + '</div>' +
+        '<button type="button" class="btn sm" data-select="' + alarmId + '">Open alarm</button>';
+      anchor.insertAdjacentElement('afterend', banner);
+    }
+
+    function disableAlarmCreationActions(alarmViewId) {
+      var view = document.querySelector('[data-view="' + alarmViewId + '"]');
+      if (!view) return;
+      var createBtn = view.querySelector('[data-create-from]');
+      if (createBtn) createBtn.remove();
+      var linkBtn = view.querySelector('[data-link-existing]');
+      if (linkBtn) linkBtn.remove();
+    }
+
+    function linkAlarmToExistingRequest(alarmId, reqId) {
+      var req = linkableRequests[reqId];
+      var alarm = alarmDisplay[alarmId];
+      if (!req || !alarm || req.linkedAlarms.indexOf(alarmId) !== -1) return;
+
+      // Simulated: PUT /service/request/{reqId}/alarm  { "id": <alarm id>, "uri": <alarm self URI> }
+      req.linkedAlarms.push(alarmId);
+
+      var pair = document.querySelector('[data-id="' + alarmId + '"] .tl-pair');
+      if (pair) {
+        var arrow = pair.querySelector('.tl-arrow');
+        if (arrow) {
+          arrow.classList.remove('muted');
+          arrow.innerHTML =
+            '<svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9.5 4l3.5 4-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>' +
+            '<span class="delta">Linked</span>';
+        }
+        var emptyBox = pair.querySelector('.tl-box.sr-empty');
+        if (emptyBox) emptyBox.outerHTML = srBoxHtml(reqId, req);
+      }
+
+      if (req.linkedAlarms.length > 1) {
+        document.querySelectorAll('[data-sr-sub="' + reqId + '"]').forEach(function (el) {
+          el.textContent = 'Linked to ' + req.linkedAlarms.length + ' alarms';
+        });
+      }
+
+      addRequestRefBanner(alarmId, reqId, req.code, req.title);
+      disableAlarmCreationActions(alarmId);
+      addAlarmRefBanner(reqId, alarmId, (req.linkedAlarms.length > 1 ? 'Also linked to alarm' : 'Linked to alarm') + ' &middot; ' + alarm.title);
+
+      closeLinkExistingModal();
+      selectView(reqId);
+    }
+
+    var linkExistingOverlay = document.getElementById('linkExistingOverlay');
+    var linkExistingSearch = document.getElementById('linkExistingSearch');
+    var linkExistingResults = document.getElementById('linkExistingResults');
+    var linkExistingEmpty = document.getElementById('linkExistingEmpty');
+    var linkExistingAlarmId = null;
+
+    function renderLinkExistingResults() {
+      var q = linkExistingSearch.value.trim().toLowerCase();
+      var matches = Object.keys(linkableRequests).filter(function (reqId) {
+        var req = linkableRequests[reqId];
+        if (req.linkedAlarms.indexOf(linkExistingAlarmId) !== -1) return false;
+        if (!q) return true;
+        return req.code.toLowerCase().indexOf(q) !== -1 || req.title.toLowerCase().indexOf(q) !== -1;
+      });
+      linkExistingResults.innerHTML = '';
+      matches.forEach(function (reqId) {
+        var req = linkableRequests[reqId];
+        var sub = req.linkedAlarms.length
+          ? ('Already linked to ' + req.linkedAlarms.length + ' alarm' + (req.linkedAlarms.length > 1 ? 's' : ''))
+          : 'Not linked to an alarm';
+        var item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'modal-list-item';
+        item.setAttribute('data-pick-request', reqId);
+        item.innerHTML =
+          '<div class="mli-top">' +
+            '<span class="mli-id">' + req.code + '</span>' +
+            '<span class="pill type-tag">' + req.type + '</span>' +
+            '<span class="pill ' + req.statusClass + '">' + req.statusLabel + '</span>' +
+            '<span class="pill ' + req.priorityClass + '">' + req.priorityLabel + '</span>' +
+          '</div>' +
+          '<div class="mli-title">' + req.title + '</div>' +
+          '<div class="mli-sub">' + sub + '</div>';
+        linkExistingResults.appendChild(item);
+      });
+      linkExistingEmpty.hidden = matches.length !== 0;
+    }
+
+    function openLinkExistingModal(alarmId) {
+      linkExistingAlarmId = alarmId;
+      linkExistingSearch.value = '';
+      renderLinkExistingResults();
+      linkExistingOverlay.hidden = false;
+      linkExistingSearch.focus();
+    }
+
+    function closeLinkExistingModal() {
+      linkExistingOverlay.hidden = true;
+      linkExistingAlarmId = null;
+    }
+
+    linkExistingSearch.addEventListener('input', renderLinkExistingResults);
+    document.getElementById('linkExistingClose').addEventListener('click', closeLinkExistingModal);
+    linkExistingOverlay.addEventListener('click', function (e) {
+      if (e.target === linkExistingOverlay) closeLinkExistingModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !linkExistingOverlay.hidden) closeLinkExistingModal();
+    });
+    linkExistingResults.addEventListener('click', function (e) {
+      var item = e.target.closest('[data-pick-request]');
+      if (item) linkAlarmToExistingRequest(linkExistingAlarmId, item.getAttribute('data-pick-request'));
     });
 
     // ---- Attachments: c8y-file-picker style drop area / chip, one file per slot ----
