@@ -2,9 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { CoreModule, HOOK_ROUTE, ViewContext } from '@c8y/ngx-components';
-
-import { WidgetsModule as C8yWidgetModule } from '@c8y/ngx-components/widgets';
+import { CoreModule, HOOK_ROUTE, ViewContext, WidgetsDashboardComponent } from '@c8y/ngx-components';
 
 import { ServiceRequestDashboardComponent } from './components/service-request-dashboard/service-request-dashboard.component';
 import { ServiceRequestDetailsGuard } from './factory/service-request-details.guard';
@@ -14,7 +12,7 @@ import { ServiceRequestListWidgetModule } from './components/service-request-lis
 import { AlarmListWidgetModule } from './components/alarm-list-widget/alarm-list-widget.module';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 @NgModule({
-  imports: [CoreModule, CommonModule, RouterModule, ReactiveFormsModule, BsDropdownModule, C8yWidgetModule, ServiceRequestListWidgetModule, AlarmListWidgetModule],
+  imports: [CoreModule, CommonModule, RouterModule, ReactiveFormsModule, BsDropdownModule, WidgetsDashboardComponent, ServiceRequestListWidgetModule, AlarmListWidgetModule],
   declarations: [ServiceRequestDashboardComponent],
   providers: [
     {
