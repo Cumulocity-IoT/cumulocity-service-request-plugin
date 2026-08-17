@@ -18,7 +18,7 @@ describe('Service Requests Plugin', () => {
       );
 
       cy.get(
-        'c8y-tabs-outlet div[role="listitem"] span[title="Service Requests 1"]'
+        'c8y-tabs-outlet div[role="listitem"] span[title="Service Requests"]'
       )
         .should('exist')
         .should('be.visible')
