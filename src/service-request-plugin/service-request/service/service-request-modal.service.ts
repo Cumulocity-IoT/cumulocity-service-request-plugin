@@ -5,7 +5,7 @@ import { ServiceRequestObject } from '../models/service-request.model';
 import { cloneDeep } from 'lodash';
 import { Injectable } from '@angular/core';
 import { ServiceRequestDetailsComponent } from '../components/service-request-modal/service-request-details/service-request-details.component';
-import { Subject } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ServiceRequestModalService {
@@ -30,18 +30,20 @@ export class ServiceRequestModalService {
       },
     });
 
-    return modalRef.content?.closeSubject
-      .pipe(take(1))
-      .toPromise()
-      .then((didChange) => {
-        if (didChange) {
-          this.changeSubject.next();
-        }
+    const closeSubject = modalRef.content?.closeSubject;
+    if (!closeSubject) {
+      return undefined;
+    }
 
-        modalRef.hide();
+    return firstValueFrom(closeSubject.pipe(take(1))).then((didChange) => {
+      if (didChange) {
+        this.changeSubject.next();
+      }
 
-        return didChange;
-      });
+      modalRef.hide();
+
+      return didChange;
+    });
   }
 
   openForDevice(device: IManagedObject) {
@@ -52,18 +54,20 @@ export class ServiceRequestModalService {
       },
     });
 
-    return modalRef.content?.closeSubject
-      .pipe(take(1))
-      .toPromise()
-      .then((didChange) => {
-        if (didChange) {
-          this.changeSubject.next();
-        }
+    const closeSubject = modalRef.content?.closeSubject;
+    if (!closeSubject) {
+      return undefined;
+    }
 
-        modalRef.hide();
+    return firstValueFrom(closeSubject.pipe(take(1))).then((didChange) => {
+      if (didChange) {
+        this.changeSubject.next();
+      }
 
-        return didChange;
-      });
+      modalRef.hide();
+
+      return didChange;
+    });
   }
 
   async open(serviceRequest: ServiceRequestObject) {
@@ -80,17 +84,19 @@ export class ServiceRequestModalService {
       },
     });
 
-    return modalRef.content?.closeSubject
-      .pipe(take(1))
-      .toPromise()
-      .then((didChange) => {
-        if (didChange) {
-          this.changeSubject.next();
-        }
+    const closeSubject = modalRef.content?.closeSubject;
+    if (!closeSubject) {
+      return undefined;
+    }
 
-        modalRef.hide();
+    return firstValueFrom(closeSubject.pipe(take(1))).then((didChange) => {
+      if (didChange) {
+        this.changeSubject.next();
+      }
 
-        return didChange;
-      });
+      modalRef.hide();
+
+      return didChange;
+    });
   }
 }

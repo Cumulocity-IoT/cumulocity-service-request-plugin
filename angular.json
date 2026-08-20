@@ -37,7 +37,7 @@
               }
             ],
             "styles": [
-              "@c8y/style/main.less",
+              "@c8y/style/main.scss",
               "src/styles.less"
             ],
             "scripts": [],
@@ -107,7 +107,7 @@
               }
             ],
             "styles": [
-              "@c8y/style/main.less",
+              "@c8y/style/main.scss",
               "src/styles.less"
             ],
             "scripts": []
