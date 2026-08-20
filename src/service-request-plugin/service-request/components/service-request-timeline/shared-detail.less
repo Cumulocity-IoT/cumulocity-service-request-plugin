@@ -31,3 +31,45 @@
 .sr-section-block {
   margin-bottom: 24px;
 }
+
+.sr-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.sr-info-card {
+  border: 1px solid var(--border, #e3e5e8);
+  border-radius: 2px;
+  padding: 10px 12px;
+
+  &.sr-info-card--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.sr-info-label {
+  font-size: 11.5px;
+  color: var(--text-muted, #677680);
+  margin: 0 0 4px 0;
+}
+
+.sr-info-value {
+  font-size: 13.5px;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sr-info-value pre {
+  margin: 0;
+  font-family: monospace;
+  font-size: 11.5px;
+  font-weight: 400;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-muted, #677680);
+}

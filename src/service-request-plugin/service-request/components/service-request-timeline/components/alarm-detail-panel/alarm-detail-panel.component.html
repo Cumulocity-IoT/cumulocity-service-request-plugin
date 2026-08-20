@@ -6,4 +6,50 @@
   <button type="button" class="btn btn-sm btn-default" (click)="openLinkedSr()">{{ 'Open' | translate }}</button>
 </div>
 
-<c8y-alarm-details [selectedAlarm]="alarm" [showActions]="false"></c8y-alarm-details>
+<div class="sr-info-grid" *ngIf="alarm">
+  <div class="sr-info-card">
+    <p class="sr-info-label">{{ 'Status' | translate }}</p>
+    <p class="sr-info-value">{{ alarm.status }}</p>
+  </div>
+  <div class="sr-info-card">
+    <p class="sr-info-label">{{ 'Severity' | translate }}</p>
+    <p class="sr-info-value">
+      <sr-severity-status-icon display="severity" [alarm]="alarm"></sr-severity-status-icon>
+      {{ alarm.severity }}
+    </p>
+  </div>
+  <div class="sr-info-card">
+    <p class="sr-info-label">{{ 'Source' | translate }}</p>
+    <p class="sr-info-value"><a [routerLink]="['/device', alarm.source?.id]">{{ alarm.source?.name }}</a></p>
+  </div>
+  <div class="sr-info-card">
+    <p class="sr-info-label">{{ 'Type' | translate }}</p>
+    <p class="sr-info-value"><code>{{ alarm.type }}</code></p>
+  </div>
+  <div class="sr-info-card">
+    <p class="sr-info-label">{{ 'Number of occurrences' | translate }}</p>
+    <p class="sr-info-value">{{ alarm.count || 1 }}</p>
+  </div>
+  <div class="sr-info-card">
+    <p class="sr-info-label">{{ 'First occurrence' | translate }}</p>
+    <p class="sr-info-value">{{ alarm.firstOccurrenceTime | c8yDate: 'medium' }}</p>
+  </div>
+  <div class="sr-info-card sr-info-card--wide" *ngIf="customData">
+    <p class="sr-info-label">{{ 'Custom data' | translate }}</p>
+    <p class="sr-info-value"><pre>{{ customData | json }}</pre></p>
+  </div>
+</div>
+
+<div class="sr-section-block">
+  <p class="sr-section-label">{{ 'Audit logs' | translate }}</p>
+  <c8y-loading *ngIf="loadingAuditLog"></c8y-loading>
+  <c8y-list-group *ngIf="!loadingAuditLog && auditRecords.length" role="list">
+    <c8y-li-timeline *ngFor="let record of auditRecords">
+      {{ record.creationTime | c8yDate: 'medium' }}
+      <c8y-li role="listitem">
+        <b>{{ record.type }}</b> &mdash; {{ record.text }}
+      </c8y-li>
+    </c8y-li-timeline>
+  </c8y-list-group>
+  <p class="text-muted" *ngIf="!loadingAuditLog && !auditRecords.length">{{ 'No audit log entries.' | translate }}</p>
+</div>

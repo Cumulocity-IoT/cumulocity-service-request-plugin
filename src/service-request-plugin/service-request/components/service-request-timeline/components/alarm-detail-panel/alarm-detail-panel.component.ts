@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { AlarmService, AlarmStatus, AlarmStatusType, IAlarm } from '@c8y/client';
+import { AlarmService, AlarmStatus, AlarmStatusType, AuditService, IAlarm, IAuditRecord } from '@c8y/client';
 import { AlertService, SplitViewAction } from '@c8y/ngx-components';
+import { ALARM_DEFAULT_PROPERTIES } from '@c8y/ngx-components/alarms';
 import { ServiceRequestObject } from '../../../../models/service-request.model';
 
 @Component({
@@ -20,17 +21,60 @@ export class AlarmDetailPanelComponent implements OnChanges {
 
   actions: SplitViewAction[] = [];
   busy = false;
+  loadingAuditLog = false;
+  auditRecords: IAuditRecord[] = [];
+  customData: Record<string, unknown> | null = null;
 
-  constructor(private alarmService: AlarmService, private alertService: AlertService) {}
+  private lastLoadedAlarmId: string | number | null = null;
+
+  constructor(
+    private alarmService: AlarmService,
+    private auditService: AuditService,
+    private alertService: AlertService
+  ) {}
 
   ngOnChanges(): void {
     this.buildActions();
+    this.customData = this.extractCustomData();
+
+    if (this.alarm && this.alarm.id !== this.lastLoadedAlarmId) {
+      this.lastLoadedAlarmId = this.alarm.id;
+      void this.loadAuditLog();
+    }
   }
 
   openLinkedSr(): void {
     if (this.linkedSr) {
       this.openSr.emit(this.linkedSr);
     }
+  }
+
+  private async loadAuditLog(): Promise<void> {
+    this.loadingAuditLog = true;
+
+    try {
+      const { data } = await this.auditService.list({ source: this.alarm.id, pageSize: 30 });
+
+      this.auditRecords = data;
+    } catch (error) {
+      this.alertService.warning('Could not load audit log for this alarm');
+      console.error('Error loading alarm audit log', error);
+    } finally {
+      this.loadingAuditLog = false;
+    }
+  }
+
+  private extractCustomData(): Record<string, unknown> | null {
+    if (!this.alarm) {
+      return null;
+    }
+
+    const defaultProperties: readonly string[] = ALARM_DEFAULT_PROPERTIES;
+    const entries = Object.entries(this.alarm as unknown as Record<string, unknown>).filter(
+      ([key]) => !defaultProperties.includes(key)
+    );
+
+    return entries.length ? Object.fromEntries(entries) : null;
   }
 
   private buildActions(): void {

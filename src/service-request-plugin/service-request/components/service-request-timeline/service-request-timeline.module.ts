@@ -13,7 +13,6 @@ import {
   SplitViewHeaderActionsComponent,
   SplitViewListComponent,
 } from '@c8y/ngx-components';
-import { AlarmsModule } from '@c8y/ngx-components/alarms';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
@@ -41,7 +40,6 @@ import { ServiceRequestCommentsModule } from '../comments/service-requests-comme
     TooltipModule,
     ModalModule,
     ListGroupModule,
-    AlarmsModule,
     IconPanelComponent,
     ServiceRequestCommentsModule,
     SplitViewComponent,
