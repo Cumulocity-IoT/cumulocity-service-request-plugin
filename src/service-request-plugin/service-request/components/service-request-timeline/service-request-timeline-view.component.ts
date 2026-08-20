@@ -6,9 +6,8 @@ import { AlarmListFormFilters } from '@c8y/ngx-components/alarms';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { ServiceRequestObject, ServiceRequestStatus } from '../../models/service-request.model';
+import { ServiceRequestObject } from '../../models/service-request.model';
 import { ServiceRequestChangeService } from '../../service/service-request-change.service';
-import { ServiceRequestMetaService } from '../../service/service-request-meta.service';
 import { ServiceRequestService } from '../../service/service-request.service';
 import { AddExistingRequestModalComponent } from './components/add-existing-request-modal/add-existing-request-modal.component';
 import { NewRequestContext, TimelineRow, TimelineSelection } from './models/service-request-timeline.model';
@@ -46,9 +45,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   /** Backs c8y-alarms-type-filter's [alarms] input (needs the raw IResultList, not just IAlarm[]). */
   alarmsResult: IResultList<IAlarm> | null = null;
 
-  srStatuses: ServiceRequestStatus[] = [];
-  selectedSrStatusIds: string[] = [];
-
   currentSelection: TimelineSelection | null = null;
   /**
    * Derived from currentSelection, recomputed only when the selection or the underlying
@@ -85,7 +81,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     private activatedRoute: ActivatedRoute,
     private alarmService: AlarmService,
     private serviceRequestService: ServiceRequestService,
-    private serviceRequestMetaService: ServiceRequestMetaService,
     private serviceRequestChange: ServiceRequestChangeService,
     private alertService: AlertService,
     private bsModalService: BsModalService
@@ -93,9 +88,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     this.device = this.activatedRoute.parent?.snapshot.data['contextData'];
-
-    const meta = await this.serviceRequestMetaService.fetchMeta();
-    this.srStatuses = meta.status;
 
     await Promise.all([this.loadAlarms(), this.loadServiceRequests()]);
 
@@ -201,7 +193,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     this.serviceRequests = await this.serviceRequestService.list({
       sourceId: this.device.id,
       all: true,
-      statusList: this.selectedSrStatusIds.length ? this.selectedSrStatusIds : undefined,
     });
 
     this.rebuildRows();
@@ -213,10 +204,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
 
   hasMoreAlarms(): boolean {
     return !!this.alarmTotalPages && this.alarmPage < this.alarmTotalPages;
-  }
-
-  async onSrFilterChange(): Promise<void> {
-    await this.loadServiceRequests();
   }
 
   /** From c8y-alarms-filter's (onFilterApplied) — severity checkboxes + "Show cleared alarms". */
@@ -247,15 +234,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   onAlarmsTypeFilterChanged(activeFilters: Array<{ filters: { type: string } }>): void {
     this.selectedTypes = activeFilters.map((filter) => filter.filters.type);
     this.rebuildRows();
-  }
-
-  toggleSrStatus(value: string): void {
-    this.selectedSrStatusIds = this.toggleInArray(this.selectedSrStatusIds, value);
-    void this.onSrFilterChange();
-  }
-
-  private toggleInArray(list: string[], value: string): string[] {
-    return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
   }
 
   async clearAlarm(alarm: IAlarm): Promise<void> {

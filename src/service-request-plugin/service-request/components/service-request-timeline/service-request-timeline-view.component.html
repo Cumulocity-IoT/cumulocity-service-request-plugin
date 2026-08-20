@@ -27,26 +27,13 @@
 </c8y-action-bar-item>
 
 <c8y-sv [isResizable]="true" [resizableConfig]="{ trackId: 'service-request-timeline', leftColumnWidth: '50%' }">
-  <c8y-sv-list [title]="'Timeline' | translate">
-    <c8y-sv-header-actions>
-      <div class="sr-filterbar">
-        <div class="dropdown" dropdown>
-          <button type="button" class="btn btn-default dropdown-toggle" dropdownToggle>
-            {{ selectedSrStatusIds.length ? (selectedSrStatusIds.length + ' request statuses') : ('All request statuses' | translate) }}
-          </button>
-          <ul *dropdownMenu class="dropdown-menu">
-            <li *ngFor="let status of srStatuses">
-              <label class="c8y-checkbox">
-                <input type="checkbox" [checked]="selectedSrStatusIds.includes(status.id)" (change)="toggleSrStatus(status.id)" />
-                <span></span>
-                {{ status.name }}
-              </label>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </c8y-sv-header-actions>
-
+  <c8y-sv-list
+    [title]="'Timeline' | translate"
+    [showEmptyState]="!loading && !rows.length"
+    [emptyStateIcon]="'c8y-data-explorer'"
+    [emptyStateTitle]="'No alarms or service requests to display' | translate"
+    [emptyStateSubtitle]="'Check your filter settings' | translate"
+  >
     <sr-timeline-list
       [rows]="rows"
       [loading]="loading"

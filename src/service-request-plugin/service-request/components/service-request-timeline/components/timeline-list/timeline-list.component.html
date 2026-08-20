@@ -1,11 +1,5 @@
 <c8y-loading *ngIf="loading"></c8y-loading>
 
-<div class="c8y-empty-state" *ngIf="!loading && !rows.length">
-  <i class="c8y-icon-duocolor c8y-icon c8y-icon-data-explorer"></i>
-  <strong>{{ 'No alarms or service requests to display' | translate }}</strong>
-  <p>{{ 'Check your filter settings' | translate }}</p>
-</div>
-
 <c8y-list-group *ngIf="!loading && rows.length" class="sr-timeline" role="list">
   <ng-container *ngFor="let row of rows; let i = index; trackBy: trackByRowId">
     <div class="sr-day-heading" *ngIf="isFirstOfDay(row, i)">{{ row.dayLabel }}</div>
