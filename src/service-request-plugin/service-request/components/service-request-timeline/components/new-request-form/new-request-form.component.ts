@@ -116,7 +116,7 @@ export class NewRequestFormComponent implements OnChanges {
         title: value.title,
         description: value.description || undefined,
         priority: value.priority ?? undefined,
-        source: { id: String(device.id), self: device.self, name: device.name },
+        source: { id: String(device.id), self: device.self, name: device['name'] },
         alarmRef: firstAlarmRef,
       });
 

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { AlarmService, AlarmStatus, IAlarm } from '@c8y/client';
+import { AlarmService, AlarmStatus, AlarmStatusType, IAlarm } from '@c8y/client';
 import { AlertService, SplitViewAction } from '@c8y/ngx-components';
 import { ServiceRequestObject } from '../../../../models/service-request.model';
 
@@ -88,7 +88,7 @@ export class AlarmDetailPanelComponent implements OnChanges {
     await this.updateStatus(AlarmStatus.CLEARED);
   }
 
-  private async updateStatus(status: AlarmStatus): Promise<void> {
+  private async updateStatus(status: AlarmStatusType): Promise<void> {
     this.busy = true;
 
     try {
