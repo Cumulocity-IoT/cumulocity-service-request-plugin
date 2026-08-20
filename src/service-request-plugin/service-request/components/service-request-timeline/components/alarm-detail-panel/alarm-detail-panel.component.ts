@@ -1,8 +1,37 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { AlarmService, AlarmStatus, AlarmStatusType, AuditService, IAlarm, IAuditRecord } from '@c8y/client';
-import { AlertService, SplitViewAction } from '@c8y/ngx-components';
-import { ALARM_DEFAULT_PROPERTIES } from '@c8y/ngx-components/alarms';
+import { AlertService, IconPanelSection, SplitViewAction } from '@c8y/ngx-components';
 import { ServiceRequestObject } from '../../../../models/service-request.model';
+
+const ALARM_STANDARD_FRAGMENTS = [
+  'severity',
+  'source',
+  'type',
+  'time',
+  'text',
+  'id',
+  'status',
+  'count',
+  'name',
+  'history',
+  'self',
+  'creationTime',
+  'firstOccurrenceTime',
+  'lastUpdated',
+];
+
+const SEVERITY_ICON: Record<string, string> = {
+  CRITICAL: 'exclamation-circle',
+  MAJOR: 'warning',
+  MINOR: 'high-priority',
+  WARNING: 'circle',
+};
+
+const STATUS_ICON: Record<string, string> = {
+  ACTIVE: 'bell',
+  ACKNOWLEDGED: 'bell-slash',
+  CLEARED: 'check-circle',
+};
 
 @Component({
   selector: 'sr-alarm-detail-panel',
@@ -20,10 +49,10 @@ export class AlarmDetailPanelComponent implements OnChanges {
   @Output() alarmChanged = new EventEmitter<void>();
 
   actions: SplitViewAction[] = [];
+  infoSections: IconPanelSection[] = [];
   busy = false;
   loadingAuditLog = false;
   auditRecords: IAuditRecord[] = [];
-  customData: Record<string, unknown> | null = null;
 
   private lastLoadedAlarmId: string | number | null = null;
 
@@ -35,7 +64,7 @@ export class AlarmDetailPanelComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.buildActions();
-    this.customData = this.extractCustomData();
+    this.buildInfoSections();
 
     if (this.alarm && this.alarm.id !== this.lastLoadedAlarmId) {
       this.lastLoadedAlarmId = this.alarm.id;
@@ -57,24 +86,82 @@ export class AlarmDetailPanelComponent implements OnChanges {
 
       this.auditRecords = data;
     } catch (error) {
-      this.alertService.warning('Could not load audit log for this alarm');
       console.error('Error loading alarm audit log', error);
     } finally {
       this.loadingAuditLog = false;
     }
   }
 
-  private extractCustomData(): Record<string, unknown> | null {
-    if (!this.alarm) {
-      return null;
+  private buildInfoSections(): void {
+    const alarm = this.alarm;
+
+    if (!alarm) {
+      this.infoSections = [];
+
+      return;
     }
 
-    const defaultProperties: readonly string[] = ALARM_DEFAULT_PROPERTIES;
-    const entries = Object.entries(this.alarm as unknown as Record<string, unknown>).filter(
-      ([key]) => !defaultProperties.includes(key)
+    const severity = String(alarm.severity ?? '');
+    const status = String(alarm.status ?? '');
+    const customData = Object.fromEntries(
+      Object.entries(alarm as unknown as Record<string, unknown>).filter(
+        ([key]) => !ALARM_STANDARD_FRAGMENTS.includes(key)
+      )
     );
 
-    return entries.length ? Object.fromEntries(entries) : null;
+    this.infoSections = [
+      {
+        id: 'status',
+        label: 'Status',
+        icon: STATUS_ICON[status] ?? 'bell',
+        visible: true,
+        content: `<p>${status}</p>`,
+      },
+      {
+        id: 'severity',
+        label: 'Severity',
+        icon: SEVERITY_ICON[severity] ?? 'circle',
+        iconClass: `status ${severity.toLowerCase()} stroked-icon`,
+        visible: true,
+        content: `<p>${severity}</p>`,
+      },
+      {
+        id: 'source',
+        label: 'Source',
+        icon: 'hardware',
+        visible: !!alarm.source,
+        content: `<p><a href="#/device/${alarm.source?.id}">${alarm.source?.name ?? ''}</a></p>`,
+      },
+      {
+        id: 'type',
+        label: 'Type',
+        icon: 'tag',
+        visible: true,
+        content: `<p><code>${alarm.type}</code></p>`,
+      },
+      {
+        id: 'occurrences',
+        label: 'Number of occurrences',
+        icon: 'refresh',
+        visible: true,
+        content: `<p>${alarm.count || 1}</p>`,
+      },
+      {
+        id: 'first-occurrence',
+        label: 'First occurrence',
+        icon: 'calendar',
+        visible: !!alarm.firstOccurrenceTime,
+        content: `<p>${alarm.firstOccurrenceTime ? new Date(alarm.firstOccurrenceTime).toLocaleString() : ''}</p>`,
+      },
+      {
+        id: 'custom-data',
+        label: 'Custom data',
+        icon: 'outgoing-data',
+        visible: Object.keys(customData).length > 0,
+        content: `<pre><code>${JSON.stringify(customData, null, 2)}</code></pre>`,
+        colClass: 'col-xs-12',
+      },
+    ];
   }
 
   private buildActions(): void {

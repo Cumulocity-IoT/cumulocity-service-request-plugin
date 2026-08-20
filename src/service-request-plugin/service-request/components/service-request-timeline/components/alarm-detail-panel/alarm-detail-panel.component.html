@@ -6,39 +6,11 @@
   <button type="button" class="btn btn-sm btn-default" (click)="openLinkedSr()">{{ 'Open' | translate }}</button>
 </div>
 
-<div class="sr-info-grid" *ngIf="alarm">
-  <div class="sr-info-card">
-    <p class="sr-info-label">{{ 'Status' | translate }}</p>
-    <p class="sr-info-value">{{ alarm.status }}</p>
-  </div>
-  <div class="sr-info-card">
-    <p class="sr-info-label">{{ 'Severity' | translate }}</p>
-    <p class="sr-info-value">
-      <sr-severity-status-icon display="severity" [alarm]="alarm"></sr-severity-status-icon>
-      {{ alarm.severity }}
-    </p>
-  </div>
-  <div class="sr-info-card">
-    <p class="sr-info-label">{{ 'Source' | translate }}</p>
-    <p class="sr-info-value"><a [routerLink]="['/device', alarm.source?.id]">{{ alarm.source?.name }}</a></p>
-  </div>
-  <div class="sr-info-card">
-    <p class="sr-info-label">{{ 'Type' | translate }}</p>
-    <p class="sr-info-value"><code>{{ alarm.type }}</code></p>
-  </div>
-  <div class="sr-info-card">
-    <p class="sr-info-label">{{ 'Number of occurrences' | translate }}</p>
-    <p class="sr-info-value">{{ alarm.count || 1 }}</p>
-  </div>
-  <div class="sr-info-card">
-    <p class="sr-info-label">{{ 'First occurrence' | translate }}</p>
-    <p class="sr-info-value">{{ alarm.firstOccurrenceTime | c8yDate: 'medium' }}</p>
-  </div>
-  <div class="sr-info-card sr-info-card--wide" *ngIf="customData">
-    <p class="sr-info-label">{{ 'Custom data' | translate }}</p>
-    <pre class="sr-info-value">{{ customData | json }}</pre>
-  </div>
+<div class="card-header p-16 m-b-16 bg-component separator-bottom" *ngIf="alarm">
+  <h4 class="m-0">{{ alarm.text }}</h4>
 </div>
+
+<c8y-icon-panel *ngIf="alarm" [sections]="infoSections"></c8y-icon-panel>
 
 <div class="sr-section-block">
   <p class="sr-section-label">{{ 'Audit logs' | translate }}</p>
@@ -51,5 +23,8 @@
       </c8y-li>
     </c8y-li-timeline>
   </c8y-list-group>
-  <p class="text-muted" *ngIf="!loadingAuditLog && !auditRecords.length">{{ 'No audit log entries.' | translate }}</p>
+  <div class="c8y-empty-state" *ngIf="!loadingAuditLog && !auditRecords.length">
+    <i class="c8y-icon-duocolor c8y-icon dlt-c8y-icon-archive"></i>
+    <p>{{ 'No audit logs found.' | translate }}</p>
+  </div>
 </div>
