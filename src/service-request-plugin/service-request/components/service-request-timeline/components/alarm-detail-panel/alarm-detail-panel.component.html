@@ -1,0 +1,9 @@
+<div class="sr-banner" *ngIf="linkedSr">
+  <i c8yIcon="link"></i>
+  <div class="sr-banner-text">
+    {{ 'Linked to' | translate }} <b>SR-{{ linkedSr.id }}</b> &middot; {{ linkedSr.title }}
+  </div>
+  <button type="button" class="btn btn-sm btn-default" (click)="openLinkedSr()">{{ 'Open' | translate }}</button>
+</div>
+
+<c8y-alarm-details [selectedAlarm]="alarm" [showActions]="false"></c8y-alarm-details>

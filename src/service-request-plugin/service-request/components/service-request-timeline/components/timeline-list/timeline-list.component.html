@@ -1,0 +1,91 @@
+<c8y-loading *ngIf="loading"></c8y-loading>
+
+<c8y-empty-state
+  *ngIf="!loading && !rows.length"
+  icon="c8y-data-explorer"
+  [title]="'No alarms or service requests to display' | translate"
+  [subtitle]="'Check your filter settings' | translate"
+></c8y-empty-state>
+
+<c8y-list-group *ngIf="!loading && rows.length" class="sr-timeline" role="list">
+  <ng-container *ngFor="let row of rows; let i = index; trackBy: trackByRowId">
+    <div class="sr-day-heading" *ngIf="isFirstOfDay(row, i)">{{ row.dayLabel }}</div>
+
+    <c8y-li-timeline>
+      {{ row.timestamp | c8yDate: 'shortTime' }}
+      <c8y-li role="listitem">
+        <div class="sr-tl-pair" [class.sr-tl-pair--single]="!row.alarm">
+          <div
+            *ngIf="row.alarm"
+            class="sr-tl-box sr-tl-box--alarm"
+            [class.selected]="isAlarmSelected(row.alarm)"
+            tabindex="0"
+            role="button"
+            [attr.aria-pressed]="isAlarmSelected(row.alarm)"
+            (click)="selectAlarm(row.alarm)"
+            (keydown.enter)="selectAlarm(row.alarm)"
+          >
+            <span class="sr-duo-icon">
+              <sr-severity-status-icon display="severity" [alarm]="row.alarm"></sr-severity-status-icon>
+            </span>
+            <div class="sr-row-main">
+              <div class="sr-row-title-line">
+                <span class="sr-row-title">{{ row.alarm.text }}</span>
+                <span class="sr-count-badge" *ngIf="row.alarm.count > 1" [title]="row.alarm.count + ' occurrences'">&times;{{ row.alarm.count }}</span>
+              </div>
+              <div class="sr-row-sub">
+                <i c8yIcon="hardware"></i>
+                {{ row.alarm.source?.name }}
+              </div>
+            </div>
+          </div>
+
+          <div class="sr-tl-arrow" *ngIf="row.alarm" [class.muted]="!row.sr">
+            <i c8yIcon="arrow-right"></i>
+            <span class="sr-delta" *ngIf="row.sr && deltaLabel(row)">{{ deltaLabel(row) }}</span>
+          </div>
+
+          <div
+            *ngIf="row.sr"
+            class="sr-tl-box sr-tl-box--sr"
+            [class.closed]="isRequestClosed(row.sr)"
+            [class.selected]="isSrSelected(row.sr)"
+            tabindex="0"
+            role="button"
+            [attr.aria-pressed]="isSrSelected(row.sr)"
+            (click)="selectSr(row.sr)"
+            (keydown.enter)="selectSr(row.sr)"
+          >
+            <sr-service-request-support-icon></sr-service-request-support-icon>
+            <div class="sr-row-main">
+              <div class="sr-card-top">
+                <span class="sr-id">SR-{{ row.sr.id }}</span>
+                <span class="sr-pill sr-pill--type">{{ row.sr.type }}</span>
+                <span class="sr-pill" [ngClass]="isRequestClosed(row.sr) ? 'sr-pill--closed' : 'sr-pill--open'">{{ row.sr.status?.name }}</span>
+                <span class="sr-pill sr-pill--priority" *ngIf="row.sr.priority">{{ row.sr.priority.name }}</span>
+              </div>
+              <div class="sr-title">{{ row.sr.title }}</div>
+              <div class="sr-sub">
+                <ng-container *ngIf="linkedAlarmCount(row.sr) > 1">Linked to {{ linkedAlarmCount(row.sr) }} alarms</ng-container>
+                <ng-container *ngIf="linkedAlarmCount(row.sr) <= 1 && !row.alarm">Not linked to an alarm</ng-container>
+                <ng-container *ngIf="linkedAlarmCount(row.sr) <= 1 && row.alarm">{{ row.sr.lastUpdated | c8yDate: 'medium' }}</ng-container>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="row.alarm && !row.sr" class="sr-tl-box sr-tl-box--empty">
+            <button type="button" class="sr-empty-action" (click)="createFromAlarm.emit(row.alarm)">
+              <i c8yIcon="plus-circle"></i>
+              <span>{{ 'Create service request' | translate }}</span>
+            </button>
+            <div class="sr-empty-divider"></div>
+            <button type="button" class="sr-empty-action sr-empty-action--secondary" (click)="linkExistingFromAlarm.emit(row.alarm)">
+              <i c8yIcon="link"></i>
+              <span>{{ 'Add existing service request' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </c8y-li>
+    </c8y-li-timeline>
+  </ng-container>
+</c8y-list-group>

@@ -1,0 +1,121 @@
+<c8y-title>{{ 'Service requests' | translate }}</c8y-title>
+
+<c8y-action-bar-item [placement]="'right'">
+  <div class="sr-mo-chips" *ngIf="serviceObjectId() || activeStatusEntries().length">
+    <span class="sr-mo-chip" *ngIf="serviceObjectId()" [title]="'Managed object fragment: sr_ServiceObjectId' | translate">
+      <span class="sr-mo-chip-label">{{ 'Service Object' | translate }}</span>
+      <code>{{ serviceObjectId() }}</code>
+    </span>
+    <span class="sr-mo-chip" *ngFor="let entry of activeStatusEntries()" [title]="'Managed object fragment: sr_ActiveStatus' | translate">
+      <span class="sr-mo-chip-label">{{ entry.count }} {{ entry.label }}</span>
+    </span>
+  </div>
+  <button type="button" class="btn btn-primary" (click)="openNewRequestForDevice()">
+    <i c8yIcon="plus-circle"></i>
+    {{ 'New service request' | translate }}
+  </button>
+</c8y-action-bar-item>
+
+<c8y-sv [isResizable]="true" [resizableConfig]="{ trackId: 'service-request-timeline', leftColumnWidth: '50%' }">
+  <c8y-sv-list [title]="'Timeline' | translate">
+    <c8y-sv-header-actions>
+      <div class="sr-filterbar">
+        <div class="dropdown" dropdown>
+          <button type="button" class="btn btn-default dropdown-toggle" dropdownToggle>
+            {{ selectedSeverities.length ? (selectedSeverities.length + ' severities') : ('All severities' | translate) }}
+          </button>
+          <ul *dropdownMenu class="dropdown-menu">
+            <li *ngFor="let severity of severityOptions">
+              <label class="c8y-checkbox">
+                <input type="checkbox" [checked]="selectedSeverities.includes(severity)" (change)="toggleSeverity(severity)" />
+                <span></span>
+                {{ severity }}
+              </label>
+            </li>
+          </ul>
+        </div>
+
+        <div class="dropdown" dropdown>
+          <button type="button" class="btn btn-default dropdown-toggle" dropdownToggle>
+            {{ selectedAlarmStatuses.length ? (selectedAlarmStatuses.length + ' statuses') : ('All alarm statuses' | translate) }}
+          </button>
+          <ul *dropdownMenu class="dropdown-menu">
+            <li *ngFor="let status of alarmStatusOptions">
+              <label class="c8y-checkbox">
+                <input type="checkbox" [checked]="selectedAlarmStatuses.includes(status)" (change)="toggleAlarmStatus(status)" />
+                <span></span>
+                {{ status }}
+              </label>
+            </li>
+          </ul>
+        </div>
+
+        <div class="dropdown" dropdown>
+          <button type="button" class="btn btn-default dropdown-toggle" dropdownToggle>
+            {{ selectedSrStatusIds.length ? (selectedSrStatusIds.length + ' request statuses') : ('All request statuses' | translate) }}
+          </button>
+          <ul *dropdownMenu class="dropdown-menu">
+            <li *ngFor="let status of srStatuses">
+              <label class="c8y-checkbox">
+                <input type="checkbox" [checked]="selectedSrStatusIds.includes(status.id)" (change)="toggleSrStatus(status.id)" />
+                <span></span>
+                {{ status.name }}
+              </label>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </c8y-sv-header-actions>
+
+    <sr-timeline-list
+      [rows]="rows"
+      [loading]="loading"
+      (createFromAlarm)="openNewRequestFromAlarm($event)"
+      (linkExistingFromAlarm)="linkExistingFromAlarm($event)"
+    ></sr-timeline-list>
+
+    <c8y-sv-footer *ngIf="hasMoreAlarms()">
+      <button type="button" class="btn btn-link" [disabled]="loadingMore" (click)="loadNextAlarmPage()">
+        {{ 'Load more' | translate }}
+      </button>
+    </c8y-sv-footer>
+  </c8y-sv-list>
+
+  <c8y-sv-details
+    emptyStateIcon="c8y-support"
+    [emptyStateTitle]="'Nothing selected' | translate"
+    [emptyStateSubtitle]="'Select an alarm or service request from the timeline to see its details' | translate"
+  >
+    <ng-container *ngIf="currentSelection?.kind === 'alarm'">
+      <sr-alarm-detail-panel
+        #alarmPanel
+        [alarm]="currentSelection.alarm"
+        [linkedSr]="linkedSrForAlarm(currentSelection.alarm)"
+        (openSr)="selectSr($event)"
+        (createRequest)="openNewRequestFromAlarm($event)"
+        (linkExisting)="linkExistingFromAlarm($event)"
+        (alarmChanged)="loadAlarms()"
+      ></sr-alarm-detail-panel>
+      <c8y-sv-details-actions [actions]="alarmPanel.actions"></c8y-sv-details-actions>
+    </ng-container>
+    <ng-container *ngIf="currentSelection?.kind === 'sr'">
+      <sr-detail-panel
+        #srPanel
+        [sr]="currentSelection.sr"
+        [linkedAlarms]="linkedAlarmsForSr(currentSelection.sr)"
+        (openAlarm)="selectAlarm($event)"
+      ></sr-detail-panel>
+      <c8y-sv-details-actions [actions]="srPanel.actions"></c8y-sv-details-actions>
+    </ng-container>
+    <ng-container *ngIf="currentSelection?.kind === 'new'">
+      <sr-new-request-form
+        #newPanel
+        [context]="currentSelection.context"
+        [candidateAlarms]="alarms"
+        (created)="selectSr($event)"
+        (cancelled)="clearSelection()"
+      ></sr-new-request-form>
+      <c8y-sv-details-actions [actions]="newPanel.actions"></c8y-sv-details-actions>
+    </ng-container>
+  </c8y-sv-details>
+</c8y-sv>

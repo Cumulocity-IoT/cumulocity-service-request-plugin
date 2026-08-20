@@ -1,0 +1,52 @@
+<div class="sr-banner" *ngIf="isFromAlarm">
+  <i c8yIcon="warning"></i>
+  <div class="sr-banner-text">{{ 'Pre-filled from alarm' | translate }}: "{{ context.fromAlarm.text }}"</div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="form-group">
+    <label for="sr_new_title">{{ 'Title' | translate }}</label>
+    <input type="text" id="sr_new_title" class="form-control" formControlName="title" />
+  </div>
+
+  <div class="form-group">
+    <label for="sr_new_description">{{ 'Description' | translate }}</label>
+    <textarea id="sr_new_description" class="form-control" rows="3" formControlName="description"></textarea>
+  </div>
+
+  <div class="row" *ngIf="!isFromAlarm">
+    <div class="col-xs-6 form-group">
+      <label>{{ 'Alarm reference' | translate }} <span class="sr-optional">({{ 'optional' | translate }})</span></label>
+      <sr-alarm-ref-picker formControlName="alarmRefs" [candidates]="candidateAlarms"></sr-alarm-ref-picker>
+    </div>
+    <div class="col-xs-6 form-group">
+      <label for="sr_new_event">{{ 'Event reference' | translate }} <span class="sr-optional">({{ 'optional' | translate }})</span></label>
+      <input type="text" id="sr_new_event" class="form-control" formControlName="eventId" [placeholder]="'Event ID' | translate" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-4 form-group">
+      <label for="sr_new_type">{{ 'Type' | translate }}</label>
+      <select id="sr_new_type" class="form-control" formControlName="type">
+        <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+    <div class="col-xs-4 form-group">
+      <label>{{ 'Status' | translate }}</label>
+      <p class="sr-static-value">{{ 'Set automatically' | translate }}</p>
+    </div>
+    <div class="col-xs-4 form-group">
+      <label for="sr_new_priority">{{ 'Priority' | translate }}</label>
+      <select id="sr_new_priority" class="form-control" formControlName="priority">
+        <option *ngFor="let p of priorities" [ngValue]="p">{{ p.name }}</option>
+      </select>
+    </div>
+  </div>
+</form>
+
+<div class="sr-section-block">
+  <p class="sr-section-label">{{ 'Attachment' | translate }}</p>
+  <c8y-file-picker (onFilesPicked)="onFiles($event)" uploadChoice="uploadBinary"></c8y-file-picker>
+  <p class="sr-staged-file" *ngIf="stagedFile">{{ stagedFile.name }}</p>
+</div>

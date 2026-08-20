@@ -1,0 +1,85 @@
+<div class="sr-section-block" *ngFor="let alarm of linkedAlarms">
+  <div class="sr-banner">
+    <i c8yIcon="warning"></i>
+    <div class="sr-banner-text">{{ 'Created from alarm' | translate }} &middot; {{ alarm.text }}</div>
+    <button type="button" class="btn btn-sm btn-default" (click)="openAlarm.emit(alarm)">{{ 'Open alarm' | translate }}</button>
+  </div>
+</div>
+
+<div class="sr-section-block">
+  <p class="sr-section-label">{{ 'Service Request' | translate }}</p>
+
+  <div class="sr-info-grid">
+    <div class="sr-info-card">
+      <p class="sr-info-label">{{ 'Opened by' | translate }}</p>
+      <p class="sr-info-value">{{ sr.owner }}, {{ sr.creationTime | c8yDate: 'medium' }}</p>
+    </div>
+    <div class="sr-info-card" *ngIf="sr.source">
+      <p class="sr-info-label">{{ 'Source' | translate }}</p>
+      <p class="sr-info-value"><a [routerLink]="['/device', sr.source.id]">{{ sr.source.name }}</a></p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-group">
+      <label for="sr_title">{{ 'Title' | translate }}</label>
+      <input type="text" id="sr_title" class="form-control" formControlName="title" />
+    </div>
+    <div class="form-group">
+      <label for="sr_description">{{ 'Description' | translate }}</label>
+      <textarea id="sr_description" class="form-control" rows="3" formControlName="description"></textarea>
+    </div>
+    <div class="row">
+      <div class="col-xs-4">
+        <label>{{ 'Type' | translate }}</label>
+        <p class="sr-static-value">{{ sr.type }}</p>
+      </div>
+      <div class="col-xs-4">
+        <label>{{ 'Status' | translate }}</label>
+        <p class="sr-static-value">{{ sr.status?.name }}</p>
+      </div>
+      <div class="col-xs-4">
+        <label for="sr_priority">{{ 'Priority' | translate }}</label>
+        <select id="sr_priority" class="form-control" formControlName="priority">
+          <option *ngFor="let p of priorities" [ngValue]="p">{{ p.name }}</option>
+        </select>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="sr-section-block">
+  <div class="sr-section-label-row">
+    <p class="sr-section-label">{{ 'Field Service Status' | translate }}</p>
+    <span class="sr-section-hint">{{ 'Synced from FSM' | translate }} &middot; {{ 'read-only' | translate }}</span>
+  </div>
+  <c8y-icon-panel [sections]="fieldServiceSections()"></c8y-icon-panel>
+</div>
+
+<div class="sr-section-block">
+  <p class="sr-section-label">{{ 'Attachment' | translate }}</p>
+  <service-request-attachments [id]="sr.id" [formControl]="attachmentControl"></service-request-attachments>
+</div>
+
+<div class="sr-section-block">
+  <details class="sr-disclosure" open>
+    <summary>
+      <p class="sr-section-label">{{ 'Comments' | translate }}</p>
+    </summary>
+    <div class="sr-disclosure-body">
+      <service-request-comments [id]="sr.id" [isCreateForm]="true" [displayedItems]="10"></service-request-comments>
+    </div>
+  </details>
+</div>
+
+<div class="sr-section-block">
+  <details class="sr-disclosure">
+    <summary>
+      <p class="sr-section-label">{{ 'Raw JSON' | translate }}</p>
+      <button type="button" class="btn btn-link btn-sm" (click)="copyRawJson(); $event.stopPropagation()">
+        <i c8yIcon="copy"></i>
+      </button>
+    </summary>
+    <pre class="sr-raw-json">{{ rawJson }}</pre>
+  </details>
+</div>
