@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AlarmQueryFilter, AlarmService, AlarmStatus, IAlarm, IManagedObject, IResultList, Severity } from '@c8y/client';
-import { AlertService, SplitViewSelectionService } from '@c8y/ngx-components';
+import { AlertService, SplitViewComponent } from '@c8y/ngx-components';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -21,9 +21,10 @@ const SR_POLL_INTERVAL_MS = 180 * 1000;
   templateUrl: './service-request-timeline-view.component.html',
   styleUrls: ['./service-request-timeline-view.component.less'],
   standalone: false,
-  providers: [SplitViewSelectionService],
 })
-export class ServiceRequestTimelineViewComponent implements OnInit, OnDestroy {
+export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(SplitViewComponent) splitView!: SplitViewComponent<TimelineSelection>;
+
   device: IManagedObject;
 
   alarms: IAlarm[] = [];
@@ -57,7 +58,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, OnDestroy {
     private serviceRequestMetaService: ServiceRequestMetaService,
     private serviceRequestChange: ServiceRequestChangeService,
     private alertService: AlertService,
-    private selectionService: SplitViewSelectionService<TimelineSelection>,
     private bsModalService: BsModalService
   ) {}
 
@@ -75,8 +75,10 @@ export class ServiceRequestTimelineViewComponent implements OnInit, OnDestroy {
     this.changeSub = this.serviceRequestChange.change$.subscribe(() => {
       void this.loadServiceRequests();
     });
+  }
 
-    this.selectionSub = this.selectionService.selectedItem$.subscribe((selection) => {
+  ngAfterViewInit(): void {
+    this.selectionSub = this.splitView.selectionService.selectedItem$.subscribe((selection) => {
       this.currentSelection = selection;
     });
   }
@@ -89,7 +91,7 @@ export class ServiceRequestTimelineViewComponent implements OnInit, OnDestroy {
   }
 
   clearSelection(): void {
-    this.selectionService.clearSelection();
+    this.splitView.selectionService.clearSelection();
   }
 
   linkedSrForAlarm(alarm: IAlarm): ServiceRequestObject | null {
@@ -107,11 +109,11 @@ export class ServiceRequestTimelineViewComponent implements OnInit, OnDestroy {
   }
 
   selectSr(sr: ServiceRequestObject): void {
-    this.selectionService.select({ kind: 'sr', sr });
+    this.splitView.selectionService.select({ kind: 'sr', sr });
   }
 
   selectAlarm(alarm: IAlarm): void {
-    this.selectionService.select({ kind: 'alarm', alarm });
+    this.splitView.selectionService.select({ kind: 'alarm', alarm });
   }
 
   async loadAlarms(page = 1): Promise<void> {
@@ -216,13 +218,13 @@ export class ServiceRequestTimelineViewComponent implements OnInit, OnDestroy {
   openNewRequestForDevice(): void {
     const context: NewRequestContext = { device: this.device };
 
-    this.selectionService.select({ kind: 'new', context });
+    this.splitView.selectionService.select({ kind: 'new', context });
   }
 
   openNewRequestFromAlarm(alarm: IAlarm): void {
     const context: NewRequestContext = { device: this.device, fromAlarm: alarm };
 
-    this.selectionService.select({ kind: 'new', context });
+    this.splitView.selectionService.select({ kind: 'new', context });
   }
 
   async linkExistingFromAlarm(alarm: IAlarm): Promise<void> {
