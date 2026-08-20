@@ -1,5 +1,15 @@
 <c8y-title>{{ 'Service requests' | translate }}</c8y-title>
 
+<c8y-action-bar-item [placement]="'left'">
+  <c8y-alarms-filter [contextSourceId]="device?.id" (onFilterApplied)="onAlarmsFilterApplied($event)"></c8y-alarms-filter>
+</c8y-action-bar-item>
+<c8y-action-bar-item [placement]="'left'">
+  <c8y-alarms-date-filter (dateFilterChange)="onAlarmsDateFilterChange($event)"></c8y-alarms-date-filter>
+</c8y-action-bar-item>
+<c8y-action-bar-item [placement]="'left'" *ngIf="alarmsResult">
+  <c8y-alarms-type-filter [alarms]="alarmsResult" (onFilterChanged)="onAlarmsTypeFilterChanged($event)"></c8y-alarms-type-filter>
+</c8y-action-bar-item>
+
 <c8y-action-bar-item [placement]="'right'">
   <div class="sr-mo-chips" *ngIf="serviceObjectId() || activeStatusEntries().length">
     <span class="sr-mo-chip" *ngIf="serviceObjectId()" [title]="'Managed object fragment: sr_ServiceObjectId' | translate">
@@ -20,36 +30,6 @@
   <c8y-sv-list [title]="'Timeline' | translate">
     <c8y-sv-header-actions>
       <div class="sr-filterbar">
-        <div class="dropdown" dropdown>
-          <button type="button" class="btn btn-default dropdown-toggle" dropdownToggle>
-            {{ selectedSeverities.length ? (selectedSeverities.length + ' severities') : ('All severities' | translate) }}
-          </button>
-          <ul *dropdownMenu class="dropdown-menu">
-            <li *ngFor="let severity of severityOptions">
-              <label class="c8y-checkbox">
-                <input type="checkbox" [checked]="selectedSeverities.includes(severity)" (change)="toggleSeverity(severity)" />
-                <span></span>
-                {{ severity }}
-              </label>
-            </li>
-          </ul>
-        </div>
-
-        <div class="dropdown" dropdown>
-          <button type="button" class="btn btn-default dropdown-toggle" dropdownToggle>
-            {{ selectedAlarmStatuses.length ? (selectedAlarmStatuses.length + ' statuses') : ('All alarm statuses' | translate) }}
-          </button>
-          <ul *dropdownMenu class="dropdown-menu">
-            <li *ngFor="let status of alarmStatusOptions">
-              <label class="c8y-checkbox">
-                <input type="checkbox" [checked]="selectedAlarmStatuses.includes(status)" (change)="toggleAlarmStatus(status)" />
-                <span></span>
-                {{ status }}
-              </label>
-            </li>
-          </ul>
-        </div>
-
         <div class="dropdown" dropdown>
           <button type="button" class="btn btn-default dropdown-toggle" dropdownToggle>
             {{ selectedSrStatusIds.length ? (selectedSrStatusIds.length + ' request statuses') : ('All request statuses' | translate) }}

@@ -1,7 +1,8 @@
 import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlarmQueryFilter, AlarmService, AlarmStatus, IAlarm, IManagedObject, IResultList, Severity } from '@c8y/client';
+import { AlarmQueryFilter, AlarmService, AlarmStatus, IAlarm, IManagedObject, IResultList } from '@c8y/client';
 import { AlertService, SplitViewComponent } from '@c8y/ngx-components';
+import { AlarmListFormFilters } from '@c8y/ngx-components/alarms';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -36,10 +37,14 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   alarmPage = 1;
   alarmTotalPages: number | null = null;
 
-  readonly severityOptions = Object.values(Severity).filter((v) => typeof v === 'string') as string[];
-  readonly alarmStatusOptions = Object.values(AlarmStatus).filter((v) => typeof v === 'string') as string[];
-  selectedSeverities: string[] = [];
-  selectedAlarmStatuses: string[] = [];
+  private selectedSeverities: string[] = [];
+  private selectedAlarmStatuses: string[] = [];
+  private selectedTypes: string[] = [];
+  private dateFrom = '1970-01-01';
+  private dateTo = new Date().toISOString();
+
+  /** Backs c8y-alarms-type-filter's [alarms] input (needs the raw IResultList, not just IAlarm[]). */
+  alarmsResult: IResultList<IAlarm> | null = null;
 
   srStatuses: ServiceRequestStatus[] = [];
   selectedSrStatusIds: string[] = [];
@@ -164,8 +169,8 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
       pageSize: ALARM_PAGE_SIZE,
       currentPage: page,
       withTotalPages: page === 1,
-      dateFrom: '1970-01-01',
-      dateTo: new Date().toISOString(),
+      dateFrom: this.dateFrom,
+      dateTo: this.dateTo,
       withSourceAssets: true,
       withSourceDevices: true,
     };
@@ -186,6 +191,7 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
       this.alarms = [...this.alarms, ...response.data];
     }
 
+    this.alarmsResult = { ...response, data: this.alarms };
     this.loading = false;
     this.loadingMore = false;
     this.rebuildRows();
@@ -209,22 +215,38 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     return !!this.alarmTotalPages && this.alarmPage < this.alarmTotalPages;
   }
 
-  async onAlarmFilterChange(): Promise<void> {
-    await this.loadAlarms();
-  }
-
   async onSrFilterChange(): Promise<void> {
     await this.loadServiceRequests();
   }
 
-  toggleSeverity(value: string): void {
-    this.selectedSeverities = this.toggleInArray(this.selectedSeverities, value);
-    void this.onAlarmFilterChange();
+  /** From c8y-alarms-filter's (onFilterApplied) — severity checkboxes + "Show cleared alarms". */
+  onAlarmsFilterApplied(filters: AlarmListFormFilters): void {
+    const allSeverities = Object.keys(filters.severityOptions);
+    const selectedSeverities = allSeverities.filter((severity) => filters.severityOptions[severity]);
+
+    this.selectedSeverities = selectedSeverities.length === allSeverities.length ? [] : selectedSeverities;
+    this.selectedAlarmStatuses = filters.showCleared ? [] : [AlarmStatus.ACTIVE, AlarmStatus.ACKNOWLEDGED];
+
+    void this.loadAlarms();
   }
 
-  toggleAlarmStatus(value: string): void {
-    this.selectedAlarmStatuses = this.toggleInArray(this.selectedAlarmStatuses, value);
-    void this.onAlarmFilterChange();
+  /** From c8y-alarms-date-filter's (dateFilterChange) — only the date range is authoritative here. */
+  onAlarmsDateFilterChange(filters: AlarmListFormFilters): void {
+    if (filters.selectedDates) {
+      this.dateFrom = filters.selectedDates[0].toISOString();
+      this.dateTo = filters.selectedDates[1].toISOString();
+    } else {
+      this.dateFrom = '1970-01-01';
+      this.dateTo = new Date().toISOString();
+    }
+
+    void this.loadAlarms();
+  }
+
+  /** From c8y-alarms-type-filter's (onFilterChanged) — filtered client-side, no refetch needed. */
+  onAlarmsTypeFilterChanged(activeFilters: Array<{ filters: { type: string } }>): void {
+    this.selectedTypes = activeFilters.map((filter) => filter.filters.type);
+    this.rebuildRows();
   }
 
   toggleSrStatus(value: string): void {
@@ -296,7 +318,11 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   }
 
   private rebuildRows(): void {
-    this.rows = buildTimelineRows(this.alarms, this.serviceRequests);
+    const alarmsForRows = this.selectedTypes.length
+      ? this.alarms.filter((alarm) => this.selectedTypes.includes(alarm.type))
+      : this.alarms;
+
+    this.rows = buildTimelineRows(alarmsForRows, this.serviceRequests);
     this.refreshDerivedSelectionData();
   }
 
