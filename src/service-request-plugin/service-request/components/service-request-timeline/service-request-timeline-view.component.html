@@ -86,10 +86,10 @@
     [emptyStateTitle]="'Nothing selected' | translate"
     [emptyStateSubtitle]="'Select an alarm or service request from the timeline to see its details' | translate"
   >
-    <ng-container *ngIf="currentSelection?.kind === 'alarm'">
+    <ng-container *ngIf="selectedAlarm as alarm">
       <sr-alarm-detail-panel
         #alarmPanel
-        [alarm]="currentSelection.alarm"
+        [alarm]="alarm"
         [linkedSr]="currentLinkedSr"
         (openSr)="selectSr($event)"
         (createRequest)="openNewRequestFromAlarm($event)"
@@ -98,19 +98,19 @@
       ></sr-alarm-detail-panel>
       <c8y-sv-details-actions [actions]="alarmPanel.actions"></c8y-sv-details-actions>
     </ng-container>
-    <ng-container *ngIf="currentSelection?.kind === 'sr'">
+    <ng-container *ngIf="selectedSr as sr">
       <sr-detail-panel
         #srPanel
-        [sr]="currentSelection.sr"
+        [sr]="sr"
         [linkedAlarms]="currentLinkedAlarms"
         (openAlarm)="selectAlarm($event)"
       ></sr-detail-panel>
       <c8y-sv-details-actions [actions]="srPanel.actions"></c8y-sv-details-actions>
     </ng-container>
-    <ng-container *ngIf="currentSelection?.kind === 'new'">
+    <ng-container *ngIf="selectedNewContext as newContext">
       <sr-new-request-form
         #newPanel
-        [context]="currentSelection.context"
+        [context]="newContext"
         [candidateAlarms]="alarms"
         (created)="selectSr($event)"
         (cancelled)="clearSelection()"

@@ -54,6 +54,23 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   currentLinkedSr: ServiceRequestObject | null = null;
   currentLinkedAlarms: IAlarm[] = [];
 
+  /**
+   * Angular's template type-checker doesn't narrow currentSelection's discriminated union from
+   * a `*ngIf="currentSelection?.kind === 'x'"` comparison, so pull each variant out via a typed
+   * getter instead and use `*ngIf="selectedAlarm as alarm"` in the template.
+   */
+  get selectedAlarm(): IAlarm | null {
+    return this.currentSelection?.kind === 'alarm' ? this.currentSelection.alarm : null;
+  }
+
+  get selectedSr(): ServiceRequestObject | null {
+    return this.currentSelection?.kind === 'sr' ? this.currentSelection.sr : null;
+  }
+
+  get selectedNewContext(): NewRequestContext | null {
+    return this.currentSelection?.kind === 'new' ? this.currentSelection.context : null;
+  }
+
   private alarmPollTimer: ReturnType<typeof setTimeout>;
   private srPollTimer: ReturnType<typeof setInterval>;
   private changeSub: Subscription;
