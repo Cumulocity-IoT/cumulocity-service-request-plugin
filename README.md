@@ -32,12 +32,12 @@ There are SYSTEM comments and USER comments. SYSTEM comments reflect specific ch
 Each service request and each comment can have arbitrary files like pictures, excel documents etc. as attachment. This attachments allow the user to add additional information for the field service team. 
 
 ## Recommended versions
-* node ^18.19.1 || ^20.11.1 || ^22.0.0
-* npm 10.x.x
+* node ^20.19.0 || ^22.12.0 || >=24.0.0
+* npm 11.x.x
 
 ## Plugin versions
-* Angular 18.x.x
-* WebSDK 1021.x.x
+* Angular 21.x.x
+* WebSDK 1024.x.x
 
 **How to start**
 Change the target Cumulocity tenant and application you want to run this plugin on in the `package.json` and replace `{{C8Y_URL}}`.
