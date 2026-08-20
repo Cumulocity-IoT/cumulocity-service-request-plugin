@@ -45,6 +45,14 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   selectedSrStatusIds: string[] = [];
 
   currentSelection: TimelineSelection | null = null;
+  /**
+   * Derived from currentSelection, recomputed only when the selection or the underlying
+   * alarm/SR data actually changes (never inline in the template) — calling .filter()/.find()
+   * directly in a template binding returns a new array/value every change-detection cycle,
+   * which makes Angular re-fire ngOnChanges on the child component on every tick.
+   */
+  currentLinkedSr: ServiceRequestObject | null = null;
+  currentLinkedAlarms: IAlarm[] = [];
 
   private alarmPollTimer: ReturnType<typeof setTimeout>;
   private srPollTimer: ReturnType<typeof setInterval>;
@@ -80,6 +88,7 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   ngAfterViewInit(): void {
     this.selectionSub = this.splitView.selectionService.selectedItem$.subscribe((selection) => {
       this.currentSelection = selection;
+      this.refreshDerivedSelectionData();
     });
   }
 
@@ -94,11 +103,11 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     this.splitView.selectionService.clearSelection();
   }
 
-  linkedSrForAlarm(alarm: IAlarm): ServiceRequestObject | null {
+  private linkedSrForAlarm(alarm: IAlarm): ServiceRequestObject | null {
     return this.rows.find((row) => row.alarm?.id === alarm.id)?.sr ?? null;
   }
 
-  linkedAlarmsForSr(sr: ServiceRequestObject): IAlarm[] {
+  private linkedAlarmsForSr(sr: ServiceRequestObject): IAlarm[] {
     const ids = new Set((sr.alarmRefList ?? []).map((ref) => ref.id));
 
     if (sr.alarmRef?.id) {
@@ -106,6 +115,14 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     }
 
     return this.alarms.filter((alarm) => ids.has(String(alarm.id)));
+  }
+
+  private refreshDerivedSelectionData(): void {
+    if (this.currentSelection?.kind === 'alarm') {
+      this.currentLinkedSr = this.linkedSrForAlarm(this.currentSelection.alarm);
+    } else if (this.currentSelection?.kind === 'sr') {
+      this.currentLinkedAlarms = this.linkedAlarmsForSr(this.currentSelection.sr);
+    }
   }
 
   selectSr(sr: ServiceRequestObject): void {
@@ -263,6 +280,7 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
 
   private rebuildRows(): void {
     this.rows = buildTimelineRows(this.alarms, this.serviceRequests);
+    this.refreshDerivedSelectionData();
   }
 
   private startAlarmPolling(): void {

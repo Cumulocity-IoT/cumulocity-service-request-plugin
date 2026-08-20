@@ -90,7 +90,7 @@
       <sr-alarm-detail-panel
         #alarmPanel
         [alarm]="currentSelection.alarm"
-        [linkedSr]="linkedSrForAlarm(currentSelection.alarm)"
+        [linkedSr]="currentLinkedSr"
         (openSr)="selectSr($event)"
         (createRequest)="openNewRequestFromAlarm($event)"
         (linkExisting)="linkExistingFromAlarm($event)"
@@ -102,7 +102,7 @@
       <sr-detail-panel
         #srPanel
         [sr]="currentSelection.sr"
-        [linkedAlarms]="linkedAlarmsForSr(currentSelection.sr)"
+        [linkedAlarms]="currentLinkedAlarms"
         (openAlarm)="selectAlarm($event)"
       ></sr-detail-panel>
       <c8y-sv-details-actions [actions]="srPanel.actions"></c8y-sv-details-actions>

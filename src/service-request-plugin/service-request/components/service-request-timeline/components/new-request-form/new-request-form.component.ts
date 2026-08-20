@@ -64,7 +64,7 @@ export class NewRequestFormComponent implements OnChanges {
   }
 
   async ngOnChanges(): Promise<void> {
-    const meta = await this.serviceRequestMetaService.fetchMeta();
+    const meta = await this.serviceRequestMetaService.fetchMeta(true);
 
     this.priorities = meta.priorities;
     this.resetForm();
