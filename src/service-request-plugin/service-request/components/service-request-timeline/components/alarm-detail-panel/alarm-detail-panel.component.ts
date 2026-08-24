@@ -43,7 +43,6 @@ export class AlarmDetailPanelComponent implements OnChanges {
   @Input() alarm: IAlarm;
   @Input() linkedSr: ServiceRequestObject | null = null;
 
-  @Output() openSr = new EventEmitter<ServiceRequestObject>();
   @Output() createRequest = new EventEmitter<IAlarm>();
   @Output() linkExisting = new EventEmitter<IAlarm>();
   @Output() alarmChanged = new EventEmitter<void>();
@@ -69,12 +68,6 @@ export class AlarmDetailPanelComponent implements OnChanges {
     if (this.alarm && this.alarm.id !== this.lastLoadedAlarmId) {
       this.lastLoadedAlarmId = this.alarm.id;
       void this.loadAuditLog();
-    }
-  }
-
-  openLinkedSr(): void {
-    if (this.linkedSr) {
-      this.openSr.emit(this.linkedSr);
     }
   }
 
@@ -128,7 +121,8 @@ export class AlarmDetailPanelComponent implements OnChanges {
       {
         id: 'source',
         label: 'Source',
-        icon: 'hardware',
+        icon: 'contactless-payment',
+        iconClass: 'stroked-icon status',
         visible: !!alarm.source,
         content: `<p><a href="#/device/${alarm.source?.id}">${alarm.source?.name ?? ''}</a></p>`,
       },

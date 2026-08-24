@@ -1,6 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { IAlarm } from '@c8y/client';
 import { AlertService, IconPanelSection, ModalService, SplitViewAction, Status } from '@c8y/ngx-components';
 import {
   ServiceRequestAttachment,
@@ -20,9 +19,6 @@ import { ServiceRequestService } from '../../../../service/service-request.servi
 })
 export class SrDetailPanelComponent implements OnChanges {
   @Input() sr: ServiceRequestObject;
-  @Input() linkedAlarms: IAlarm[] = [];
-
-  @Output() openAlarm = new EventEmitter<IAlarm>();
 
   priorities: ServiceRequestPriority[] = [];
   actions: SplitViewAction[] = [];
@@ -44,12 +40,27 @@ export class SrDetailPanelComponent implements OnChanges {
     private serviceRequestChange: ServiceRequestChangeService,
     private alertService: AlertService,
     private modalService: ModalService
-  ) {}
+  ) {
+    // Attaching a file must persist immediately rather than waiting for the (unrelated)
+    // title/description/priority form to be submitted — that form's dirty-gated Update button
+    // never enables from an attachment change alone, since attachmentControl isn't part of it.
+    this.attachmentControl.valueChanges.subscribe((value) => void this.handleAttachmentChange(value));
+  }
 
   async ngOnChanges(): Promise<void> {
     const meta = await this.serviceRequestMetaService.fetchMeta(true);
 
     this.priorities = meta.priorities;
+
+    // The timeline's list fetch doesn't reliably carry every field (e.g. attachment) that the
+    // single-request detail endpoint does, so re-fetch the authoritative record on selection
+    // rather than trusting whatever projection the list happened to return.
+    const detail = await this.serviceRequestService.detail(this.sr.id);
+
+    if (detail) {
+      this.sr = detail;
+    }
+
     this.resetForm();
     this.rawJson = JSON.stringify(this.sr, null, 2);
     this.buildActions();
@@ -99,7 +110,6 @@ export class SrDetailPanelComponent implements OnChanges {
 
       if (updated) {
         this.sr = updated;
-        await this.uploadStagedAttachment();
         this.resetForm();
         this.rawJson = JSON.stringify(this.sr, null, 2);
         this.serviceRequestChange.notifyChange();
@@ -110,12 +120,47 @@ export class SrDetailPanelComponent implements OnChanges {
     }
   }
 
-  private async uploadStagedAttachment(): Promise<void> {
-    const value = this.attachmentControl.value;
+  /**
+   * Fires on every attachmentControl value change (including our own resetForm-driven
+   * setValue calls), but only a genuinely newly-picked file has new:true, so anything else
+   * is a no-op — see uploadServiceRequestAttachment:
+   * https://github.com/Cumulocity-IoT/cumulocity-microservice-service-request-mgmt/blob/develop/docs/Apis/ServiceRequestControllerApi.md#uploadservicerequestattachment
+   */
+  private async handleAttachmentChange(
+    value: ServiceRequestAttachment | ServiceRequestAttachment[] | null
+  ): Promise<void> {
     const staged = (Array.isArray(value) ? value : [value]).find((a) => a?.new && a.file);
 
-    if (staged?.file) {
-      await this.serviceRequestAttachmentsService.uploadAttachment(this.sr.id, staged.file, true);
+    if (!staged?.file || this.busy || !this.sr?.id) {
+      return;
+    }
+
+    this.busy = true;
+    this.buildActions();
+
+    try {
+      const uploaded = await this.serviceRequestAttachmentsService.uploadAttachment(
+        this.sr.id,
+        staged.file,
+        true
+      );
+
+      if (uploaded) {
+        const detail = await this.serviceRequestService.detail(this.sr.id);
+
+        if (detail) {
+          this.sr = detail;
+          this.rawJson = JSON.stringify(this.sr, null, 2);
+        }
+
+        // emitEvent: false — this is a programmatic reset back to the persisted attachment,
+        // not a new user pick, so it must not re-enter this same handler.
+        this.attachmentControl.setValue(this.sr?.attachment ?? null, { emitEvent: false });
+        this.serviceRequestChange.notifyChange();
+      }
+    } finally {
+      this.busy = false;
+      this.buildActions();
     }
   }
 

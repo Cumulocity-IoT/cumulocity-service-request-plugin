@@ -1,3 +1,11 @@
+// c8y-li-timeline renders its date <small> in its own component template, so this can't be
+// reached by a normally-scoped selector — matches the standard alarm dashboard's active/selected
+// look (green dot + green date), which only exists for its routerLinkActive-driven usage.
+:host ::ng-deep .c8y-list--timeline__item.active .c8y-list--timeline__item__date {
+  color: var(--brand-primary, #1776bf);
+  font-weight: 700;
+}
+
 .sr-day-heading {
   padding: 10px 16px 6px 76px;
   font-size: 11px;

@@ -98,12 +98,7 @@
       <c8y-sv-details-actions [actions]="alarmPanel.actions"></c8y-sv-details-actions>
     </ng-container>
     <ng-container *ngIf="selectedSr as sr">
-      <sr-detail-panel
-        #srPanel
-        [sr]="sr"
-        [linkedAlarms]="currentLinkedAlarms"
-        (openAlarm)="selectAlarm($event)"
-      ></sr-detail-panel>
+      <sr-detail-panel #srPanel [sr]="sr"></sr-detail-panel>
       <c8y-sv-details-actions [actions]="srPanel.actions"></c8y-sv-details-actions>
     </ng-container>
     <ng-container *ngIf="selectedNewContext as newContext">

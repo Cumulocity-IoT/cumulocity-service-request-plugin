@@ -65,7 +65,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
    * which makes Angular re-fire ngOnChanges on the child component on every tick.
    */
   currentLinkedSr: ServiceRequestObject | null = null;
-  currentLinkedAlarms: IAlarm[] = [];
 
   /**
    * Angular's template type-checker doesn't narrow currentSelection's discriminated union from
@@ -144,30 +143,14 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     return this.rows.find((row) => row.alarm?.id === alarm.id)?.sr ?? null;
   }
 
-  private linkedAlarmsForSr(sr: ServiceRequestObject): IAlarm[] {
-    const ids = new Set((sr.alarmRefList ?? []).map((ref) => ref.id));
-
-    if (sr.alarmRef?.id) {
-      ids.add(sr.alarmRef.id);
-    }
-
-    return this.alarms.filter((alarm) => ids.has(String(alarm.id)));
-  }
-
   private refreshDerivedSelectionData(): void {
     if (this.currentSelection?.kind === 'alarm') {
       this.currentLinkedSr = this.linkedSrForAlarm(this.currentSelection.alarm);
-    } else if (this.currentSelection?.kind === 'sr') {
-      this.currentLinkedAlarms = this.linkedAlarmsForSr(this.currentSelection.sr);
     }
   }
 
   selectSr(sr: ServiceRequestObject): void {
     this.splitView.selectionService.select({ kind: 'sr', sr });
-  }
-
-  selectAlarm(alarm: IAlarm): void {
-    this.splitView.selectionService.select({ kind: 'alarm', alarm });
   }
 
   /**

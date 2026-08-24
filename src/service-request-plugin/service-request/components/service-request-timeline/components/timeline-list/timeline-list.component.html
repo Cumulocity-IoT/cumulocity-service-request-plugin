@@ -4,7 +4,7 @@
   <ng-container *ngFor="let row of rows; let i = index; trackBy: trackByRowId">
     <div class="sr-day-heading" *ngIf="isFirstOfDay(row, i)">{{ row.dayLabel }}</div>
 
-    <c8y-li-timeline>
+    <c8y-li-timeline [class.active]="isRowSelected(row)">
       {{ row.timestamp | c8yDate: 'shortTime' }}
       <c8y-li role="listitem">
         <div class="sr-tl-pair" [class.sr-tl-pair--single]="!row.alarm">

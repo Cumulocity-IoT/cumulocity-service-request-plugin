@@ -50,6 +50,15 @@ export class TimelineListComponent implements OnInit, OnDestroy {
     return this.currentSelection?.kind === 'sr' && this.currentSelection.sr.id === sr.id;
   }
 
+  /**
+   * Drives the `active` class on <c8y-li-timeline> itself (matching the standard alarm
+   * dashboard's routerLinkActive="active", which greens out the date box and timeline dot) —
+   * true when either box paired on this row is the current selection.
+   */
+  isRowSelected(row: TimelineRow): boolean {
+    return (!!row.alarm && this.isAlarmSelected(row.alarm)) || (!!row.sr && this.isSrSelected(row.sr));
+  }
+
   isFirstOfDay(row: TimelineRow, index: number): boolean {
     return index === 0 || this.rows[index - 1].dayLabel !== row.dayLabel;
   }

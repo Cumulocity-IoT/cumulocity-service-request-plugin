@@ -1,18 +1,10 @@
-<div class="sr-section-block" *ngFor="let alarm of linkedAlarms">
-  <div class="sr-banner">
-    <i c8yIcon="warning"></i>
-    <div class="sr-banner-text">{{ 'Created from alarm' | translate }} &middot; {{ alarm.text }}</div>
-    <button type="button" class="btn btn-sm btn-default" (click)="openAlarm.emit(alarm)">{{ 'Open alarm' | translate }}</button>
-  </div>
-</div>
-
 <div class="sr-section-block">
   <p class="sr-section-label">{{ 'Service Request' | translate }}</p>
 
   <div class="sr-info-grid">
     <div class="sr-info-card">
       <p class="sr-info-label">{{ 'Opened by' | translate }}</p>
-      <p class="sr-info-value">{{ sr.owner }}, {{ sr.creationTime | c8yDate: 'medium' }}</p>
+      <p class="sr-info-value">{{ sr.owner }}<br />{{ sr.creationTime | c8yDate: 'medium' }}</p>
     </div>
     <div class="sr-info-card" *ngIf="sr.source">
       <p class="sr-info-label">{{ 'Source' | translate }}</p>

@@ -1,11 +1,3 @@
-<div class="sr-banner" *ngIf="linkedSr">
-  <i c8yIcon="link"></i>
-  <div class="sr-banner-text">
-    {{ 'Linked to' | translate }} <b>SR-{{ linkedSr.id }}</b> &middot; {{ linkedSr.title }}
-  </div>
-  <button type="button" class="btn btn-sm btn-default" (click)="openLinkedSr()">{{ 'Open' | translate }}</button>
-</div>
-
 <div class="card-header p-16 m-b-16 bg-component separator-bottom" *ngIf="alarm">
   <h4 class="m-0">{{ alarm.text }}</h4>
 </div>
