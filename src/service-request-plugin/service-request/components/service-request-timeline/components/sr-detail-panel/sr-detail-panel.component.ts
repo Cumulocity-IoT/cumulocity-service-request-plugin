@@ -59,7 +59,7 @@ export class SrDetailPanelComponent implements OnChanges {
     this.form.reset({
       title: this.sr?.title ?? '',
       description: this.sr?.description ?? '',
-      priority: this.sr?.priority ?? null,
+      priority: this.currentPriorityOption(),
     });
     this.attachmentControl.setValue(this.sr?.attachment ?? null);
 
@@ -68,6 +68,19 @@ export class SrDetailPanelComponent implements OnChanges {
     } else {
       this.form.enable();
     }
+  }
+
+  /**
+   * The <select> matches options to the control's value by reference ([ngValue]), so the SR's own
+   * priority object (fetched separately from the SR) never matches an option from `this.priorities`
+   * even when its name/ordinal are equal — resolve to the array instance instead.
+   */
+  private currentPriorityOption(): ServiceRequestPriority | null {
+    if (!this.sr?.priority) {
+      return null;
+    }
+
+    return this.priorities.find((p) => p.ordinal === this.sr.priority.ordinal) ?? this.sr.priority;
   }
 
   async submit(): Promise<void> {

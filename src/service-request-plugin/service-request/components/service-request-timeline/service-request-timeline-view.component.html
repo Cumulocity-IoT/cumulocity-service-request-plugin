@@ -11,19 +11,23 @@
 </c8y-action-bar-item>
 
 <c8y-action-bar-item [placement]="'right'">
-  <div class="sr-mo-chips" *ngIf="serviceObjectId() || activeStatusEntries().length">
-    <span class="sr-mo-chip" *ngIf="serviceObjectId()" [title]="'Managed object fragment: sr_ServiceObjectId' | translate">
-      <span class="sr-mo-chip-label">{{ 'Service Object' | translate }}</span>
-      <code>{{ serviceObjectId() }}</code>
-    </span>
-    <span class="sr-mo-chip" *ngFor="let entry of activeStatusEntries()" [title]="'Managed object fragment: sr_ActiveStatus' | translate">
-      <span class="sr-mo-chip-label">{{ entry.count }} {{ entry.label }}</span>
-    </span>
+  <div class="d-flex a-i-center">
+    <div class="sr-mo-chips" *ngIf="serviceObjectId()">
+      <span class="sr-mo-chip" [title]="'Managed object fragment: sr_ServiceObjectId' | translate">
+        <span class="sr-mo-chip-label">{{ 'Service Object' | translate }}</span>
+        <code>{{ serviceObjectId() }}</code>
+      </span>
+    </div>
+    <button
+      type="button"
+      class="btn btn-link"
+      [title]="'New service request' | translate"
+      (click)="openNewRequestForDevice()"
+    >
+      <i c8yIcon="plus-circle"></i>
+      {{ 'New service request' | translate }}
+    </button>
   </div>
-  <button type="button" class="btn btn-primary" (click)="openNewRequestForDevice()">
-    <i c8yIcon="plus-circle"></i>
-    {{ 'New service request' | translate }}
-  </button>
 </c8y-action-bar-item>
 
 <c8y-sv [isResizable]="true" [resizableConfig]="{ trackId: 'service-request-timeline', leftColumnWidth: '50%' }">
@@ -34,6 +38,14 @@
     [emptyStateTitle]="'No alarms or service requests to display' | translate"
     [emptyStateSubtitle]="'Check your filter settings' | translate"
   >
+    <c8y-sv-header-actions>
+      <c8y-alarms-interval-refresh
+        [isIntervalToggleEnabled]="autoRefreshToggleEnabled"
+        [alarmsListLoading$]="autoRefreshLoading$"
+        (onCountdownEnded)="onAutoRefreshTick()"
+      ></c8y-alarms-interval-refresh>
+    </c8y-sv-header-actions>
+
     <sr-timeline-list
       [rows]="rows"
       [loading]="loading"
@@ -49,7 +61,7 @@
   </c8y-sv-list>
 
   <c8y-sv-details
-    emptyStateIcon="c8y-support"
+    emptyStateIcon="c8y-c8y-support"
     [emptyStateTitle]="'Nothing selected' | translate"
     [emptyStateSubtitle]="'Select an alarm or service request from the timeline to see its details' | translate"
   >

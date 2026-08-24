@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AlarmQueryFilter, AlarmService, AlarmStatus, IAlarm, IManagedObject, IResultList } from '@c8y/client';
 import { AlertService, SplitViewComponent } from '@c8y/ngx-components';
 import { AlarmListFormFilters } from '@c8y/ngx-components/alarms';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { firstValueFrom, Subscription } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { ServiceRequestObject } from '../../models/service-request.model';
 import { ServiceRequestChangeService } from '../../service/service-request-change.service';
@@ -36,11 +36,21 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   alarmPage = 1;
   alarmTotalPages: number | null = null;
 
+  /** See ngAfterViewInit — flipped true only once c8y-alarms-interval-refresh can react to it. */
+  autoRefreshToggleEnabled = false;
+  /**
+   * c8y-alarms-interval-refresh only restarts its countdown when this emits `false` — it stops the
+   * countdown on every emission and only resets (restarts) it once the emitted value is falsy, so
+   * a full reload cycle must toggle this true -> false to keep the auto-refresh loop going.
+   */
+  autoRefreshLoading$ = new BehaviorSubject<boolean>(false);
+
   private selectedSeverities: string[] = [];
   private selectedAlarmStatuses: string[] = [];
   private selectedTypes: string[] = [];
   private dateFrom = '1970-01-01';
-  private dateTo = new Date().toISOString();
+  /** Only set when the user picks an explicit range via c8y-alarms-date-filter — see loadAlarms. */
+  private customDateTo: string | null = null;
 
   /** Backs c8y-alarms-type-filter's [alarms] input (needs the raw IResultList, not just IAlarm[]). */
   alarmsResult: IResultList<IAlarm> | null = null;
@@ -83,7 +93,8 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     private serviceRequestService: ServiceRequestService,
     private serviceRequestChange: ServiceRequestChangeService,
     private alertService: AlertService,
-    private bsModalService: BsModalService
+    private bsModalService: BsModalService,
+    private ngZone: NgZone
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -104,6 +115,16 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
       this.currentSelection = selection;
       this.refreshDerivedSelectionData();
     });
+
+    /**
+     * c8y-alarms-interval-refresh only starts its countdown in reaction to a `valueChanges` event
+     * on its toggle form control, and that subscription isn't wired up until its own
+     * ngAfterViewInit — so flipping this input during our own ngAfterViewInit (which, per Angular's
+     * lifecycle order, always runs after the child's) is what actually reaches a live listener.
+     * Binding it `true` from the start fires the setter too early, before that listener exists,
+     * and the countdown never starts until the user manually toggles it off and on.
+     */
+    setTimeout(() => (this.autoRefreshToggleEnabled = true));
   }
 
   ngOnDestroy(): void {
@@ -162,10 +183,13 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
       currentPage: page,
       withTotalPages: page === 1,
       dateFrom: this.dateFrom,
-      dateTo: this.dateTo,
       withSourceAssets: true,
       withSourceDevices: true,
     };
+
+    if (this.customDateTo) {
+      filter['dateTo'] = this.customDateTo;
+    }
 
     if (this.selectedAlarmStatuses.length) {
       filter.status = this.selectedAlarmStatuses.join(',');
@@ -202,6 +226,24 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     void this.loadAlarms(this.alarmPage + 1);
   }
 
+  /**
+   * From c8y-alarms-interval-refresh's (onCountdownEnded) — its countdown ticks via
+   * NgZone.runOutsideAngular, so this callback fires outside Angular's zone. Without re-entering
+   * the zone, the REST calls still happen but the resulting `rows`/`alarms` mutations never trigger
+   * change detection, so the timeline silently doesn't visually refresh.
+   */
+  onAutoRefreshTick(): void {
+    this.ngZone.run(async () => {
+      this.autoRefreshLoading$.next(true);
+
+      try {
+        await Promise.all([this.loadAlarms(), this.loadServiceRequests()]);
+      } finally {
+        this.autoRefreshLoading$.next(false);
+      }
+    });
+  }
+
   hasMoreAlarms(): boolean {
     return !!this.alarmTotalPages && this.alarmPage < this.alarmTotalPages;
   }
@@ -221,10 +263,10 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   onAlarmsDateFilterChange(filters: AlarmListFormFilters): void {
     if (filters.selectedDates) {
       this.dateFrom = filters.selectedDates[0].toISOString();
-      this.dateTo = filters.selectedDates[1].toISOString();
+      this.customDateTo = filters.selectedDates[1].toISOString();
     } else {
       this.dateFrom = '1970-01-01';
-      this.dateTo = new Date().toISOString();
+      this.customDateTo = null;
     }
 
     void this.loadAlarms();
@@ -274,19 +316,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
       await this.loadServiceRequests();
       this.selectSr(linkedSr);
     }
-  }
-
-  /** sr_ActiveStatus managed-object fragment, e.g. { "medium": 3 } (FR-083). */
-  activeStatusEntries(): Array<{ label: string; count: number }> {
-    const status = (this.device as unknown as Record<string, unknown>)?.['sr_ActiveStatus'] as
-      | Record<string, number>
-      | undefined;
-
-    if (!status) {
-      return [];
-    }
-
-    return Object.entries(status).map(([label, count]) => ({ label, count }));
   }
 
   serviceObjectId(): string | undefined {

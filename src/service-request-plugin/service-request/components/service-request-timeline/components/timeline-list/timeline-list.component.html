@@ -18,16 +18,19 @@
             (click)="selectAlarm(row.alarm)"
             (keydown.enter)="selectAlarm(row.alarm)"
           >
-            <span class="sr-duo-icon">
-              <sr-severity-status-icon display="severity" [alarm]="row.alarm"></sr-severity-status-icon>
-            </span>
+            <div class="sr-duo-icon">
+              <div class="alarm-icons">
+                <sr-severity-status-icon display="severity" [alarm]="row.alarm"></sr-severity-status-icon>
+                <sr-severity-status-icon display="status" [alarm]="row.alarm"></sr-severity-status-icon>
+              </div>
+            </div>
             <div class="sr-row-main">
               <div class="sr-row-title-line">
                 <span class="sr-row-title">{{ row.alarm.text }}</span>
                 <span class="sr-count-badge" *ngIf="row.alarm.count > 1" [title]="row.alarm.count + ' occurrences'">&times;{{ row.alarm.count }}</span>
               </div>
               <div class="sr-row-sub">
-                <i c8yIcon="hardware"></i>
+                <i c8yIcon="exchange"></i>
                 {{ row.alarm.source?.name }}
               </div>
             </div>
