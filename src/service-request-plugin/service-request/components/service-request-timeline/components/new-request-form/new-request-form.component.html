@@ -28,9 +28,11 @@
   <div class="row">
     <div class="col-xs-4 form-group">
       <label for="sr_new_type">{{ 'Type' | translate }}</label>
-      <select id="sr_new_type" class="form-control" formControlName="type">
-        <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
-      </select>
+      <div class="c8y-select-wrapper">
+        <select id="sr_new_type" class="form-control" formControlName="type">
+          <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
+        </select>
+      </div>
     </div>
     <div class="col-xs-4 form-group">
       <label>{{ 'Status' | translate }}</label>
@@ -38,9 +40,11 @@
     </div>
     <div class="col-xs-4 form-group">
       <label for="sr_new_priority">{{ 'Priority' | translate }}</label>
-      <select id="sr_new_priority" class="form-control" formControlName="priority">
-        <option *ngFor="let p of priorities" [ngValue]="p">{{ p.name }}</option>
-      </select>
+      <div class="c8y-select-wrapper">
+        <select id="sr_new_priority" class="form-control" formControlName="priority">
+          <option *ngFor="let p of priorities" [ngValue]="p">{{ p.name }}</option>
+        </select>
+      </div>
     </div>
   </div>
 </form>

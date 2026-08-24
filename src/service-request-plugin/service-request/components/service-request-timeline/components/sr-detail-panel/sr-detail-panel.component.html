@@ -32,9 +32,11 @@
       </div>
       <div class="col-xs-4">
         <label for="sr_priority">{{ 'Priority' | translate }}</label>
-        <select id="sr_priority" class="form-control" formControlName="priority">
-          <option *ngFor="let p of priorities" [ngValue]="p">{{ p.name }}</option>
-        </select>
+        <div class="c8y-select-wrapper">
+          <select id="sr_priority" class="form-control" formControlName="priority">
+            <option *ngFor="let p of priorities" [ngValue]="p">{{ p.name }}</option>
+          </select>
+        </div>
       </div>
     </div>
   </form>

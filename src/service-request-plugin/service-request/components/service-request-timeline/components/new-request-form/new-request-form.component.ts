@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { IAlarm } from '@c8y/client';
 import { PickedFiles, SplitViewAction } from '@c8y/ngx-components';
@@ -63,7 +63,14 @@ export class NewRequestFormComponent implements OnChanges {
     return !!this.context?.fromAlarm;
   }
 
-  async ngOnChanges(): Promise<void> {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    // candidateAlarms gets a new array reference on every background alarm/SR poll (or "Show
+    // resolved" toggle), which would otherwise re-fire this and wipe out an in-progress form —
+    // only a genuinely new create session (a new context) should reset it.
+    if (!changes['context']) {
+      return;
+    }
+
     const meta = await this.serviceRequestMetaService.fetchMeta(true);
 
     this.priorities = meta.priorities;
