@@ -11,6 +11,27 @@ import { ServiceRequestChangeService } from '../../../../service/service-request
 import { ServiceRequestMetaService } from '../../../../service/service-request-meta.service';
 import { ServiceRequestService } from '../../../../service/service-request.service';
 
+/**
+ * A plain `{ ...base, ...patch }` spread still overwrites with an explicit `null`/`undefined`
+ * from `patch`, which is exactly what happens when the detail endpoint returns e.g. `source:
+ * null` for a field the list endpoint had already populated. This keeps `base`'s value in that
+ * case instead, so a field missing from one endpoint's response doesn't wipe out a good value
+ * the other endpoint already provided.
+ */
+function mergeDefined<T extends object>(base: T, patch: Partial<T>): T {
+  const merged = { ...base };
+
+  (Object.keys(patch) as Array<keyof T>).forEach((key) => {
+    const value = patch[key];
+
+    if (value !== null && value !== undefined) {
+      merged[key] = value as T[keyof T];
+    }
+  });
+
+  return merged;
+}
+
 @Component({
   selector: 'sr-detail-panel',
   templateUrl: './sr-detail-panel.component.html',
@@ -52,18 +73,33 @@ export class SrDetailPanelComponent implements OnChanges {
 
     this.priorities = meta.priorities;
 
-    // The timeline's list fetch doesn't reliably carry every field (e.g. attachment) that the
-    // single-request detail endpoint does, so re-fetch the authoritative record on selection
-    // rather than trusting whatever projection the list happened to return.
+    // Neither endpoint reliably carries every field on its own — the list fetch omits things
+    // like attachment, while the single-request detail response's `source` has been confirmed
+    // to only include id/self, dropping the device name the list fetch already had. Merge
+    // rather than replace, and patch that specific gap back in from whatever we had before.
+    const previousSource = this.sr.source;
     const detail = await this.serviceRequestService.detail(this.sr.id);
 
     if (detail) {
-      this.sr = detail;
+      this.sr = mergeDefined(this.sr, detail);
+      this.restoreSourceName(previousSource);
     }
 
     this.resetForm();
     this.rawJson = JSON.stringify(this.sr, null, 2);
     this.buildActions();
+  }
+
+  /**
+   * Confirmed via the microservice's actual response: GET /request/{id}'s source only carries
+   * id/self, dropping the name the list fetch already had — mergeDefined can't catch this since
+   * detail's source is a genuinely non-null object, just a thinner one. Patch the name back in
+   * from whatever source we had before this merge, rather than losing it.
+   */
+  private restoreSourceName(previousSource: ServiceRequestObject['source']): void {
+    if (this.sr?.source && !this.sr.source.name && previousSource?.name) {
+      this.sr = { ...this.sr, source: { ...this.sr.source, name: previousSource.name } };
+    }
   }
 
   resetForm(): void {
@@ -139,6 +175,7 @@ export class SrDetailPanelComponent implements OnChanges {
     this.buildActions();
 
     try {
+      const previousSource = this.sr.source;
       const uploaded = await this.serviceRequestAttachmentsService.uploadAttachment(
         this.sr.id,
         staged.file,
@@ -149,7 +186,8 @@ export class SrDetailPanelComponent implements OnChanges {
         const detail = await this.serviceRequestService.detail(this.sr.id);
 
         if (detail) {
-          this.sr = detail;
+          this.sr = mergeDefined(this.sr, detail);
+          this.restoreSourceName(previousSource);
           this.rawJson = JSON.stringify(this.sr, null, 2);
         }
 
