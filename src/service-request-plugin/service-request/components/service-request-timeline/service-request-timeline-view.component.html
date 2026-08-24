@@ -1,13 +1,18 @@
 <c8y-title>{{ 'Service requests' | translate }}</c8y-title>
 
 <c8y-action-bar-item [placement]="'left'">
-  <c8y-alarms-filter [contextSourceId]="device?.id" (onFilterApplied)="onAlarmsFilterApplied($event)"></c8y-alarms-filter>
-</c8y-action-bar-item>
-<c8y-action-bar-item [placement]="'left'">
-  <c8y-alarms-date-filter (dateFilterChange)="onAlarmsDateFilterChange($event)"></c8y-alarms-date-filter>
-</c8y-action-bar-item>
-<c8y-action-bar-item [placement]="'left'" *ngIf="alarmsResult">
-  <c8y-alarms-type-filter [alarms]="alarmsResult" (onFilterChanged)="onAlarmsTypeFilterChanged($event)"></c8y-alarms-type-filter>
+  <label
+    class="c8y-switch c8y-switch--inline"
+    title="{{ 'Show resolved alarms and closed service requests' | translate }}"
+    aria-label="{{ 'Show resolved' | translate }}"
+  >
+    <input
+      type="checkbox"
+      [checked]="showResolved"
+      (change)="onShowResolvedToggle($any($event.target).checked)"
+    />
+    <span></span> {{ 'Show resolved' | translate }}
+  </label>
 </c8y-action-bar-item>
 
 <c8y-action-bar-item [placement]="'right'">
@@ -36,7 +41,7 @@
     [showEmptyState]="!loading && !rows.length"
     [emptyStateIcon]="'c8y-data-explorer'"
     [emptyStateTitle]="'No alarms or service requests to display' | translate"
-    [emptyStateSubtitle]="'Check your filter settings' | translate"
+    [emptyStateSubtitle]="'Nothing relevant right now — try \'Show resolved\' to see everything' | translate"
   >
     <c8y-sv-header-actions>
       <c8y-alarms-interval-refresh
@@ -53,9 +58,24 @@
       (linkExistingFromAlarm)="linkExistingFromAlarm($event)"
     ></sr-timeline-list>
 
-    <c8y-sv-footer *ngIf="hasMoreAlarms()">
-      <button type="button" class="btn btn-link" [disabled]="loadingMore" (click)="loadNextAlarmPage()">
-        {{ 'Load more' | translate }}
+    <c8y-sv-footer *ngIf="hasMoreAlarms() || hasMoreServiceRequests()">
+      <button
+        type="button"
+        class="btn btn-link"
+        *ngIf="hasMoreAlarms()"
+        [disabled]="loadingMore"
+        (click)="loadNextAlarmPage()"
+      >
+        {{ 'Load more alarms' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-link"
+        *ngIf="hasMoreServiceRequests()"
+        [disabled]="loadingMoreSr"
+        (click)="loadNextSrPage()"
+      >
+        {{ 'Load more service requests' | translate }}
       </button>
     </c8y-sv-footer>
   </c8y-sv-list>
@@ -73,7 +93,7 @@
         (openSr)="selectSr($event)"
         (createRequest)="openNewRequestFromAlarm($event)"
         (linkExisting)="linkExistingFromAlarm($event)"
-        (alarmChanged)="loadAlarms()"
+        (alarmChanged)="refreshAll()"
       ></sr-alarm-detail-panel>
       <c8y-sv-details-actions [actions]="alarmPanel.actions"></c8y-sv-details-actions>
     </ng-container>

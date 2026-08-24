@@ -2,7 +2,7 @@ import { IAlarm } from '@c8y/client';
 import { ServiceRequestObject } from '../../models/service-request.model';
 import { TimelineRow } from './models/service-request-timeline.model';
 
-function alarmIdsOf(sr: ServiceRequestObject): string[] {
+export function alarmIdsOf(sr: ServiceRequestObject): string[] {
   const ids = (sr.alarmRefList ?? []).map((ref) => ref.id);
 
   if (sr.alarmRef?.id && !ids.includes(sr.alarmRef.id)) {
@@ -40,8 +40,9 @@ export function getDayLabel(timestamp: number): string {
  * Merges alarms and service requests into the combined, newest-first timeline (FR-063/FR-064).
  * A service request pairs with an alarm when the alarm's id appears in the request's
  * alarmRefList; a service request whose referenced alarm isn't in the currently loaded alarm
- * list (e.g. filtered out) falls back to rendering as its own standalone row, since FR-068
- * requires non-closed service requests to always remain visible regardless of alarm filters.
+ * list falls back to rendering as its own standalone row. In relevant-only mode (FR-068) the
+ * view component pre-fetches any cleared-but-linked-to-an-open-request alarm individually so
+ * this fallback shouldn't normally trigger there — it remains a safety net either way.
  */
 export function buildTimelineRows(
   alarms: IAlarm[],

@@ -67,6 +67,16 @@ export class ServiceRequestService {
 
   // GET /service/request
   async list(request?: ServiceRequestListRequest): Promise<ServiceRequestObject[]> {
+    return (await this.listPaged(request)).data;
+  }
+
+  /**
+   * Same endpoint as list(), but also surfaces paging stats — needed by the timeline's
+   * "Show resolved" mode (ADR-0001) to drive a "load more" affordance for service requests.
+   */
+  async listPaged(
+    request?: ServiceRequestListRequest
+  ): Promise<{ data: ServiceRequestObject[]; totalPages: number | null }> {
     const result = await this.fetchClient.fetch(
       `${SERVICE_REQUEST_API_URL}/request/`,
       {
@@ -81,7 +91,9 @@ export class ServiceRequestService {
 
     if (result.ok) {
       try {
-        return ((await result.json()) as ServiceRequestListResponse)?.list;
+        const response = (await result.json()) as ServiceRequestListResponse;
+
+        return { data: response?.list ?? [], totalPages: response?.totalPages ?? null };
       } catch (e) {
         console.error('No service requests available', result);
       }
@@ -89,7 +101,7 @@ export class ServiceRequestService {
       console.error('Error receiving service requests', result);
     }
 
-    return [];
+    return { data: [], totalPages: null };
   }
 
   // GET /service/request/{serviceRequestId}

@@ -2,7 +2,6 @@ import { AfterViewInit, Component, NgZone, OnDestroy, OnInit, ViewChild } from '
 import { ActivatedRoute } from '@angular/router';
 import { AlarmQueryFilter, AlarmService, AlarmStatus, IAlarm, IManagedObject, IResultList } from '@c8y/client';
 import { AlertService, SplitViewComponent } from '@c8y/ngx-components';
-import { AlarmListFormFilters } from '@c8y/ngx-components/alarms';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BehaviorSubject, firstValueFrom, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -11,11 +10,13 @@ import { ServiceRequestChangeService } from '../../service/service-request-chang
 import { ServiceRequestService } from '../../service/service-request.service';
 import { AddExistingRequestModalComponent } from './components/add-existing-request-modal/add-existing-request-modal.component';
 import { NewRequestContext, TimelineRow, TimelineSelection } from './models/service-request-timeline.model';
-import { buildTimelineRows } from './service-request-timeline.util';
+import { alarmIdsOf, buildTimelineRows } from './service-request-timeline.util';
 
 const ALARM_PAGE_SIZE = 50;
 const ALARM_POLL_INTERVAL_MS = 60 * 1000;
 const SR_POLL_INTERVAL_MS = 180 * 1000;
+/** Both list endpoints cap pageSize at 2000 (ADR-0001) — relevant-only mode fetches in one shot. */
+const RELEVANT_PAGE_SIZE = 2000;
 
 @Component({
   templateUrl: './service-request-timeline-view.component.html',
@@ -33,8 +34,19 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
 
   loading = false;
   loadingMore = false;
+  loadingMoreSr = false;
   alarmPage = 1;
   alarmTotalPages: number | null = null;
+  srPage = 1;
+  srTotalPages: number | null = null;
+
+  /**
+   * "Show resolved" toggle (ADR-0001, FR-068). Off by default: alarms/service requests are
+   * fetched with the relevance rule applied server-side (see loadAlarms/loadServiceRequests).
+   * Flipping it re-queries both entity types in the other mode — it does not re-filter
+   * already-loaded data, since the two modes use genuinely different queries.
+   */
+  showResolved = false;
 
   /** See ngAfterViewInit — flipped true only once c8y-alarms-interval-refresh can react to it. */
   autoRefreshToggleEnabled = false;
@@ -44,16 +56,6 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
    * a full reload cycle must toggle this true -> false to keep the auto-refresh loop going.
    */
   autoRefreshLoading$ = new BehaviorSubject<boolean>(false);
-
-  private selectedSeverities: string[] = [];
-  private selectedAlarmStatuses: string[] = [];
-  private selectedTypes: string[] = [];
-  private dateFrom = '1970-01-01';
-  /** Only set when the user picks an explicit range via c8y-alarms-date-filter — see loadAlarms. */
-  private customDateTo: string | null = null;
-
-  /** Backs c8y-alarms-type-filter's [alarms] input (needs the raw IResultList, not just IAlarm[]). */
-  alarmsResult: IResultList<IAlarm> | null = null;
 
   currentSelection: TimelineSelection | null = null;
   /**
@@ -100,13 +102,13 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   async ngOnInit(): Promise<void> {
     this.device = this.activatedRoute.parent?.snapshot.data['contextData'];
 
-    await Promise.all([this.loadAlarms(), this.loadServiceRequests()]);
+    await this.refreshAll();
 
     this.startAlarmPolling();
     this.startSrPolling();
 
     this.changeSub = this.serviceRequestChange.change$.subscribe(() => {
-      void this.loadServiceRequests();
+      void this.refreshAll();
     });
   }
 
@@ -168,6 +170,33 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     this.splitView.selectionService.select({ kind: 'alarm', alarm });
   }
 
+  /**
+   * "Show resolved" toggle handler (ADR-0001). Resets both lists' pagination state and re-queries
+   * from scratch in the new mode, rather than re-filtering the data already held in memory.
+   */
+  onShowResolvedToggle(showResolved: boolean): void {
+    this.showResolved = showResolved;
+    this.alarms = [];
+    this.serviceRequests = [];
+    void this.refreshAll();
+  }
+
+  /** Full reload of both entity types for the current mode, plus relevance reconciliation. */
+  async refreshAll(): Promise<void> {
+    this.alarmPage = 1;
+    this.alarmTotalPages = null;
+    this.srPage = 1;
+    this.srTotalPages = null;
+
+    await Promise.all([this.loadAlarms(), this.loadServiceRequests()]);
+
+    if (!this.showResolved) {
+      await this.includeClearedAlarmsLinkedToOpenRequests();
+    }
+
+    this.rebuildRows();
+  }
+
   async loadAlarms(page = 1): Promise<void> {
     if (page === 1) {
       this.loading = this.alarms.length === 0;
@@ -179,23 +208,23 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
 
     const filter: AlarmQueryFilter = {
       source: this.device.id,
-      pageSize: ALARM_PAGE_SIZE,
-      currentPage: page,
-      withTotalPages: page === 1,
-      dateFrom: this.dateFrom,
+      dateFrom: '1970-01-01',
       withSourceAssets: true,
       withSourceDevices: true,
+      currentPage: page,
     };
 
-    if (this.customDateTo) {
-      filter['dateTo'] = this.customDateTo;
-    }
-
-    if (this.selectedAlarmStatuses.length) {
-      filter.status = this.selectedAlarmStatuses.join(',');
-    }
-    if (this.selectedSeverities.length) {
-      filter.severity = this.selectedSeverities.join(',');
+    if (this.showResolved) {
+      // Full history, paginated (FR-010) — the user has explicitly opted into browsing everything.
+      filter.pageSize = ALARM_PAGE_SIZE;
+      filter.withTotalPages = page === 1;
+    } else {
+      // Relevance rule (FR-068): only alarms that are relevant regardless of a linked service
+      // request. Cleared alarms still relevant via an open, linked request are added separately —
+      // see includeClearedAlarmsLinkedToOpenRequests.
+      filter.pageSize = RELEVANT_PAGE_SIZE;
+      filter.withTotalPages = true;
+      filter.status = `${AlarmStatus.ACTIVE},${AlarmStatus.ACKNOWLEDGED}`;
     }
 
     const response: IResultList<IAlarm> = await this.alarmService.list(filter);
@@ -207,23 +236,101 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
       this.alarms = [...this.alarms, ...response.data];
     }
 
-    this.alarmsResult = { ...response, data: this.alarms };
     this.loading = false;
     this.loadingMore = false;
     this.rebuildRows();
   }
 
-  async loadServiceRequests(): Promise<void> {
-    this.serviceRequests = await this.serviceRequestService.list({
-      sourceId: this.device.id,
-      all: true,
-    });
+  async loadServiceRequests(page = 1): Promise<void> {
+    if (page > 1) {
+      this.loadingMoreSr = true;
+    }
 
+    this.srPage = page;
+
+    const { data, totalPages } = await this.serviceRequestService.listPaged(
+      this.showResolved
+        ? {
+            // Full history, paginated (ADR-0001) — new for service requests, mirrors alarms' FR-010.
+            sourceId: this.device.id,
+            all: true,
+            currentPage: page,
+            withTotalPages: page === 1,
+          }
+        : {
+            // all:false is the API's own default and already excludes closed requests server-side
+            // (ADR-0001) — satisfies the standalone-request half of the relevance rule for free.
+            sourceId: this.device.id,
+            all: false,
+            pageSize: RELEVANT_PAGE_SIZE,
+            withTotalPages: true,
+          }
+    );
+
+    if (page === 1) {
+      this.serviceRequests = data;
+      this.srTotalPages = totalPages;
+    } else {
+      this.serviceRequests = [...this.serviceRequests, ...data];
+      this.srTotalPages = totalPages ?? this.srTotalPages;
+    }
+
+    this.loadingMoreSr = false;
     this.rebuildRows();
   }
 
   loadNextAlarmPage(): void {
     void this.loadAlarms(this.alarmPage + 1);
+  }
+
+  loadNextSrPage(): void {
+    void this.loadServiceRequests(this.srPage + 1);
+  }
+
+  /**
+   * Relevant-only mode only (ADR-0001): a CLEARED alarm whose linked service request is still
+   * open is relevant, but won't come back from loadAlarms' ACTIVE/ACKNOWLEDGED status filter.
+   * Fetches just those specific alarms by id — the same on-demand detail-fetch pattern the
+   * alarm-ref-picker uses (FR-057) — bounded by "how many open requests reference an
+   * already-cleared alarm," not by total alarm history.
+   */
+  private async includeClearedAlarmsLinkedToOpenRequests(): Promise<void> {
+    const loadedIds = new Set(this.alarms.map((alarm) => String(alarm.id)));
+    const missingIds = new Set<string>();
+
+    for (const sr of this.serviceRequests) {
+      if (sr.isClosed) {
+        continue;
+      }
+
+      for (const id of alarmIdsOf(sr)) {
+        if (!loadedIds.has(id)) {
+          missingIds.add(id);
+        }
+      }
+    }
+
+    if (!missingIds.size) {
+      return;
+    }
+
+    const fetched = await Promise.all(
+      Array.from(missingIds).map(async (id) => {
+        try {
+          const { data } = await this.alarmService.detail(id);
+
+          return data ?? null;
+        } catch (error) {
+          return null;
+        }
+      })
+    );
+
+    const additional = fetched.filter((alarm): alarm is IAlarm => !!alarm);
+
+    if (additional.length) {
+      this.alarms = [...this.alarms, ...additional];
+    }
   }
 
   /**
@@ -237,7 +344,7 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
       this.autoRefreshLoading$.next(true);
 
       try {
-        await Promise.all([this.loadAlarms(), this.loadServiceRequests()]);
+        await this.refreshAll();
       } finally {
         this.autoRefreshLoading$.next(false);
       }
@@ -248,34 +355,8 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     return !!this.alarmTotalPages && this.alarmPage < this.alarmTotalPages;
   }
 
-  /** From c8y-alarms-filter's (onFilterApplied) — severity checkboxes + "Show cleared alarms". */
-  onAlarmsFilterApplied(filters: AlarmListFormFilters): void {
-    const allSeverities = Object.keys(filters.severityOptions);
-    const selectedSeverities = allSeverities.filter((severity) => filters.severityOptions[severity]);
-
-    this.selectedSeverities = selectedSeverities.length === allSeverities.length ? [] : selectedSeverities;
-    this.selectedAlarmStatuses = filters.showCleared ? [] : [AlarmStatus.ACTIVE, AlarmStatus.ACKNOWLEDGED];
-
-    void this.loadAlarms();
-  }
-
-  /** From c8y-alarms-date-filter's (dateFilterChange) — only the date range is authoritative here. */
-  onAlarmsDateFilterChange(filters: AlarmListFormFilters): void {
-    if (filters.selectedDates) {
-      this.dateFrom = filters.selectedDates[0].toISOString();
-      this.customDateTo = filters.selectedDates[1].toISOString();
-    } else {
-      this.dateFrom = '1970-01-01';
-      this.customDateTo = null;
-    }
-
-    void this.loadAlarms();
-  }
-
-  /** From c8y-alarms-type-filter's (onFilterChanged) — filtered client-side, no refetch needed. */
-  onAlarmsTypeFilterChanged(activeFilters: Array<{ filters: { type: string } }>): void {
-    this.selectedTypes = activeFilters.map((filter) => filter.filters.type);
-    this.rebuildRows();
+  hasMoreServiceRequests(): boolean {
+    return !!this.srTotalPages && this.srPage < this.srTotalPages;
   }
 
   async clearAlarm(alarm: IAlarm): Promise<void> {
@@ -284,7 +365,7 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
 
       if (data) {
         this.alertService.success('Alarm cleared');
-        await this.loadAlarms();
+        await this.refreshAll();
       }
     } catch (error) {
       this.alertService.danger('Alarm could not be cleared', error as string);
@@ -313,7 +394,7 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     );
 
     if (linkedSr) {
-      await this.loadServiceRequests();
+      await this.refreshAll();
       this.selectSr(linkedSr);
     }
   }
@@ -325,25 +406,28 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   }
 
   private rebuildRows(): void {
-    const alarmsForRows = this.selectedTypes.length
-      ? this.alarms.filter((alarm) => this.selectedTypes.includes(alarm.type))
-      : this.alarms;
-
-    this.rows = buildTimelineRows(alarmsForRows, this.serviceRequests);
+    this.rows = buildTimelineRows(this.alarms, this.serviceRequests);
     this.refreshDerivedSelectionData();
   }
 
+  /**
+   * Both poll loops call refreshAll (not the individual loaders) so relevant-only mode's
+   * reconciliation step (includeClearedAlarmsLinkedToOpenRequests) always re-runs alongside any
+   * background alarm reload — otherwise a plain loadAlarms() would overwrite this.alarms and
+   * silently drop the cleared-but-linked-to-an-open-request alarms the previous reconciliation
+   * had added.
+   */
   private startAlarmPolling(): void {
     clearTimeout(this.alarmPollTimer);
     this.alarmPollTimer = setTimeout(() => {
-      void this.loadAlarms().then(() => this.startAlarmPolling());
+      void this.refreshAll().then(() => this.startAlarmPolling());
     }, ALARM_POLL_INTERVAL_MS);
   }
 
   private startSrPolling(): void {
     clearInterval(this.srPollTimer);
     this.srPollTimer = setInterval(() => {
-      void this.loadServiceRequests();
+      void this.refreshAll();
     }, SR_POLL_INTERVAL_MS);
   }
 }
