@@ -6,6 +6,7 @@ import {
   CoreModule,
   IconPanelComponent,
   ListGroupModule,
+  SelectComponent,
   SplitViewComponent,
   SplitViewDetailsActionsComponent,
   SplitViewDetailsComponent,
@@ -21,7 +22,6 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { ServiceRequestTimelineViewComponent } from './service-request-timeline-view.component';
 import { AddExistingRequestModalComponent } from './components/add-existing-request-modal/add-existing-request-modal.component';
 import { AlarmDetailPanelComponent } from './components/alarm-detail-panel/alarm-detail-panel.component';
-import { AlarmRefPickerComponent } from './components/alarm-ref-picker/alarm-ref-picker.component';
 import { NewRequestFormComponent } from './components/new-request-form/new-request-form.component';
 import { SeverityStatusIconComponent } from './components/severity-status-icon/severity-status-icon.component';
 import { ServiceRequestSupportIconComponent } from './components/support-icon/service-request-support-icon.component';
@@ -44,6 +44,7 @@ import { ServiceRequestCommentsModule } from '../comments/service-requests-comme
     IconPanelComponent,
     ServiceRequestCommentsModule,
     AlarmsIntervalRefreshComponent,
+    SelectComponent,
     SplitViewComponent,
     SplitViewListComponent,
     SplitViewDetailsComponent,
@@ -59,7 +60,6 @@ import { ServiceRequestCommentsModule } from '../comments/service-requests-comme
     AlarmDetailPanelComponent,
     SrDetailPanelComponent,
     ServiceRequestAttachmentsComponent,
-    AlarmRefPickerComponent,
     NewRequestFormComponent,
     AddExistingRequestModalComponent,
   ],

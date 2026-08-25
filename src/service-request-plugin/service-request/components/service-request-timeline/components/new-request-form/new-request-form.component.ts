@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { IAlarm } from '@c8y/client';
+import { EventService, IAlarm, IEvent } from '@c8y/client';
 import { PickedFiles, SplitViewAction } from '@c8y/ngx-components';
 import {
   ServiceRequestObject,
@@ -31,6 +31,7 @@ export class NewRequestFormComponent implements OnChanges {
   readonly typeOptions = TYPE_OPTIONS;
 
   priorities: ServiceRequestPriority[] = [];
+  candidateEvents: IEvent[] = [];
   actions: SplitViewAction[] = [];
   busy = false;
   stagedFile: File | null = null;
@@ -41,14 +42,15 @@ export class NewRequestFormComponent implements OnChanges {
     type: new FormControl<ServiceRequestType>('other'),
     priority: new FormControl<ServiceRequestPriority | null>(null),
     alarmRefs: new FormControl<IAlarm[]>([]),
-    eventId: new FormControl(''),
+    eventRef: new FormControl<IEvent | null>(null),
   });
 
   constructor(
     private serviceRequestService: ServiceRequestService,
     private serviceRequestMetaService: ServiceRequestMetaService,
     private serviceRequestAttachmentsService: ServiceRequestAttachmentsService,
-    private serviceRequestChange: ServiceRequestChangeService
+    private serviceRequestChange: ServiceRequestChangeService,
+    private eventService: EventService
   ) {}
 
   onFiles(files: PickedFiles): void {
@@ -63,6 +65,14 @@ export class NewRequestFormComponent implements OnChanges {
     return !!this.context?.fromAlarm;
   }
 
+  get alarmRefItems(): { label: string; value: IAlarm }[] {
+    return this.candidateAlarms.map((alarm) => ({ label: alarm.text, value: alarm }));
+  }
+
+  get eventRefItems(): { label: string; value: IEvent }[] {
+    return this.candidateEvents.map((event) => ({ label: event.text, value: event }));
+  }
+
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     // candidateAlarms gets a new array reference on every background alarm/SR poll (or "Show
     // resolved" toggle), which would otherwise re-fire this and wipe out an in-progress form —
@@ -71,11 +81,33 @@ export class NewRequestFormComponent implements OnChanges {
       return;
     }
 
-    const meta = await this.serviceRequestMetaService.fetchMeta(true);
+    const [meta] = await Promise.all([
+      this.serviceRequestMetaService.fetchMeta(true),
+      this.loadCandidateEvents(),
+    ]);
 
     this.priorities = meta.priorities;
     this.resetForm();
     this.buildActions();
+  }
+
+  private async loadCandidateEvents(): Promise<void> {
+    const device = this.context?.device;
+
+    if (!device) {
+      this.candidateEvents = [];
+
+      return;
+    }
+
+    const { data } = await this.eventService.list({
+      source: device.id,
+      dateFrom: '1970-01-01',
+      pageSize: 50,
+      withTotalPages: false,
+    });
+
+    this.candidateEvents = data;
   }
 
   resetForm(): void {
@@ -87,7 +119,7 @@ export class NewRequestFormComponent implements OnChanges {
       type: alarm ? 'alarm' : 'other',
       priority: this.priorities[0] ?? null,
       alarmRefs: [],
-      eventId: '',
+      eventRef: null,
     });
 
     if (alarm) {
@@ -137,8 +169,11 @@ export class NewRequestFormComponent implements OnChanges {
         await this.serviceRequestService.addAlarmRef(created.id, { id: String(ref.id), uri: ref.self });
       }
 
-      if (!alarm && value.eventId) {
-        await this.serviceRequestService.addEventRef(created.id, { id: value.eventId });
+      if (!alarm && value.eventRef) {
+        await this.serviceRequestService.addEventRef(created.id, {
+          id: String(value.eventRef.id),
+          uri: value.eventRef.self,
+        });
       }
 
       if (this.stagedFile) {

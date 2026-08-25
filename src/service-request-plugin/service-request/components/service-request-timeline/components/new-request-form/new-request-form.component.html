@@ -16,12 +16,24 @@
 
   <div class="row" *ngIf="!isFromAlarm">
     <div class="col-xs-6 form-group">
-      <label>{{ 'Alarm reference' | translate }} <span class="sr-optional">({{ 'optional' | translate }})</span></label>
-      <sr-alarm-ref-picker formControlName="alarmRefs" [candidates]="candidateAlarms"></sr-alarm-ref-picker>
+      <label for="sr_new_alarm_ref">{{ 'Alarm reference' | translate }} <span class="sr-optional">({{ 'optional' | translate }})</span></label>
+      <c8y-select
+        id="sr_new_alarm_ref"
+        formControlName="alarmRefs"
+        [items]="alarmRefItems"
+        [multi]="true"
+        [placeholder]="'Select alarms...' | translate"
+      ></c8y-select>
     </div>
     <div class="col-xs-6 form-group">
       <label for="sr_new_event">{{ 'Event reference' | translate }} <span class="sr-optional">({{ 'optional' | translate }})</span></label>
-      <input type="text" id="sr_new_event" class="form-control" formControlName="eventId" [placeholder]="'Event ID' | translate" />
+      <c8y-select
+        id="sr_new_event"
+        formControlName="eventRef"
+        [items]="eventRefItems"
+        [canDeselect]="true"
+        [placeholder]="'Select event...' | translate"
+      ></c8y-select>
     </div>
   </div>
 
