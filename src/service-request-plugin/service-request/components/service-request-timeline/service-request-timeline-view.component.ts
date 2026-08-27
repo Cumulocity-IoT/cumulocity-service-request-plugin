@@ -10,7 +10,7 @@ import { ServiceRequestChangeService } from '../../service/service-request-chang
 import { ServiceRequestService } from '../../service/service-request.service';
 import { AddExistingRequestModalComponent } from './components/add-existing-request-modal/add-existing-request-modal.component';
 import { NewRequestContext, TimelineRow, TimelineSelection } from './models/service-request-timeline.model';
-import { alarmIdsOf, buildTimelineRows, isGroup } from './service-request-timeline.util';
+import { alarmIdsOf, buildTimelineRows, isAsset, isGroup } from './service-request-timeline.util';
 
 const ALARM_PAGE_SIZE = 50;
 const ALARM_POLL_INTERVAL_MS = 60 * 1000;
@@ -38,12 +38,16 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
 
   /**
    * "New service request" only makes sense once there's a single implicit target to create it on
-   * (FR-092) — a device or plain asset, never a group (too ambiguous which member to attach to)
-   * and never the tenant-wide root (no scope at all). v1 has no device picker, so anything else
-   * simply hides the button.
+   * (FR-092) — a device or asset, never a plain organizational group (too ambiguous which member
+   * to attach to) and never the tenant-wide root (no scope at all). v1 has no device picker, so
+   * anything else simply hides the button.
+   *
+   * A Digital Twin Manager asset carries `c8y_IsAsset` *alongside* `c8y_IsDeviceGroup` — it reuses
+   * the group hierarchy for navigation but is still a single, valid target — so `c8y_IsAsset`
+   * always wins over the group check rather than being excluded by it.
    */
   get canCreateFromScope(): boolean {
-    return !!this.scopeObject && !isGroup(this.scopeObject);
+    return !!this.scopeObject && (isAsset(this.scopeObject) || !isGroup(this.scopeObject));
   }
 
   alarms: IAlarm[] = [];

@@ -7,6 +7,15 @@ export function isDevice(managedObject: IManagedObject | null | undefined): bool
   return !!(managedObject as unknown as Record<string, unknown>)?.['c8y_IsDevice'];
 }
 
+/**
+ * True for an asset (`c8y_IsAsset`) — e.g. a Digital Twin Manager asset, which carries this
+ * fragment alongside `c8y_IsDeviceGroup` since it reuses the group hierarchy for navigation while
+ * still being a valid, single service-request target (unlike a plain organizational group).
+ */
+export function isAsset(managedObject: IManagedObject | null | undefined): boolean {
+  return !!(managedObject as unknown as Record<string, unknown>)?.['c8y_IsAsset'];
+}
+
 /** True for a group or smart group (`c8y_IsDeviceGroup`/`c8y_IsDynamicGroup`), as opposed to a device or asset. */
 export function isGroup(managedObject: IManagedObject | null | undefined): boolean {
   const mo = managedObject as unknown as Record<string, unknown>;
