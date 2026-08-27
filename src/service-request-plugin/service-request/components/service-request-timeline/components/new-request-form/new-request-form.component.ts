@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { EventService, IAlarm, IEvent } from '@c8y/client';
+import { AlarmService, EventService, IAlarm, IEvent, IManagedObject } from '@c8y/client';
 import { PickedFiles, SplitViewAction } from '@c8y/ngx-components';
 import {
   ServiceRequestObject,
@@ -23,7 +23,6 @@ const TYPE_OPTIONS: ServiceRequestType[] = ['alarm', 'note', 'maintenance', 'dow
 })
 export class NewRequestFormComponent implements OnChanges {
   @Input() context: NewRequestContext;
-  @Input() candidateAlarms: IAlarm[] = [];
 
   @Output() created = new EventEmitter<ServiceRequestObject>();
   @Output() cancelled = new EventEmitter<void>();
@@ -31,6 +30,7 @@ export class NewRequestFormComponent implements OnChanges {
   readonly typeOptions = TYPE_OPTIONS;
 
   priorities: ServiceRequestPriority[] = [];
+  candidateAlarms: IAlarm[] = [];
   candidateEvents: IEvent[] = [];
   actions: SplitViewAction[] = [];
   busy = false;
@@ -50,6 +50,7 @@ export class NewRequestFormComponent implements OnChanges {
     private serviceRequestMetaService: ServiceRequestMetaService,
     private serviceRequestAttachmentsService: ServiceRequestAttachmentsService,
     private serviceRequestChange: ServiceRequestChangeService,
+    private alarmService: AlarmService,
     private eventService: EventService
   ) {}
 
@@ -81,33 +82,30 @@ export class NewRequestFormComponent implements OnChanges {
       return;
     }
 
-    const [meta] = await Promise.all([
-      this.serviceRequestMetaService.fetchMeta(true),
-      this.loadCandidateEvents(),
-    ]);
+    const meta = await this.serviceRequestMetaService.fetchMeta(true);
 
     this.priorities = meta.priorities;
     this.resetForm();
     this.buildActions();
+    void this.loadCandidatesFor(this.context?.device ?? null);
   }
 
-  private async loadCandidateEvents(): Promise<void> {
-    const device = this.context?.device;
-
+  /** Alarm/Event reference candidates (FR-093), scoped to the request's implicit device. */
+  private async loadCandidatesFor(device: IManagedObject | null): Promise<void> {
     if (!device) {
+      this.candidateAlarms = [];
       this.candidateEvents = [];
 
       return;
     }
 
-    const { data } = await this.eventService.list({
-      source: device.id,
-      dateFrom: '1970-01-01',
-      pageSize: 50,
-      withTotalPages: false,
-    });
+    const [alarms, events] = await Promise.all([
+      this.alarmService.list({ source: device.id, dateFrom: '1970-01-01', pageSize: 50, withTotalPages: false }),
+      this.eventService.list({ source: device.id, dateFrom: '1970-01-01', pageSize: 50, withTotalPages: false }),
+    ]);
 
-    this.candidateEvents = data;
+    this.candidateAlarms = alarms.data;
+    this.candidateEvents = events.data;
   }
 
   resetForm(): void {

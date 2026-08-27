@@ -15,6 +15,7 @@ import {
   SplitViewListComponent,
 } from '@c8y/ngx-components';
 import { AlarmsIntervalRefreshComponent } from '@c8y/ngx-components/alarms';
+import { AssetSelectorModule } from '@c8y/ngx-components/assets-navigator';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
@@ -44,6 +45,7 @@ import { ServiceRequestCommentsModule } from '../comments/service-requests-comme
     IconPanelComponent,
     ServiceRequestCommentsModule,
     AlarmsIntervalRefreshComponent,
+    AssetSelectorModule,
     SelectComponent,
     SplitViewComponent,
     SplitViewListComponent,

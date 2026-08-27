@@ -1,6 +1,18 @@
-import { IAlarm } from '@c8y/client';
+import { IAlarm, IManagedObject } from '@c8y/client';
 import { ServiceRequestObject } from '../../models/service-request.model';
 import { TimelineRow } from './models/service-request-timeline.model';
+
+/** True for an actual device (`c8y_IsDevice`), as opposed to a group or asset. */
+export function isDevice(managedObject: IManagedObject | null | undefined): boolean {
+  return !!(managedObject as unknown as Record<string, unknown>)?.['c8y_IsDevice'];
+}
+
+/** True for a group or smart group (`c8y_IsDeviceGroup`/`c8y_IsDynamicGroup`), as opposed to a device or asset. */
+export function isGroup(managedObject: IManagedObject | null | undefined): boolean {
+  const mo = managedObject as unknown as Record<string, unknown>;
+
+  return !!mo?.['c8y_IsDeviceGroup'] || !!mo?.['c8y_IsDynamicGroup'];
+}
 
 export function alarmIdsOf(sr: ServiceRequestObject): string[] {
   const ids = (sr.alarmRefList ?? []).map((ref) => ref.id);

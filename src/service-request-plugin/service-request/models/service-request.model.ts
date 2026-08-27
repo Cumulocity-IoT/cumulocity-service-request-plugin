@@ -1,5 +1,8 @@
 export const SERVICE_REQUEST_DEFAULT_PAGE_SIZE = 500;
 export const SERVICE_REQUEST_PATH = 'service-requests';
+// Top-level nav route (FR-088) — distinct from SERVICE_REQUEST_PATH so it doesn't collide with a
+// managed object literally named "service-requests" under the device/:id or group/:id prefixes.
+export const SERVICE_REQUEST_GLOBAL_PATH = 'service-requests-global';
 // Canonical base URL for the service-request-mgmt microservice's public API.
 // Re-exported by models/service-request-comments.model.ts for backwards-compatible imports.
 export const SERVICE_REQUEST_API_URL = '/service/service-request-mgmt/api/service';
@@ -115,6 +118,10 @@ export interface ServiceRequestListRequest {
   pageSize?: number;
   currentPage?: number;
   withTotalPages?: boolean;
+  /** Include service requests whose source is an asset/group under `sourceId` (mirrors the alarm API's flag of the same name). */
+  withSourceAssets?: boolean;
+  /** Include service requests whose source is a device under `sourceId` (mirrors the alarm API's flag of the same name). */
+  withSourceDevices?: boolean;
 }
 export interface ServiceRequestListResponse {
   list: ServiceRequestObject[];

@@ -5,12 +5,12 @@ import { AlertService, SplitViewComponent } from '@c8y/ngx-components';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BehaviorSubject, firstValueFrom, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { ServiceRequestObject } from '../../models/service-request.model';
+import { ServiceRequestListRequest, ServiceRequestObject } from '../../models/service-request.model';
 import { ServiceRequestChangeService } from '../../service/service-request-change.service';
 import { ServiceRequestService } from '../../service/service-request.service';
 import { AddExistingRequestModalComponent } from './components/add-existing-request-modal/add-existing-request-modal.component';
 import { NewRequestContext, TimelineRow, TimelineSelection } from './models/service-request-timeline.model';
-import { alarmIdsOf, buildTimelineRows } from './service-request-timeline.util';
+import { alarmIdsOf, buildTimelineRows, isGroup } from './service-request-timeline.util';
 
 const ALARM_PAGE_SIZE = 50;
 const ALARM_POLL_INTERVAL_MS = 60 * 1000;
@@ -26,7 +26,25 @@ const RELEVANT_PAGE_SIZE = 2000;
 export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(SplitViewComponent) splitView!: SplitViewComponent<TimelineSelection>;
 
-  device: IManagedObject;
+  /**
+   * The current scope's managed object: a device or group/asset when opened as a context tab
+   * (fixed, from the route), a user-picked device/group/asset when opened as the top-level view
+   * and a source has been selected (FR-090), or null for the top-level view's default tenant-wide
+   * scope (FR-089).
+   */
+  scopeObject: IManagedObject | null = null;
+  /** True when opened via the top-level nav route rather than a device/group context tab (FR-088). */
+  isGlobalView = false;
+
+  /**
+   * "New service request" only makes sense once there's a single implicit target to create it on
+   * (FR-092) — a device or plain asset, never a group (too ambiguous which member to attach to)
+   * and never the tenant-wide root (no scope at all). v1 has no device picker, so anything else
+   * simply hides the button.
+   */
+  get canCreateFromScope(): boolean {
+    return !!this.scopeObject && !isGroup(this.scopeObject);
+  }
 
   alarms: IAlarm[] = [];
   serviceRequests: ServiceRequestObject[] = [];
@@ -99,7 +117,8 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.device = this.activatedRoute.parent?.snapshot.data['contextData'];
+    this.scopeObject = this.activatedRoute.parent?.snapshot.data['contextData'] ?? null;
+    this.isGlobalView = !this.scopeObject;
 
     await this.refreshAll();
 
@@ -164,6 +183,15 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     void this.refreshAll();
   }
 
+  /** Top-level view's source selector (FR-090) — narrows scope to a device/group/asset, or clears back to the tenant-wide default (FR-089). */
+  onScopeChange(scopeObject: IManagedObject | null): void {
+    this.scopeObject = scopeObject ?? null;
+    this.alarms = [];
+    this.serviceRequests = [];
+    this.clearSelection();
+    void this.refreshAll();
+  }
+
   /** Full reload of both entity types for the current mode, plus relevance reconciliation. */
   async refreshAll(): Promise<void> {
     this.alarmPage = 1;
@@ -190,12 +218,19 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     this.alarmPage = page;
 
     const filter: AlarmQueryFilter = {
-      source: this.device.id,
       dateFrom: '1970-01-01',
-      withSourceAssets: true,
-      withSourceDevices: true,
       currentPage: page,
     };
+
+    // No scopeObject means the top-level view's default tenant-wide scope (FR-089) — omit
+    // `source` entirely rather than filtering by anything. withSourceAssets/withSourceDevices
+    // (FR-087) traverse the hierarchy under scopeObject when it's a group/asset; they're a no-op
+    // for a leaf device.
+    if (this.scopeObject) {
+      filter.source = this.scopeObject.id;
+      filter.withSourceAssets = true;
+      filter.withSourceDevices = true;
+    }
 
     if (this.showResolved) {
       // Full history, paginated (FR-010) — the user has explicitly opted into browsing everything.
@@ -231,11 +266,20 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
 
     this.srPage = page;
 
+    // See loadAlarms: no scopeObject means the top-level view's tenant-wide scope (FR-089), so
+    // sourceId/withSourceAssets/withSourceDevices are omitted entirely rather than filtering by
+    // anything. When scopeObject is a group/asset, the two withSource* flags (FR-087) traverse the
+    // hierarchy the same way the alarm API's identically-named flags do.
+    const sourceFilter: Pick<ServiceRequestListRequest, 'sourceId' | 'withSourceAssets' | 'withSourceDevices'> =
+      this.scopeObject
+        ? { sourceId: String(this.scopeObject.id), withSourceAssets: true, withSourceDevices: true }
+        : {};
+
     const { data, totalPages } = await this.serviceRequestService.listPaged(
       this.showResolved
         ? {
             // Full history, paginated (ADR-0001) — new for service requests, mirrors alarms' FR-010.
-            sourceId: this.device.id,
+            ...sourceFilter,
             all: true,
             currentPage: page,
             withTotalPages: page === 1,
@@ -243,7 +287,7 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
         : {
             // all:false is the API's own default and already excludes closed requests server-side
             // (ADR-0001) — satisfies the standalone-request half of the relevance rule for free.
-            sourceId: this.device.id,
+            ...sourceFilter,
             all: false,
             pageSize: RELEVANT_PAGE_SIZE,
             withTotalPages: true,
@@ -355,21 +399,24 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
     }
   }
 
+  /** Only reachable when {@link canCreateFromScope} is true, i.e. `scopeObject` is a device/asset. */
   openNewRequestForDevice(): void {
-    const context: NewRequestContext = { device: this.device };
+    const context: NewRequestContext = { device: this.scopeObject };
 
     this.splitView.selectionService.select({ kind: 'new', context });
   }
 
   openNewRequestFromAlarm(alarm: IAlarm): void {
-    const context: NewRequestContext = { device: this.device, fromAlarm: alarm };
+    // The alarm's own source supplies the device implicitly (FR-028, FR-092) — not the current
+    // scope, which may be a group/asset, the tenant-wide view, or a different device entirely.
+    const context: NewRequestContext = { device: alarm.source as unknown as IManagedObject, fromAlarm: alarm };
 
     this.splitView.selectionService.select({ kind: 'new', context });
   }
 
   async linkExistingFromAlarm(alarm: IAlarm): Promise<void> {
     const modalRef = this.bsModalService.show(AddExistingRequestModalComponent, {
-      initialState: { alarm, deviceId: String(this.device.id) },
+      initialState: { alarm, deviceId: String(alarm.source.id) },
     });
 
     const linkedSr = await firstValueFrom(
@@ -383,7 +430,7 @@ export class ServiceRequestTimelineViewComponent implements OnInit, AfterViewIni
   }
 
   serviceObjectId(): string | undefined {
-    return (this.device as unknown as Record<string, unknown>)?.['sr_ServiceObjectId'] as
+    return (this.scopeObject as unknown as Record<string, unknown>)?.['sr_ServiceObjectId'] as
       | string
       | undefined;
   }

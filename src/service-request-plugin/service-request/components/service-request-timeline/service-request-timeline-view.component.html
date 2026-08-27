@@ -1,5 +1,24 @@
 <c8y-title>{{ 'Service requests' | translate }}</c8y-title>
 
+<c8y-action-bar-item [placement]="'left'" *ngIf="isGlobalView">
+  <div class="dropdown sr-source-filter" dropdown>
+    <button type="button" class="btn btn-default dropdown-toggle" dropdownToggle [title]="'Filter by source' | translate">
+      <i c8yIcon="filter"></i>
+      {{ scopeObject ? scopeObject['name'] : ('All sources' | translate) }}
+    </button>
+    <div *dropdownMenu class="dropdown-menu sr-source-filter-menu" (click)="$event.stopPropagation()">
+      <c8y-asset-selector
+        [ngModel]="scopeObject"
+        (ngModelChange)="onScopeChange($event)"
+        [config]="{ groupsSelectable: true, showUnassignedDevices: true, search: true, label: '' }"
+      ></c8y-asset-selector>
+      <button type="button" class="btn btn-link btn-sm" *ngIf="scopeObject" (click)="onScopeChange(null)">
+        {{ 'Clear' | translate }}
+      </button>
+    </div>
+  </div>
+</c8y-action-bar-item>
+
 <c8y-action-bar-item [placement]="'left'">
   <label
     class="c8y-switch c8y-switch--inline"
@@ -23,9 +42,12 @@
         <code>{{ serviceObjectId() }}</code>
       </span>
     </div>
+    <!-- Only shown on a device/asset scope (FR-092): v1 has no device picker, so a group or the
+         tenant-wide root leaves no single implicit target to create the request on. -->
     <button
       type="button"
       class="btn btn-link"
+      *ngIf="canCreateFromScope"
       [title]="'New service request' | translate"
       (click)="openNewRequestForDevice()"
     >
@@ -105,7 +127,6 @@
       <sr-new-request-form
         #newPanel
         [context]="newContext"
-        [candidateAlarms]="alarms"
         (created)="selectSr($event)"
         (cancelled)="clearSelection()"
       ></sr-new-request-form>

@@ -1,7 +1,12 @@
 import { IAlarm, IManagedObject } from '@c8y/client';
 import { ServiceRequestObject } from '../../../models/service-request.model';
 
-/** Context passed to the creation panel when opening it for a device or from a specific alarm. */
+/**
+ * Context passed to the creation panel. `device` is always the request's target — either the
+ * specific alarm's source, or the device/asset the "New service request" action bar button was
+ * opened from (that button only shows on a device/asset scope, never on a group or the tenant-wide
+ * root, so there's never a target left for the user to pick — FR-092).
+ */
 export interface NewRequestContext {
   device: IManagedObject;
   fromAlarm?: IAlarm;

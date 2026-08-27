@@ -61,6 +61,10 @@
                 <span class="sr-pill sr-pill--priority" *ngIf="row.sr.priority">{{ row.sr.priority.name }}</span>
               </div>
               <div class="sr-title">{{ row.sr.title }}</div>
+              <div class="sr-row-sub" *ngIf="row.sr.source?.name">
+                <i c8yIcon="exchange"></i>
+                {{ row.sr.source?.name }}
+              </div>
               <div class="sr-sub">
                 <ng-container *ngIf="linkedAlarmCount(row.sr) > 1">Linked to {{ linkedAlarmCount(row.sr) }} alarms</ng-container>
                 <ng-container *ngIf="linkedAlarmCount(row.sr) <= 1 && !row.alarm">Not linked to an alarm</ng-container>
