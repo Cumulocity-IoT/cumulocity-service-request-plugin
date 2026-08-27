@@ -1,33 +1,27 @@
-.sr-mo-chips {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding-right: 12px;
+.sr-mo-tag {
   margin-right: 8px;
-  border-right: 1px solid var(--border, #e3e5e8);
+  // .tag itself sets align-self: flex-start, which overrides the action bar's flex row
+  // align-items: center and pins it to the top — this is what actually needs the override.
+  align-self: center;
 }
 
-.sr-mo-chip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
+// Mirrors @c8y/style's .dashboard-template-marker (a small bordered single-letter box preceding
+// the tag text) — not a template marker, but the same "what kind of tag is this" visual pattern.
+.sr-mo-tag-marker {
+  color: inherit;
+  line-height: 0.5;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 3px;
+  border: 1px solid;
+  height: 14px;
+  display: inline-block;
+  position: static;
+  margin: 0 4px 0 -4px;
 
-  code {
-    font-family: monospace;
-    font-size: 11.5px;
-    background: var(--gray-10, #fbfbfc);
-    padding: 2px 6px;
-    border-radius: 2px;
+  &::before {
+    content: 'S';
   }
-}
-
-.sr-mo-chip-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--text-muted, #8b96a0);
 }
 
 .sr-source-filter-menu {

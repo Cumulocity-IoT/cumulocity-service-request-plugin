@@ -19,29 +19,16 @@
   </div>
 </c8y-action-bar-item>
 
-<c8y-action-bar-item [placement]="'left'">
-  <label
-    class="c8y-switch c8y-switch--inline"
-    title="{{ 'Show resolved alarms and closed service requests' | translate }}"
-    aria-label="{{ 'Show resolved' | translate }}"
-  >
-    <input
-      type="checkbox"
-      [checked]="showResolved"
-      (change)="onShowResolvedToggle($any($event.target).checked)"
-    />
-    <span></span> {{ 'Show resolved' | translate }}
-  </label>
-</c8y-action-bar-item>
-
 <c8y-action-bar-item [placement]="'right'">
   <div class="d-flex a-i-center">
-    <div class="sr-mo-chips" *ngIf="serviceObjectId()">
-      <span class="sr-mo-chip" [title]="'Managed object fragment: sr_ServiceObjectId' | translate">
-        <span class="sr-mo-chip-label">{{ 'Service Object' | translate }}</span>
-        <code>{{ serviceObjectId() }}</code>
-      </span>
-    </div>
+    <span
+      class="tag tag--info text-12 sr-mo-tag"
+      *ngIf="serviceObjectId()"
+      [title]="'Managed object fragment: sr_ServiceObjectId' | translate"
+    >
+      <span class="sr-mo-tag-marker"></span>
+      {{ 'Service Object' | translate }} "{{ serviceObjectId() }}"
+    </span>
     <!-- Only shown on a device/asset scope (FR-092): v1 has no device picker, so a group or the
          tenant-wide root leaves no single implicit target to create the request on. -->
     <button
@@ -66,11 +53,28 @@
     [emptyStateSubtitle]="'Nothing relevant right now — try \'Show resolved\' to see everything' | translate"
   >
     <c8y-sv-header-actions>
-      <c8y-alarms-interval-refresh
-        [isIntervalToggleEnabled]="autoRefreshToggleEnabled"
-        [alarmsListLoading$]="autoRefreshLoading$"
-        (onCountdownEnded)="onAutoRefreshTick()"
-      ></c8y-alarms-interval-refresh>
+      <!-- c8y-sv-header-actions only lays its content out as a flex row itself when the list has
+           no title (ours does — "Timeline") — otherwise it just applies m-l-auto and leaves its
+           children to stack per their own default display, so this wrapper enforces the row. -->
+      <div class="d-flex a-i-center gap-8">
+        <label
+          class="c8y-switch c8y-switch--inline"
+          title="{{ 'Show resolved alarms and closed service requests' | translate }}"
+          aria-label="{{ 'Show resolved' | translate }}"
+        >
+          <input
+            type="checkbox"
+            [checked]="showResolved"
+            (change)="onShowResolvedToggle($any($event.target).checked)"
+          />
+          <span></span> {{ 'Show resolved' | translate }}
+        </label>
+        <c8y-alarms-interval-refresh
+          [isIntervalToggleEnabled]="autoRefreshToggleEnabled"
+          [alarmsListLoading$]="autoRefreshLoading$"
+          (onCountdownEnded)="onAutoRefreshTick()"
+        ></c8y-alarms-interval-refresh>
+      </div>
     </c8y-sv-header-actions>
 
     <sr-timeline-list
