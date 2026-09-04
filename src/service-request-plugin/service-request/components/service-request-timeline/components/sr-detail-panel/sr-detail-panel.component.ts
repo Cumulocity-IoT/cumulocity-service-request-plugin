@@ -66,6 +66,11 @@ export class SrDetailPanelComponent implements OnChanges {
     // title/description/priority form to be submitted — that form's dirty-gated Update button
     // never enables from an attachment change alone, since attachmentControl isn't part of it.
     this.attachmentControl.valueChanges.subscribe((value) => void this.handleAttachmentChange(value));
+
+    // buildActions() snapshots form.pristine/invalid into a plain boolean, so it must be
+    // re-run on every edit — otherwise the Update button's disabled state stays stuck at
+    // whatever it was when the panel last loaded, even as the user types.
+    this.form.valueChanges.subscribe(() => this.buildActions());
   }
 
   async ngOnChanges(): Promise<void> {
@@ -176,10 +181,13 @@ export class SrDetailPanelComponent implements OnChanges {
 
     try {
       const previousSource = this.sr.source;
+      // force only when actually replacing an existing attachment — the microservice's
+      // overwrite path drops the real content type and stores application/octet-stream
+      // instead, which breaks image-preview detection for no reason on a first upload.
       const uploaded = await this.serviceRequestAttachmentsService.uploadAttachment(
         this.sr.id,
         staged.file,
-        true
+        !!this.sr.attachment
       );
 
       if (uploaded) {

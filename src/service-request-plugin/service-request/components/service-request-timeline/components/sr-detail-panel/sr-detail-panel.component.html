@@ -1,5 +1,15 @@
 <div class="sr-section-block">
-  <p class="sr-section-label">{{ 'Service Request' | translate }}</p>
+  <div class="sr-section-label-row">
+    <p class="sr-section-label">{{ 'Service Request' | translate }}</p>
+    <button
+      type="button"
+      class="btn btn-link btn-sm sr-raw-json-copy"
+      title="{{ 'Copy raw JSON' | translate }}"
+      (click)="copyRawJson()"
+    >
+      <i c8yIcon="copy"></i>
+    </button>
+  </div>
 
   <div class="sr-info-grid">
     <div class="sr-info-card">
@@ -63,17 +73,5 @@
     <div class="sr-disclosure-body">
       <service-request-comments [id]="sr.id" [isCreateForm]="true" [displayedItems]="10"></service-request-comments>
     </div>
-  </details>
-</div>
-
-<div class="sr-section-block">
-  <details class="sr-disclosure">
-    <summary>
-      <p class="sr-section-label">{{ 'Raw JSON' | translate }}</p>
-      <button type="button" class="btn btn-link btn-sm" (click)="copyRawJson(); $event.stopPropagation()">
-        <i c8yIcon="copy"></i>
-      </button>
-    </summary>
-    <pre class="sr-raw-json">{{ rawJson }}</pre>
   </details>
 </div>

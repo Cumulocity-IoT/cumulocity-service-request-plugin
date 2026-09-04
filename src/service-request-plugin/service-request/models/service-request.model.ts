@@ -40,6 +40,8 @@ export interface ServiceRequestAttachment {
   file?: File;
   new?: boolean;
   delete?: boolean;
+  /** UI-only: object URL for an inline thumbnail when the attachment is an image. */
+  previewUrl?: string;
 }
 export type ServiceRequestType = 'alarm' | 'note' | 'maintenance' | 'downtime' | 'other';
 export interface ServiceOrder {
