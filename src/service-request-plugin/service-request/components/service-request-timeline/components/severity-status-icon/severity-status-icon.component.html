@@ -1,0 +1,86 @@
+<ng-container *ngIf="severity && display === 'severity'">
+  <ng-container [ngSwitch]="severity">
+    <button
+      *ngSwitchCase="'CRITICAL'"
+      type="button"
+      class="btn-clean severity"
+      container="body"
+      [tooltip]="'Severity: Critical' | translate"
+      [placement]="placement"
+      [attr.aria-label]="'Severity: Critical' | translate"
+    >
+      <i c8yIcon="exclamation-circle" class="status stroked-icon critical"></i>
+    </button>
+    <button
+      *ngSwitchCase="'MAJOR'"
+      type="button"
+      class="btn-clean severity"
+      container="body"
+      [tooltip]="'Severity: Major' | translate"
+      [placement]="placement"
+      [attr.aria-label]="'Severity: Major' | translate"
+    >
+      <i c8yIcon="warning" class="status stroked-icon major"></i>
+    </button>
+    <button
+      *ngSwitchCase="'MINOR'"
+      type="button"
+      class="btn-clean severity"
+      container="body"
+      [tooltip]="'Severity: Minor' | translate"
+      [placement]="placement"
+      [attr.aria-label]="'Severity: Minor' | translate"
+    >
+      <i c8yIcon="high-priority" class="status stroked-icon minor"></i>
+    </button>
+    <button
+      *ngSwitchCase="'WARNING'"
+      type="button"
+      class="btn-clean severity"
+      container="body"
+      [tooltip]="'Severity: Warning' | translate"
+      [placement]="placement"
+      [attr.aria-label]="'Severity: Warning' | translate"
+    >
+      <i c8yIcon="circle" class="status stroked-icon warning"></i>
+    </button>
+  </ng-container>
+</ng-container>
+
+<ng-container *ngIf="status && display === 'status'">
+  <ng-container [ngSwitch]="status">
+    <button
+      *ngSwitchCase="'ACTIVE'"
+      type="button"
+      class="btn-clean status"
+      container="body"
+      [tooltip]="'Status: Active' | translate"
+      [placement]="placement"
+      [attr.aria-label]="'Status: Active' | translate"
+    >
+      <i c8yIcon="bell"></i>
+    </button>
+    <button
+      *ngSwitchCase="'ACKNOWLEDGED'"
+      type="button"
+      class="btn-clean status"
+      container="body"
+      [tooltip]="'Status: Acknowledged' | translate"
+      [placement]="placement"
+      [attr.aria-label]="'Status: Acknowledged' | translate"
+    >
+      <i c8yIcon="bell-slash"></i>
+    </button>
+    <button
+      *ngSwitchCase="'CLEARED'"
+      type="button"
+      class="btn-clean status"
+      container="body"
+      [tooltip]="'Status: Cleared' | translate"
+      [placement]="placement"
+      [attr.aria-label]="'Status: Cleared' | translate"
+    >
+      <i c8yIcon="check-circle" class="text-muted"></i>
+    </button>
+  </ng-container>
+</ng-container>

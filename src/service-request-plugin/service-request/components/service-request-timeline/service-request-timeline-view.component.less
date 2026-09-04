@@ -1,0 +1,33 @@
+.sr-mo-tag {
+  margin-right: 8px;
+  // .tag itself sets align-self: flex-start, which overrides the action bar's flex row
+  // align-items: center and pins it to the top — this is what actually needs the override.
+  align-self: center;
+}
+
+// Mirrors @c8y/style's .dashboard-template-marker (a small bordered single-letter box preceding
+// the tag text) — not a template marker, but the same "what kind of tag is this" visual pattern.
+.sr-mo-tag-marker {
+  color: inherit;
+  line-height: 0.5;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 3px;
+  border: 1px solid;
+  height: 14px;
+  display: inline-block;
+  position: static;
+  margin: 0 4px 0 -4px;
+
+  &::before {
+    content: 'S';
+  }
+}
+
+.sr-source-filter-menu {
+  padding: 12px;
+  width: 340px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+

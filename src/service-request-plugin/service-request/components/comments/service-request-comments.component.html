@@ -1,85 +1,31 @@
-@if (isCreateForm) {
-<h4 class="m-t-16">Comments {{ "(" + comments.length + ")" }}</h4>
-<div class="m-t-16 m-b-16">
-  <div class="comment">
-    <div class="m-b-8">{{ "Create a new comment" | translate }}</div>
-
-    <form
-      novalidate
-      name="form"
-      [formGroup]="form"
-      (ngSubmit)="submitComment()"
-    >
-      <!-- comment -->
-      <div class="m-b-8">
-        <textarea
-          id="c_text"
-          class="form-control"
-          name="text"
-          rows="5"
-          [formControlName]="'text'"
-        >
-        </textarea>
-      </div>
-
-      <div class="m-b-8">
-        <c8y-file-picker
-          #picker
-          (onFilesPicked)="onFiles($event)"
-          uploadChoice="uploadBinary"
-        ></c8y-file-picker>
-      </div>
-
-      <!-- form actions -->
-      <div>
-        <button
-          type="submit"
-          class="btn btn-primary"
-          [class.btn-pending]="formInAction"
-          [disabled]="form.pristine || formInAction"
-        >
-          {{ "Submit" | translate }}
-        </button>
-      </div>
-    </form>
+<div class="sr-comments-list" *ngIf="!loadingComments; else loadingData">
+  <div class="c8y-empty-state c8y-empty-state--horizontal" *ngIf="!comments.length">
+    <i class="c8y-icon-duocolor c8y-icon c8y-icon-data-explorer"></i>
+    <strong>{{ 'service-request-comments.no-comments' | translate }}</strong>
   </div>
-</div>
-}
 
-<!-- comments display -->
-<div>
-  <ul class="comments-list" *ngIf="!loadingComments; else loadingData">
-    <li *ngIf="!comments.length">
-      <div class="c8y-empty-state c8y-empty-state--horizontal">
-        <i class="c8y-icon-duocolor c8y-icon c8y-icon-data-explorer"></i>
-        <strong>{{
-          "service-request-comments.no-comments" | translate
-        }}</strong>
-      </div>
-    </li>
-    <li *ngFor="let c of comments" class="comment">
-      <div class="d-flex">
-        <div class="list-item-body">
-          <div class="flex-row m-b-8">
-            <small>{{ c.owner }} - {{ c.creationTime | c8yDate }}</small>
-            <button
-              type="button"
-              class="m-l-16 p-0 btn btn-link download-attachment"
-              (click)="downloadAttachment(c)"
-              *ngIf="c.attachment"
-            >
-              <i c8yIcon="attach"></i>{{ c.attachment.name }}
-            </button>
-          </div>
-          <p [innerHtml]="c.text | nl2br"></p>
+  <c8y-list-group *ngIf="comments.length" role="list">
+    <c8y-li-timeline *ngFor="let c of comments">
+      {{ c.creationTime | c8yDate: 'medium' }}
+      <c8y-li role="listitem">
+        <div class="sr-comment-text" [class.sr-comment-text--system]="c.type === 'system'">
+          <b>{{ c.owner }}</b> &mdash; <span [innerHtml]="c.text | nl2br"></span>
+          <button
+            type="button"
+            class="btn btn-link p-0 m-l-8 sr-comment-attachment"
+            (click)="downloadAttachment(c)"
+            *ngIf="c.attachment"
+          >
+            <i c8yIcon="attach"></i>{{ c.attachment.name }}
+          </button>
         </div>
-      </div>
-    </li>
-    <li *ngIf="additionalCommentsCount">
-      + {{ additionalCommentsCount }}
-      {{ "service-request-comments.more" | translate }}
-    </li>
-  </ul>
+      </c8y-li>
+    </c8y-li-timeline>
+  </c8y-list-group>
+
+  <p class="sr-comments-more" *ngIf="additionalCommentsCount">
+    + {{ additionalCommentsCount }} {{ 'service-request-comments.more' | translate }}
+  </p>
 </div>
 
 <ng-template #loadingData>
@@ -87,3 +33,29 @@
     <c8y-loading></c8y-loading>
   </div>
 </ng-template>
+
+<div class="sr-comment-compose" *ngIf="isCreateForm">
+  <form novalidate name="form" [formGroup]="form" (ngSubmit)="submitComment()">
+    <textarea
+      id="c_text"
+      class="form-control"
+      name="text"
+      rows="2"
+      [placeholder]="'Add a comment...' | translate"
+      [formControlName]="'text'"
+    ></textarea>
+
+    <div class="sr-comment-compose-actions">
+      <c8y-file-picker #picker (onFilesPicked)="onFiles($event)" uploadChoice="uploadBinary"></c8y-file-picker>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-sm"
+        [class.btn-pending]="formInAction"
+        [disabled]="form.pristine || formInAction"
+      >
+        {{ 'Post' | translate }}
+      </button>
+    </div>
+  </form>
+</div>

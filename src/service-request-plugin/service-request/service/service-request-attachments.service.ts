@@ -7,6 +7,7 @@ import {
   ServiceRequestPriority,
   ServiceRequestObject,
   ServiceRequestErrorResponse,
+  SERVICE_REQUEST_API_URL,
 } from '../models/service-request.model';
 
 @Injectable({ providedIn: 'root' })
@@ -14,7 +15,7 @@ export class ServiceRequestAttachmentsService {
   protected status: ServiceRequestStatus[] = [];
   protected priorities: ServiceRequestPriority[] = [];
 
-  SERVICE_REQUEST_API_URL = '/service/service-request-mgmt/api/service';
+  SERVICE_REQUEST_API_URL = SERVICE_REQUEST_API_URL;
 
 
   constructor(
