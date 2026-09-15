@@ -28,6 +28,21 @@ export interface ServiceRequestStatus {
   id: string;
   name: string;
 }
+// Matches the microservice's ServiceRequestStatusConfig schema, returned by GET /request/status.
+// Carries the tenant-configured transition flags that ServiceRequestStatus (as used on
+// ServiceRequestObject.status) doesn't — needed to determine which statuses close a request
+// (ADR-0002).
+export interface ServiceRequestStatusConfig extends ServiceRequestStatus {
+  /** Alarm status to set on the linked alarm(s) when this status is applied, e.g. "CLEARED". */
+  alarmStatusTransition?: string;
+  isSynchronisationActive?: boolean;
+  /** Closes the service request (`isClosed: true`) when this status is applied (ADR-0002). */
+  isClosedTransition?: boolean;
+  isDeactivateTransition?: boolean;
+  isExcludeForCounter?: boolean;
+  isInitialStatus?: boolean;
+  icon?: string;
+}
 export interface ServiceRequestPriority {
   name: string;
   ordinal: number;

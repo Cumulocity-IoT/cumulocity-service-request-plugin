@@ -252,6 +252,7 @@ export class NewRequestFormComponent implements OnChanges {
         class: 'btn btn-default btn-sm',
         disabled: this.busy,
         visible: true,
+        title: 'Discard this new service request',
         action: () => this.cancelled.emit(),
       },
       {
@@ -261,6 +262,7 @@ export class NewRequestFormComponent implements OnChanges {
         class: 'btn btn-primary btn-sm',
         disabled: this.form.invalid || this.busy,
         visible: true,
+        title: 'Create the service request',
         action: () => this.submit(),
       },
     ];

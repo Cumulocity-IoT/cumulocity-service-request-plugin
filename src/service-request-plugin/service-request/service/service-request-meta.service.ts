@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { ServiceRequestStatus, ServiceRequestPriority } from '../models/service-request.model';
+import { ServiceRequestStatusConfig, ServiceRequestPriority } from '../models/service-request.model';
 import { ServiceRequestService } from './service-request.service';
 
 @Injectable({ providedIn: 'root' })
 export class ServiceRequestMetaService {
-  protected status: ServiceRequestStatus[] = [];
+  protected status: ServiceRequestStatusConfig[] = [];
   protected priorities: ServiceRequestPriority[] = [];
 
   constructor(private serviceRequestService: ServiceRequestService) {}
 
   fetchMeta(
     ignoreCache = false
-  ): Promise<{ status: ServiceRequestStatus[]; priorities: ServiceRequestPriority[] }> {
+  ): Promise<{ status: ServiceRequestStatusConfig[]; priorities: ServiceRequestPriority[] }> {
     const response = {
       status: this.status,
       priorities: this.priorities,

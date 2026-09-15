@@ -11,6 +11,7 @@ import {
   ServiceRequestObject,
   ServiceRequestPriority,
   ServiceRequestStatus,
+  ServiceRequestStatusConfig,
   ServiceRequestType,
   SERVICE_REQUEST_API_URL,
   SERVICE_REQUEST_DEFAULT_PAGE_SIZE,
@@ -196,15 +197,19 @@ export class ServiceRequestService {
     return null;
   }
 
-  // DELETE /service/request/{serviceRequestId}
-  // TODO: currently returns mocked data
-  async resolve(serviceRequest: ServiceRequestObject): Promise<ServiceRequestObject> {
+  // PUT /service/request/{serviceRequestId}
+  // Closes a service request by applying one of its tenant-configured closing statuses
+  // (isClosedTransition: true) — the microservice then applies whatever alarmStatusTransition
+  // that status is configured with (ADR-0002). Replaces the old isActive:false approach, which
+  // never actually closed the request or cascaded to its linked alarm(s).
+  async close(
+    serviceRequest: ServiceRequestObject,
+    status: ServiceRequestStatus
+  ): Promise<ServiceRequestObject> {
     const result = await this.fetchClient.fetch(
       `${SERVICE_REQUEST_API_URL}/request/${serviceRequest.id}`,
       {
-        body: JSON.stringify({
-          isActive: false,
-        }),
+        body: JSON.stringify({ status }),
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
       }
@@ -214,7 +219,7 @@ export class ServiceRequestService {
       try {
         const res = (await result.json()) as ServiceRequestObject;
 
-        this.alertService.success(`Service request '${serviceRequest.title}' resolved`);
+        this.alertService.success(`Service request '${serviceRequest.title}' closed`);
 
         return res;
       } catch (e) {
@@ -222,11 +227,11 @@ export class ServiceRequestService {
       }
     } else {
       this.alertService.danger(
-        `Service request '${serviceRequest.title}' could not be resolved`,
+        `Service request '${serviceRequest.title}' could not be closed`,
         result.statusText
       );
 
-      console.error('Error resolving service request', result);
+      console.error('Error closing service request', result);
     }
 
     return null;
@@ -302,7 +307,10 @@ export class ServiceRequestService {
   // - POST /service/request/external
 
   // GET /service/request/status
-  async statusList(): Promise<ServiceRequestStatus[]> {
+  // Returns the tenant's full status config list (ServiceRequestStatusConfig), including the
+  // alarmStatusTransition/isClosedTransition flags used to determine which statuses close a
+  // request (ADR-0002) — not just the plain { id, name } shape used elsewhere.
+  async statusList(): Promise<ServiceRequestStatusConfig[]> {
     const result = await this.fetchClient.fetch(
       `${SERVICE_REQUEST_API_URL}/request/status`,
       {
@@ -313,7 +321,7 @@ export class ServiceRequestService {
 
     if (result.ok) {
       try {
-        const status = (await result.json()) as ServiceRequestStatus[];
+        const status = (await result.json()) as ServiceRequestStatusConfig[];
 
         return status;
       } catch (e) {

@@ -1,10 +1,19 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AlertService, IconPanelSection, ModalService, SplitViewAction, Status } from '@c8y/ngx-components';
+import {
+  AlertService,
+  ConfirmOption,
+  ConfirmOptions,
+  IconPanelSection,
+  ModalService,
+  SplitViewAction,
+  Status,
+} from '@c8y/ngx-components';
 import {
   ServiceRequestAttachment,
   ServiceRequestObject,
   ServiceRequestPriority,
+  ServiceRequestStatusConfig,
 } from '../../../../models/service-request.model';
 import { ServiceRequestAttachmentsService } from '../../../../service/service-request-attachments.service';
 import { ServiceRequestChangeService } from '../../../../service/service-request-change.service';
@@ -42,6 +51,7 @@ export class SrDetailPanelComponent implements OnChanges {
   @Input() sr: ServiceRequestObject;
 
   priorities: ServiceRequestPriority[] = [];
+  statuses: ServiceRequestStatusConfig[] = [];
   actions: SplitViewAction[] = [];
   busy = false;
   rawJson = '';
@@ -77,6 +87,7 @@ export class SrDetailPanelComponent implements OnChanges {
     const meta = await this.serviceRequestMetaService.fetchMeta(true);
 
     this.priorities = meta.priorities;
+    this.statuses = meta.status;
 
     // Neither endpoint reliably carries every field on its own — the list fetch omits things
     // like attachment, while the single-request detail response's `source` has been confirmed
@@ -210,21 +221,92 @@ export class SrDetailPanelComponent implements OnChanges {
     }
   }
 
-  async resolve(): Promise<void> {
-    const confirmed = await this.modalService.confirm(
-      'Resolve service request',
-      'Are you sure you want to resolve this service request?',
-      Status.WARNING
-    );
+  /**
+   * Only statuses configured with isClosedTransition: true are offered — this picker is scoped
+   * to "how do you want to close this request," not a general status editor (ADR-0002).
+   */
+  private closableStatuses(): ServiceRequestStatusConfig[] {
+    return (this.statuses ?? []).filter((s) => s.isClosedTransition);
+  }
 
-    if (!confirmed) {
+  /**
+   * Builds the confirm dialog's checkbox list (ConfirmOption.checked is defined as an accessor,
+   * not a plain value) so that checking one status un-checks every other one. ConfirmOption's own
+   * `disabledByKey` only disables a single named option — it can express a pair of mutually
+   * exclusive checkboxes (as in the platform's own delete-modal example) but not "any other
+   * status" across an arbitrary tenant-configured list, so single-select is enforced here
+   * instead. The first status starts pre-checked, and unchecking the only checked status is a
+   * no-op, so exactly one status is always selected — mimicking a radio group with checkboxes.
+   */
+  private buildStatusConfirmOptions(statuses: ServiceRequestStatusConfig[]): ConfirmOptions {
+    const checkedState: Record<string, boolean> = {};
+    const options: ConfirmOptions = {};
+
+    statuses.forEach((status, index) => {
+      checkedState[status.id] = index === 0;
+
+      options[status.id] = {
+        text: status.name,
+        get checked() {
+          return checkedState[status.id];
+        },
+        set checked(value: boolean) {
+          if (!value && !statuses.some((other) => other.id !== status.id && checkedState[other.id])) {
+            return;
+          }
+
+          checkedState[status.id] = value;
+
+          if (value) {
+            statuses.forEach((other) => {
+              if (other.id !== status.id) {
+                checkedState[other.id] = false;
+              }
+            });
+          }
+        },
+      } as ConfirmOption;
+    });
+
+    return options;
+  }
+
+  async openCloseModal(): Promise<void> {
+    const closable = this.closableStatuses();
+
+    if (!closable.length || this.busy) {
+      return;
+    }
+
+    let result: boolean | { confirmed: boolean; confirmOptions: Record<string, boolean> };
+
+    try {
+      result = await this.modalService.confirm(
+        'Close service request',
+        `You are about to close service request '${this.sr.title}'. Choose the status to apply — according to the status configuration, updates will be applied automatically.`,
+        Status.WARNING,
+        { ok: 'Close' },
+        this.buildStatusConfirmOptions(closable)
+      );
+    } catch {
+      return;
+    }
+
+    if (typeof result === 'boolean') {
+      return;
+    }
+
+    const chosenId = Object.keys(result.confirmOptions).find((id) => result.confirmOptions[id]);
+    const status = closable.find((s) => s.id === chosenId);
+
+    if (!status) {
       return;
     }
 
     this.busy = true;
 
     try {
-      const updated = await this.serviceRequestService.resolve(this.sr);
+      const updated = await this.serviceRequestService.close(this.sr, status);
 
       if (updated) {
         this.sr = updated;
@@ -309,7 +391,8 @@ export class SrDetailPanelComponent implements OnChanges {
   }
 
   private buildActions(): void {
-    const canResolve = this.sr?.isActive && !this.sr?.isClosed;
+    const canClose = this.sr?.isActive && !this.sr?.isClosed;
+    const closableStatuses = this.closableStatuses();
 
     this.actions = [
       {
@@ -319,16 +402,20 @@ export class SrDetailPanelComponent implements OnChanges {
         class: 'btn btn-default btn-sm',
         disabled: this.form.pristine || this.busy,
         visible: true,
+        title: 'Discard unsaved changes',
         action: () => this.resetForm(),
       },
       {
-        id: 'resolve',
-        label: 'Resolve',
+        id: 'close',
+        label: 'Close',
         icon: 'check-circle',
         class: 'btn btn-danger btn-sm',
-        disabled: this.busy,
-        visible: canResolve,
-        action: () => this.resolve(),
+        disabled: this.busy || !closableStatuses.length,
+        visible: canClose,
+        title: closableStatuses.length
+          ? 'Close this service request'
+          : 'No closing status is configured for this tenant',
+        action: () => this.openCloseModal(),
       },
       {
         id: 'update',
@@ -337,6 +424,7 @@ export class SrDetailPanelComponent implements OnChanges {
         class: 'btn btn-primary btn-sm',
         disabled: this.form.pristine || this.form.invalid || this.busy,
         visible: !this.sr?.isClosed,
+        title: 'Save changes',
         action: () => this.submit(),
       },
     ];

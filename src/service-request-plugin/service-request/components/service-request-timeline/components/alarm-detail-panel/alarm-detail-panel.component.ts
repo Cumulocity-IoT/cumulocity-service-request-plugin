@@ -170,6 +170,7 @@ export class AlarmDetailPanelComponent implements OnChanges {
         class: 'btn btn-default btn-sm',
         disabled: isCleared || this.busy,
         visible: true,
+        title: isAcknowledged ? 'Reactivate this alarm' : 'Acknowledge this alarm',
         action: () => this.toggleAcknowledge(),
       },
       {
@@ -179,6 +180,7 @@ export class AlarmDetailPanelComponent implements OnChanges {
         class: 'btn btn-default btn-sm',
         disabled: isCleared || this.busy,
         visible: true,
+        title: 'Clear this alarm',
         action: () => this.clear(),
       },
       {
@@ -188,6 +190,7 @@ export class AlarmDetailPanelComponent implements OnChanges {
         class: 'btn btn-default btn-sm',
         disabled: this.busy,
         visible: !this.linkedSr,
+        title: 'Create a service request for this alarm',
         action: () => this.createRequest.emit(this.alarm),
       },
       {
@@ -197,6 +200,7 @@ export class AlarmDetailPanelComponent implements OnChanges {
         class: 'btn btn-default btn-sm',
         disabled: this.busy,
         visible: !this.linkedSr,
+        title: 'Link this alarm to an existing service request',
         action: () => this.linkExisting.emit(this.alarm),
       },
     ];
