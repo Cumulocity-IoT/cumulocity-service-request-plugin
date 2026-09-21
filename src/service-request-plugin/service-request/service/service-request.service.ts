@@ -5,11 +5,15 @@ import {
   CreateServiceRequestRequest,
   ServiceRequestComment,
   ServiceRequestCommentListResponse,
+  ServiceRequestDataRef,
   ServiceRequestListRequest,
   ServiceRequestListResponse,
   ServiceRequestObject,
   ServiceRequestPriority,
   ServiceRequestStatus,
+  ServiceRequestStatusConfig,
+  ServiceRequestType,
+  SERVICE_REQUEST_API_URL,
   SERVICE_REQUEST_DEFAULT_PAGE_SIZE,
   UpdateServiceRequestRequest,
 } from '../models/service-request.model';
@@ -18,7 +22,7 @@ import {
 export class ServiceRequestService {
   constructor(private fetchClient: FetchClient, private alertService: AlertService) {}
 
-  createEmptyServiceRequest(): ServiceRequestObject {
+  createEmptyServiceRequest(type: ServiceRequestType = 'other'): ServiceRequestObject {
     return {
       id: '',
       isActive: true,
@@ -27,7 +31,7 @@ export class ServiceRequestService {
       creationTime: new Date().toISOString(),
       updateTime: new Date().toISOString(),
       owner: '',
-      type: 'alarm',
+      type,
       alarmRef: null,
       source: null,
       lastUpdated: new Date().toISOString(),
@@ -41,13 +45,13 @@ export class ServiceRequestService {
   }
 
   /**
-   * 
+   *
    * @returns true, if MS endpoint exists, false otherwise.
    */
   async isAvailable() {
     try {
       const result = await this.fetchClient.fetch(
-        `/service/service-request-mgmt/api/service/request/`,
+        `${SERVICE_REQUEST_API_URL}/request/`,
         {
           method: 'HEAD',
           headers: { 'Content-Type': 'application/json' },
@@ -59,13 +63,23 @@ export class ServiceRequestService {
       // nothing to do here
     }
     this.alertService.info('The Microservice Service-request-mgmt needs to be installed in order to use the Service Request Plugin');
-    return true;
+    return false;
   }
 
   // GET /service/request
   async list(request?: ServiceRequestListRequest): Promise<ServiceRequestObject[]> {
+    return (await this.listPaged(request)).data;
+  }
+
+  /**
+   * Same endpoint as list(), but also surfaces paging stats — needed by the timeline's
+   * "Show resolved" mode (ADR-0001) to drive a "load more" affordance for service requests.
+   */
+  async listPaged(
+    request?: ServiceRequestListRequest
+  ): Promise<{ data: ServiceRequestObject[]; totalPages: number | null }> {
     const result = await this.fetchClient.fetch(
-      `/service/service-request-mgmt/api/service/request/`,
+      `${SERVICE_REQUEST_API_URL}/request/`,
       {
         params: {
           pageSize: SERVICE_REQUEST_DEFAULT_PAGE_SIZE,
@@ -78,7 +92,9 @@ export class ServiceRequestService {
 
     if (result.ok) {
       try {
-        return ((await result.json()) as ServiceRequestListResponse)?.list;
+        const response = (await result.json()) as ServiceRequestListResponse;
+
+        return { data: response?.list ?? [], totalPages: response?.totalPages ?? null };
       } catch (e) {
         console.error('No service requests available', result);
       }
@@ -86,13 +102,13 @@ export class ServiceRequestService {
       console.error('Error receiving service requests', result);
     }
 
-    return [];
+    return { data: [], totalPages: null };
   }
 
   // GET /service/request/{serviceRequestId}
   async detail(id: ServiceRequestObject['id']): Promise<ServiceRequestObject> {
     const result = await this.fetchClient.fetch(
-      `/service/service-request-mgmt/api/service/request/${id}`,
+      `${SERVICE_REQUEST_API_URL}/request/${id}`,
       {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -115,7 +131,7 @@ export class ServiceRequestService {
   // POST /service/request
   async create(serviceRequest: CreateServiceRequestRequest): Promise<ServiceRequestObject> {
     const result = await this.fetchClient.fetch(
-      `/service/service-request-mgmt/api/service/request/`,
+      `${SERVICE_REQUEST_API_URL}/request/`,
       {
         body: JSON.stringify(serviceRequest),
         method: 'POST',
@@ -151,7 +167,7 @@ export class ServiceRequestService {
     serviceRequest: UpdateServiceRequestRequest
   ): Promise<ServiceRequestObject> {
     const result = await this.fetchClient.fetch(
-      `/service/service-request-mgmt/api/service/request/${serviceRequestId}`,
+      `${SERVICE_REQUEST_API_URL}/request/${serviceRequestId}`,
       {
         body: JSON.stringify(serviceRequest),
         method: 'PUT',
@@ -181,15 +197,19 @@ export class ServiceRequestService {
     return null;
   }
 
-  // DELETE /service/request/{serviceRequestId}
-  // TODO: currently returns mocked data
-  async resolve(serviceRequest: ServiceRequestObject): Promise<ServiceRequestObject> {
+  // PUT /service/request/{serviceRequestId}
+  // Closes a service request by applying one of its tenant-configured closing statuses
+  // (isClosedTransition: true) — the microservice then applies whatever alarmStatusTransition
+  // that status is configured with (ADR-0002). Replaces the old isActive:false approach, which
+  // never actually closed the request or cascaded to its linked alarm(s).
+  async close(
+    serviceRequest: ServiceRequestObject,
+    status: ServiceRequestStatus
+  ): Promise<ServiceRequestObject> {
     const result = await this.fetchClient.fetch(
-      `/service/service-request-mgmt/api/service/request/${serviceRequest.id}`,
+      `${SERVICE_REQUEST_API_URL}/request/${serviceRequest.id}`,
       {
-        body: JSON.stringify({
-          isActive: false,
-        }),
+        body: JSON.stringify({ status }),
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
       }
@@ -199,7 +219,7 @@ export class ServiceRequestService {
       try {
         const res = (await result.json()) as ServiceRequestObject;
 
-        this.alertService.success(`Service request '${serviceRequest.title}' resolved`);
+        this.alertService.success(`Service request '${serviceRequest.title}' closed`);
 
         return res;
       } catch (e) {
@@ -207,11 +227,75 @@ export class ServiceRequestService {
       }
     } else {
       this.alertService.danger(
-        `Service request '${serviceRequest.title}' could not be resolved`,
+        `Service request '${serviceRequest.title}' could not be closed`,
         result.statusText
       );
 
-      console.error('Error resolving service request', result);
+      console.error('Error closing service request', result);
+    }
+
+    return null;
+  }
+
+  // PUT /service/request/{serviceRequestId}/alarm
+  // Links a single alarm to an already-existing service request, establishing the
+  // one-service-request-to-many-alarms relationship without resending the whole alarmRefList.
+  async addAlarmRef(
+    serviceRequestId: ServiceRequestObject['id'],
+    ref: ServiceRequestDataRef
+  ): Promise<ServiceRequestObject> {
+    const result = await this.fetchClient.fetch(
+      `${SERVICE_REQUEST_API_URL}/request/${serviceRequestId}/alarm`,
+      {
+        body: JSON.stringify(ref),
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+
+    if (result.ok) {
+      try {
+        return (await result.json()) as ServiceRequestObject;
+      } catch (e) {
+        console.error('Error while parsing service request object', e, result);
+      }
+    } else if (result.status === 409) {
+      this.alertService.danger('This alarm is already linked to a service request');
+      console.error('Conflict linking alarm to service request', result);
+    } else {
+      this.alertService.danger('Could not link alarm to service request', result.statusText);
+      console.error('Error linking alarm to service request', result);
+    }
+
+    return null;
+  }
+
+  // PUT /service/request/{serviceRequestId}/event
+  async addEventRef(
+    serviceRequestId: ServiceRequestObject['id'],
+    ref: ServiceRequestDataRef
+  ): Promise<ServiceRequestObject> {
+    const result = await this.fetchClient.fetch(
+      `${SERVICE_REQUEST_API_URL}/request/${serviceRequestId}/event`,
+      {
+        body: JSON.stringify(ref),
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+
+    if (result.ok) {
+      try {
+        return (await result.json()) as ServiceRequestObject;
+      } catch (e) {
+        console.error('Error while parsing service request object', e, result);
+      }
+    } else if (result.status === 409) {
+      this.alertService.danger('This event is already linked to a service request');
+      console.error('Conflict linking event to service request', result);
+    } else {
+      this.alertService.danger('Could not link event to service request', result.statusText);
+      console.error('Error linking event to service request', result);
     }
 
     return null;
@@ -223,9 +307,12 @@ export class ServiceRequestService {
   // - POST /service/request/external
 
   // GET /service/request/status
-  async statusList(): Promise<ServiceRequestStatus[]> {
+  // Returns the tenant's full status config list (ServiceRequestStatusConfig), including the
+  // alarmStatusTransition/isClosedTransition flags used to determine which statuses close a
+  // request (ADR-0002) — not just the plain { id, name } shape used elsewhere.
+  async statusList(): Promise<ServiceRequestStatusConfig[]> {
     const result = await this.fetchClient.fetch(
-      `/service/service-request-mgmt/api/service/request/status`,
+      `${SERVICE_REQUEST_API_URL}/request/status`,
       {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -234,7 +321,7 @@ export class ServiceRequestService {
 
     if (result.ok) {
       try {
-        const status = (await result.json()) as ServiceRequestStatus[];
+        const status = (await result.json()) as ServiceRequestStatusConfig[];
 
         return status;
       } catch (e) {
@@ -256,7 +343,7 @@ export class ServiceRequestService {
   // GET /service/request/priority
   async priorityList(): Promise<ServiceRequestPriority[]> {
     const result = await this.fetchClient.fetch(
-      `/service/service-request-mgmt/api/service/request/priority`,
+      `${SERVICE_REQUEST_API_URL}/request/priority`,
       {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -290,7 +377,7 @@ export class ServiceRequestService {
     limit = SERVICE_REQUEST_DEFAULT_PAGE_SIZE
   ): Promise<ServiceRequestComment[]> {
     const result = await this.fetchClient.fetch(
-      `/service/service-request-mgmt/api/service/request/${serviceRequestId}/comment`,
+      `${SERVICE_REQUEST_API_URL}/request/${serviceRequestId}/comment`,
       {
         params: {
           pageSize: limit,
@@ -319,7 +406,7 @@ export class ServiceRequestService {
     comment: Partial<ServiceRequestComment>
   ): Promise<ServiceRequestComment> {
     const result = await this.fetchClient.fetch(
-      `/service/service-request-mgmt/api/service/request/${serviceRequestId}/comment`,
+      `${SERVICE_REQUEST_API_URL}/request/${serviceRequestId}/comment`,
       {
         body: JSON.stringify(comment),
         method: 'POST',

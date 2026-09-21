@@ -1,0 +1,140 @@
+<c8y-title>{{ 'Service requests' | translate }}</c8y-title>
+
+<c8y-action-bar-item [placement]="'left'" *ngIf="isGlobalView">
+  <div class="dropdown sr-source-filter" dropdown>
+    <button type="button" class="btn btn-default dropdown-toggle" dropdownToggle [title]="'Filter by source' | translate">
+      <i c8yIcon="filter"></i>
+      {{ scopeObject ? scopeObject['name'] : ('All sources' | translate) }}
+    </button>
+    <div *dropdownMenu class="dropdown-menu sr-source-filter-menu" (click)="$event.stopPropagation()">
+      <c8y-asset-selector
+        [ngModel]="scopeObject"
+        (ngModelChange)="onScopeChange($event)"
+        [config]="{ groupsSelectable: true, showUnassignedDevices: true, search: true, label: '' }"
+      ></c8y-asset-selector>
+      <button type="button" class="btn btn-link btn-sm" *ngIf="scopeObject" (click)="onScopeChange(null)">
+        {{ 'Clear' | translate }}
+      </button>
+    </div>
+  </div>
+</c8y-action-bar-item>
+
+<c8y-action-bar-item [placement]="'right'">
+  <div class="d-flex a-i-center">
+    <span
+      class="tag tag--info text-12 sr-mo-tag"
+      *ngIf="serviceObjectId()"
+      [title]="'Managed object fragment: sr_ServiceObjectId' | translate"
+    >
+      <span class="sr-mo-tag-marker"></span>
+      {{ 'Service Object' | translate }} "{{ serviceObjectId() }}"
+    </span>
+    <!-- Only shown on a device/asset scope (FR-092): v1 has no device picker, so a group or the
+         tenant-wide root leaves no single implicit target to create the request on. -->
+    <button
+      type="button"
+      class="btn btn-link"
+      *ngIf="canCreateFromScope"
+      [title]="'New service request' | translate"
+      (click)="openNewRequestForDevice()"
+    >
+      <i c8yIcon="plus-circle"></i>
+      {{ 'New service request' | translate }}
+    </button>
+  </div>
+</c8y-action-bar-item>
+
+<c8y-sv [isResizable]="true" [resizableConfig]="{ trackId: 'service-request-timeline', leftColumnWidth: '50%' }">
+  <c8y-sv-list
+    [title]="'Timeline' | translate"
+    [showEmptyState]="!loading && !rows.length"
+    [emptyStateIcon]="'c8y-data-explorer'"
+    [emptyStateTitle]="'No alarms or service requests to display' | translate"
+    [emptyStateSubtitle]="'Nothing relevant right now — try \'Show resolved\' to see everything' | translate"
+  >
+    <c8y-sv-header-actions>
+      <!-- c8y-sv-header-actions only lays its content out as a flex row itself when the list has
+           no title (ours does — "Timeline") — otherwise it just applies m-l-auto and leaves its
+           children to stack per their own default display, so this wrapper enforces the row. -->
+      <div class="d-flex a-i-center gap-8">
+        <label
+          class="c8y-switch c8y-switch--inline"
+          title="{{ 'Show resolved alarms and closed service requests' | translate }}"
+          aria-label="{{ 'Show resolved' | translate }}"
+        >
+          <input
+            type="checkbox"
+            [checked]="showResolved"
+            (change)="onShowResolvedToggle($any($event.target).checked)"
+          />
+          <span></span> {{ 'Show resolved' | translate }}
+        </label>
+        <c8y-alarms-interval-refresh
+          [isIntervalToggleEnabled]="autoRefreshToggleEnabled"
+          [alarmsListLoading$]="autoRefreshLoading$"
+          (onCountdownEnded)="onAutoRefreshTick()"
+        ></c8y-alarms-interval-refresh>
+      </div>
+    </c8y-sv-header-actions>
+
+    <sr-timeline-list
+      [rows]="rows"
+      [loading]="loading"
+      (createFromAlarm)="openNewRequestFromAlarm($event)"
+      (linkExistingFromAlarm)="linkExistingFromAlarm($event)"
+    ></sr-timeline-list>
+
+    <c8y-sv-footer *ngIf="hasMoreAlarms() || hasMoreServiceRequests()">
+      <button
+        type="button"
+        class="btn btn-link"
+        *ngIf="hasMoreAlarms()"
+        [disabled]="loadingMore"
+        (click)="loadNextAlarmPage()"
+      >
+        {{ 'Load more alarms' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-link"
+        *ngIf="hasMoreServiceRequests()"
+        [disabled]="loadingMoreSr"
+        (click)="loadNextSrPage()"
+      >
+        {{ 'Load more service requests' | translate }}
+      </button>
+    </c8y-sv-footer>
+  </c8y-sv-list>
+
+  <c8y-sv-details
+    emptyStateIcon="c8y-c8y-support"
+    [emptyStateTitle]="'Nothing selected' | translate"
+    [emptyStateSubtitle]="'Select an alarm or service request from the timeline to see its details' | translate"
+  >
+    <ng-container *ngIf="selectedAlarm as alarm">
+      <sr-alarm-detail-panel
+        #alarmPanel
+        [alarm]="alarm"
+        [linkedSr]="currentLinkedSr"
+        (openSr)="selectSr($event)"
+        (createRequest)="openNewRequestFromAlarm($event)"
+        (linkExisting)="linkExistingFromAlarm($event)"
+        (alarmChanged)="refreshAll()"
+      ></sr-alarm-detail-panel>
+      <c8y-sv-details-actions [actions]="alarmPanel.actions"></c8y-sv-details-actions>
+    </ng-container>
+    <ng-container *ngIf="selectedSr as sr">
+      <sr-detail-panel #srPanel [sr]="sr"></sr-detail-panel>
+      <c8y-sv-details-actions [actions]="srPanel.actions"></c8y-sv-details-actions>
+    </ng-container>
+    <ng-container *ngIf="selectedNewContext as newContext">
+      <sr-new-request-form
+        #newPanel
+        [context]="newContext"
+        (created)="selectSr($event)"
+        (cancelled)="clearSelection()"
+      ></sr-new-request-form>
+      <c8y-sv-details-actions [actions]="newPanel.actions"></c8y-sv-details-actions>
+    </ng-container>
+  </c8y-sv-details>
+</c8y-sv>

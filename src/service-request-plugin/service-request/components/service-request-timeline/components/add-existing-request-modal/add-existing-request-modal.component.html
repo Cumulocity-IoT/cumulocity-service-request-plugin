@@ -1,0 +1,37 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ 'Add existing service request' | translate }}</h4>
+  <button type="button" class="close" (click)="cancel()" [attr.aria-label]="'Close' | translate">
+    <i c8yIcon="close"></i>
+  </button>
+</div>
+
+<div class="modal-body">
+  <input
+    type="text"
+    class="form-control sr-modal-search"
+    [(ngModel)]="searchText"
+    [placeholder]="'Search by title or ID...' | translate"
+    autocomplete="off"
+  />
+
+  <c8y-loading *ngIf="loading"></c8y-loading>
+
+  <div class="sr-modal-list" *ngIf="!loading">
+    <button
+      type="button"
+      class="sr-modal-list-item"
+      *ngFor="let sr of filteredCandidates()"
+      [disabled]="linking"
+      (click)="pick(sr)"
+    >
+      <div class="sr-modal-item-top">
+        <span class="sr-modal-item-id">SR-{{ sr.id }}</span>
+        <span class="sr-pill sr-pill--type">{{ sr.type }}</span>
+        <span class="sr-pill" [ngClass]="sr.isClosed ? 'sr-pill--closed' : 'sr-pill--open'">{{ sr.status?.name }}</span>
+      </div>
+      <div class="sr-modal-item-title">{{ sr.title }}</div>
+    </button>
+
+    <p class="sr-modal-empty" *ngIf="!filteredCandidates().length">{{ 'No matching service requests.' | translate }}</p>
+  </div>
+</div>

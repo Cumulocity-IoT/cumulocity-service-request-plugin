@@ -11,9 +11,14 @@
     [class.new]="attachment.new"
     [class.delete]="attachment.delete"
   >
-    <div class="list-item-icon">
-      <i [attr.title]="'service-request-attachments.file' | translate" c8yIcon="file-o"></i>
+    <div *ngIf="attachment.previewUrl; else fileIcon" class="attachment-preview-wrap">
+      <img class="attachment-preview" [src]="attachment.previewUrl" [attr.alt]="attachment.name" />
     </div>
+    <ng-template #fileIcon>
+      <div class="list-item-icon">
+        <i [attr.title]="'service-request-attachments.file' | translate" c8yIcon="file-o"></i>
+      </div>
+    </ng-template>
 
     <div class="list-item-body">
       <div class="d-flex flex-space-between row">

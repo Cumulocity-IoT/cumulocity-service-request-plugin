@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { FilePickerComponent, PickedFiles } from '@c8y/ngx-components';
 import { ServiceRequestAttachment } from '../../models/service-request.model';
@@ -19,10 +19,13 @@ import { ServiceRequestAttachmentsService } from '../../service/service-request-
   ],
 })
 export class ServiceRequestAttachmentsComponent
-  implements ControlValueAccessor
+  implements ControlValueAccessor, OnDestroy
 {
   private _id: string;
   private multiFileAllowed = false;
+  // Tracks every object URL we've handed out so they can be revoked — otherwise each one pins
+  // its backing blob in memory for the life of the page.
+  private previewUrls = new Set<string>();
 
   attachments: ServiceRequestAttachment[] = [];
 
@@ -48,6 +51,8 @@ export class ServiceRequestAttachmentsComponent
   writeValue(
     value: ServiceRequestAttachment | ServiceRequestAttachment[]
   ): void {
+    this.revokePreviews();
+
     if (!value) {
       this.attachments = [];
 
@@ -70,6 +75,51 @@ export class ServiceRequestAttachmentsComponent
         },
       ];
     }
+
+    this.attachments.filter((attachment) => this.isImage(attachment)).forEach((attachment) => void this.loadPreview(attachment));
+  }
+
+  isImage(attachment: ServiceRequestAttachment): boolean {
+    return !!attachment.type?.startsWith('image/');
+  }
+
+  ngOnDestroy(): void {
+    this.revokePreviews();
+  }
+
+  private async loadPreview(attachment: ServiceRequestAttachment): Promise<void> {
+    // A freshly picked, not-yet-uploaded file already has its bytes locally — no need to round-trip it.
+    if (attachment.file) {
+      this.setPreview(attachment, attachment.file);
+
+      return;
+    }
+
+    const bytes = await this.serviceRequestAttachmentsService.downloadAttachment(this.id);
+
+    if (bytes) {
+      this.setPreview(attachment, new Blob([bytes], { type: attachment.type }));
+    }
+  }
+
+  private setPreview(attachment: ServiceRequestAttachment, blob: Blob): void {
+    const url = URL.createObjectURL(blob);
+
+    attachment.previewUrl = url;
+    this.previewUrls.add(url);
+  }
+
+  private revokePreview(attachment: ServiceRequestAttachment): void {
+    if (attachment.previewUrl) {
+      URL.revokeObjectURL(attachment.previewUrl);
+      this.previewUrls.delete(attachment.previewUrl);
+      attachment.previewUrl = undefined;
+    }
+  }
+
+  private revokePreviews(): void {
+    this.previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    this.previewUrls.clear();
   }
 
   registerOnChange(
@@ -96,6 +146,10 @@ export class ServiceRequestAttachmentsComponent
         type: droppedFile.file.type,
         new: true,
       };
+
+      if (this.isImage(attachment)) {
+        void this.loadPreview(attachment);
+      }
 
       // TODO: if in the future service requests support multiple attachments, always add attachments instead of replacing / flag as delete
       if (this.multiFileAllowed) {
@@ -138,6 +192,7 @@ export class ServiceRequestAttachmentsComponent
       const index = this.attachments.findIndex((a) => a === attachment);
 
       this.attachments.splice(index, 1);
+      this.revokePreview(attachment);
 
       // TODO: if in the future service requests support multiple attachments, this is no longer needed
       if (!this.multiFileAllowed) {

@@ -1,7 +1,8 @@
-import { ServiceRequestAttachment } from './service-request.model';
+import { ServiceRequestAttachment, SERVICE_REQUEST_API_URL } from './service-request.model';
 
 export const SERVICE_REQUEST_COMMENTS_DEFAULT_PAGE_SIZE = 500;
-export const SERVICE_REQUEST_API_URL = '/service/service-request-mgmt/api/service';
+// Re-exported for backwards compatibility; canonical definition lives in service-request.model.ts.
+export { SERVICE_REQUEST_API_URL };
 export interface ServiceRequestCommentForm {
   text: string;
 }

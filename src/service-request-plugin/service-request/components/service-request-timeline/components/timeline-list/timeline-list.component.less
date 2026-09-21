@@ -1,0 +1,241 @@
+// c8y-li-timeline renders its date <small> in its own component template, so this can't be
+// reached by a normally-scoped selector — matches the standard alarm dashboard's active/selected
+// look (green dot + green date), which only exists for its routerLinkActive-driven usage.
+:host ::ng-deep .c8y-list--timeline__item.active .c8y-list--timeline__item__date {
+  color: var(--brand-primary, #1776bf);
+  font-weight: 700;
+}
+
+.sr-day-heading {
+  padding: 10px 16px 6px 76px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #677680);
+}
+
+.sr-tl-pair {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  min-width: 0;
+
+  &.sr-tl-pair--single .sr-tl-box {
+    flex: 1 1 100%;
+  }
+}
+
+.sr-tl-box {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 9px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--gray-10, #fbfbfc);
+  }
+
+  &.selected {
+    background: var(--gray-10, #fbfbfc);
+    box-shadow: inset 3px 0 0 0 var(--brand-primary, #1776bf);
+  }
+}
+
+.sr-tl-box--sr,
+.sr-tl-box--alarm {
+  border: 1px solid var(--border, #e3e5e8);
+  background: var(--component-background, #fff);
+
+  &.selected {
+    border-color: var(--brand-primary, #1776bf);
+  }
+}
+
+.sr-tl-box--sr {
+  &.closed {
+    opacity: 0.68;
+
+    .sr-title {
+      text-decoration: line-through;
+      text-decoration-color: var(--text-muted, #677680);
+    }
+  }
+}
+
+.sr-tl-box--empty {
+  border: 1.5px dashed var(--border-strong, #8b96a0);
+  background: transparent;
+  color: var(--text-muted, #677680);
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px;
+  cursor: default;
+}
+
+.sr-empty-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--gray-10, #fbfbfc);
+  }
+
+  span {
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  &.sr-empty-action--secondary {
+    color: var(--text-muted, #8b96a0);
+  }
+}
+
+.sr-empty-divider {
+  height: 1px;
+  background: var(--border, #e3e5e8);
+  margin: 0 6px;
+}
+
+.sr-tl-arrow {
+  flex: 0 0 auto;
+  min-width: 32px;
+  padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--border-strong, #8b96a0);
+
+  &.muted {
+    opacity: 0.55;
+  }
+
+  .sr-delta {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted, #8b96a0);
+    white-space: nowrap;
+  }
+}
+
+.sr-duo-icon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.sr-row-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sr-row-title-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.sr-row-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sr-count-badge {
+  flex: none;
+  background: var(--gray-20, #e8ebed);
+  color: var(--text-muted, #677680);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-top: 1px;
+}
+
+.sr-row-sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  color: var(--text-muted, #677680);
+  font-size: 11px;
+}
+
+.sr-card-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.sr-id {
+  font-family: monospace;
+  font-size: 10.5px;
+  color: var(--text-muted, #8b96a0);
+}
+
+.sr-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9px;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-transform: capitalize;
+
+  &.sr-pill--type {
+    background: transparent;
+    border: 1px solid var(--border-strong, #8b96a0);
+    color: var(--text-muted, #677680);
+    font-weight: 600;
+  }
+
+  &.sr-pill--open {
+    background: var(--gray-20, #e8ebed);
+    color: var(--text-muted, #677680);
+  }
+
+  &.sr-pill--closed {
+    background: var(--success-bg, #f4fce3);
+    color: var(--success-text, #007700);
+  }
+
+  &.sr-pill--priority {
+    background: var(--brand-primary, #1776bf);
+    color: #fff;
+  }
+}
+
+.sr-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.sr-sub {
+  margin-top: 3px;
+  color: var(--text-muted, #677680);
+  font-size: 11px;
+}

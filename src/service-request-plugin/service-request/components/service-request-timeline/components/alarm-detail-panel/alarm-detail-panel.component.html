@@ -1,0 +1,22 @@
+<div class="card-header p-16 m-b-16 bg-component separator-bottom" *ngIf="alarm">
+  <h4 class="m-0">{{ alarm.text }}</h4>
+</div>
+
+<c8y-icon-panel *ngIf="alarm" [sections]="infoSections"></c8y-icon-panel>
+
+<div class="sr-section-block">
+  <p class="sr-section-label">{{ 'Audit logs' | translate }}</p>
+  <c8y-loading *ngIf="loadingAuditLog"></c8y-loading>
+  <c8y-list-group *ngIf="!loadingAuditLog && auditRecords.length" role="list">
+    <c8y-li-timeline *ngFor="let record of auditRecords">
+      {{ record.creationTime | c8yDate: 'medium' }}
+      <c8y-li role="listitem">
+        <b>{{ record.type }}</b> &mdash; {{ record.text }}
+      </c8y-li>
+    </c8y-li-timeline>
+  </c8y-list-group>
+  <div class="c8y-empty-state" *ngIf="!loadingAuditLog && !auditRecords.length">
+    <i class="c8y-icon-duocolor c8y-icon dlt-c8y-icon-archive"></i>
+    <p>{{ 'No audit logs found.' | translate }}</p>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FilePickerComponent, PickedFiles } from '@c8y/ngx-components';
 import saveAs from 'file-saver';
@@ -15,7 +15,7 @@ import { ServiceRequestCommentsService } from '../../service/service-request-com
   styleUrls: ['./service-request-comments.component.less'],
   standalone: false,
 })
-export class ServiceRequestCommentsComponent {
+export class ServiceRequestCommentsComponent implements OnChanges {
   loadingComments = false;
 
   formInAction = false;
@@ -34,18 +34,9 @@ export class ServiceRequestCommentsComponent {
 
   @Input('isCreateForm') isCreateForm!: boolean;
 
-  @Input('id')
-  set id(id: string) {
-    this._id = id;
-  }
-
-  get id() {
-    return this._id;
-  }
+  @Input('id') id!: string;
 
   @ViewChild('picker') picker!: FilePickerComponent;
-
-  private _id!: string;
 
   constructor(
     private serviceRequestCommentsService: ServiceRequestCommentsService
@@ -72,8 +63,17 @@ export class ServiceRequestCommentsComponent {
     }
   }
 
-  async ngOnInit() {
-    await this.fetchComments(this.id);
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    if (changes['id']) {
+      // This component instance is reused across selections in the timeline (the parent's
+      // *ngIf stays truthy when switching between two different service requests), so a
+      // leftover draft/attachment from the previous selection must be cleared explicitly.
+      this.form.reset({ text: '' });
+      this.attachment = null;
+      this.picker?.clearSelectedFiles();
+
+      await this.fetchComments(this.id);
+    }
   }
 
   async submitComment(): Promise<void> {
