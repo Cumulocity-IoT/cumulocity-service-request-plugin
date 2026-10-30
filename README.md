@@ -44,13 +44,14 @@ One service request can reference several alarms, for example when one fault rai
 
 ![Service request details with comments and attachments](./assets/service-request-details.gif)
 
-Selecting a service request shows its details in five sections:
+Selecting a service request shows its details in four sections:
 
 - **Service Request**: title, description, type, priority, status, and links to the referenced alarms
 - **Field Service Status**: data synced from the FSM system, such as assignee, scheduled window, due date, progress, and FSM task (read-only)
 - **Attachment**: one file per service request, added by drag and drop or the file picker
 - **Comments**: a chronological list of user comments and system comments; system comments record changes such as status updates, and each comment can have one attachment
-- **Raw JSON**: the complete service request object, collapsed by default, with a copy action
+
+The copy icon in the panel header copies the complete service request object as JSON.
 
 The status of a service request is read-only in the UI. It is set by the service-request-mgmt microservice and the FSM integration.
 
