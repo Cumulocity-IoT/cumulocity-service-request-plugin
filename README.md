@@ -59,6 +59,10 @@ The status of a service request is read-only in the UI. It is set by the service
 
 ![Close a service request](./assets/close-service-request.gif)
 
+In the standard process, the FSM system closes a service request. When the work order is completed in the FSM system, the FSM integration reports the closing status, and the service-request-mgmt microservice closes the service request automatically. This closed loop through the FSM system is the recommended way to close service requests.
+
+Closing a service request manually in the UI is supported but is not part of the standard process. Use it only for exceptions, for example when a service request was created by mistake or is not handled in the FSM system.
+
 **Close** lists the closing statuses configured for the tenant (statuses with `isClosedTransition: true`). After you select a status, the microservice closes the service request and applies the configured alarm status transition to the linked alarms, for example from ACTIVE to CLEARED.
 
 ### Tenant-wide view
