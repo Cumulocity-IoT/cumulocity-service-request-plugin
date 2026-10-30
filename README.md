@@ -1,83 +1,149 @@
-# Service request plugin
+# Service Request plugin
 
-This plugin extends Cumulocity application like Cockpit with the capability to create, update and manage service requests.
+The Service Request plugin adds service request management to Cumulocity applications such as Cockpit. Operators see alarms and service requests in one timeline, create a service request directly from an alarm, and follow its progress, including status updates synced from a field service management (FSM) system.
 
-The UI Plugin is depending on the domain specific API provided by [service-request-mgmt microservice](https://github.com/SoftwareAG/cumulocity-microservice-service-request-mgmt):
-[Open API documentation](https://github.com/SoftwareAG/cumulocity-microservice-service-request-mgmt/blob/develop/docs/README.md)
+![Service Requests timeline with split view](./assets/timeline-overview.gif)
 
-This microservice can be extended or even replaced if needed. Custom microservices have to implement the REST API as documented above.
+## Contents
 
-# Requirements
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Development](#development)
+- [Useful links](#useful-links)
 
-This plugin requires a Microservice called Service-request-mgmt to be installed on the tenant.
-Repository: [Standard cumulocity-microservice-service-request-mgmt](https://github.com/SoftwareAG/cumulocity-microservice-service-request-mgmt)
+## Features
 
-# Create Service Request
+### Combined timeline of alarms and service requests
 
-![Create Service Request screen](./assets/CreateServiceRequest.gif)
+The **Service Requests** tab lists alarms and service requests in a single timeline, newest first. Each service request appears next to the alarms it references, connected by an arrow. A service request that was created without an alarm appears as a standalone entry.
 
-The service request can be created for an alarm as shown in the screenshot above or with out any context via (+) button "Create service request". The service request will be stored at Cumulocity. If the service request is created and a alarm status transition is configured the alarm status will change to the configured status, in that example the alarm changes to ACKNOWLEDGED.
+The tab uses a split view: the timeline fills the left column, and the details of the selected alarm or service request appear in the right column.
 
+By default, the timeline shows only entries that still need attention. Turn on **Show resolved** to also show cleared alarms and closed service requests.
 
-# Create Comment for Service Request
+The tab is available on device, group, and asset pages. On group and asset pages, the timeline includes alarms and service requests of all child devices, and each row shows the name of its source device.
 
-![Create Comment for Service Request screen](./assets/CreateComment.gif)
+### Create a service request from an alarm
 
-There are SYSTEM comments and USER comments. SYSTEM comments reflect specific changes at the service request object and show the status history of it. USER comments can be created by any user which is allowded to create service requests. Service request comments are a very sufficient way to communicate with the field service technician in the device context. 
+![Create a service request from an alarm](./assets/create-service-request.gif)
 
-# Attachments
+An alarm without a linked service request shows a dashed placeholder with two actions: **Create service request** and **Add existing service request**. **Create service request** opens the creation form in the detail panel with the alarm reference already filled in. Enter a title, description, type, and priority, and optionally add an attachment.
 
-![Add attachment screen](./assets/Attachment.gif)
+A service request has one of five types: Alarm, Note, Maintenance, Downtime, or Other. The type cannot be changed after creation.
 
-Each service request and each comment can have arbitrary files like pictures, excel documents etc. as attachment. This attachments allow the user to add additional information for the field service team. 
+To create a service request without an alarm, use **New service request** in the action bar.
 
-## Recommended versions
-* node ^20.19.0 || ^22.12.0 || >=24.0.0
-* npm 11.x.x
+### Link an existing service request to an alarm
 
-## Plugin versions
-* Angular 21.x.x
-* WebSDK 1024.x.x
+![Link an existing service request to an alarm](./assets/add-existing-service-request.gif)
 
-**How to start**
-Change the target Cumulocity tenant and application you want to run this plugin on in the `package.json` and replace `{{C8Y_URL}}`.
+One service request can reference several alarms, for example when one fault raises alarms on more than one sensor. **Add existing service request** opens a list of the service requests of the device, searchable by ID or title. Select one to link it to the alarm. The service request then appears next to each alarm it references.
 
+### Service request details, comments, and attachments
+
+![Service request details with comments and attachments](./assets/service-request-details.gif)
+
+Selecting a service request shows its details in five sections:
+
+- **Service Request**: title, description, type, priority, status, and links to the referenced alarms
+- **Field Service Status**: data synced from the FSM system, such as assignee, scheduled window, due date, progress, and FSM task (read-only)
+- **Attachment**: one file per service request, added by drag and drop or the file picker
+- **Comments**: a chronological list of user comments and system comments; system comments record changes such as status updates, and each comment can have one attachment
+- **Raw JSON**: the complete service request object, collapsed by default, with a copy action
+
+The status of a service request is read-only in the UI. It is set by the service-request-mgmt microservice and the FSM integration.
+
+### Close a service request
+
+![Close a service request](./assets/close-service-request.gif)
+
+**Close** lists the closing statuses configured for the tenant (statuses with `isClosedTransition: true`). After you select a status, the microservice closes the service request and applies the configured alarm status transition to the linked alarms, for example from ACTIVE to CLEARED.
+
+### Tenant-wide view
+
+![Tenant-wide Service Requests view with source selector](./assets/global-view.gif)
+
+The **Service Requests** entry in the left navigator opens the timeline for the whole tenant, limited by the read permissions of the user. Use the source selector to limit the timeline to one device, group, or asset.
+
+## Requirements
+
+The plugin requires the [service-request-mgmt microservice](https://github.com/Cumulocity-IoT/cumulocity-microservice-service-request-mgmt) on the tenant. The plugin uses its REST API, documented in the [Open API documentation](https://github.com/Cumulocity-IoT/cumulocity-microservice-service-request-mgmt/blob/develop/docs/README.md). If the microservice is not available, the **Service Requests** tab shows a message asking you to install it.
+
+You can extend the microservice or replace it with your own. A custom microservice must implement the same REST API.
+
+| Plugin version | Angular | Cumulocity Web SDK |
+| -------------- | ------- | ------------------ |
+| 2.x            | 21.x    | 1024.x             |
+
+## Installation
+
+1. Install the [service-request-mgmt microservice](https://github.com/Cumulocity-IoT/cumulocity-microservice-service-request-mgmt) on the tenant.
+2. Download the plugin ZIP file from the [releases](https://github.com/Cumulocity-IoT/cumulocity-service-request-plugin/releases) page, or build it from source (see [Development](#development)).
+3. Upload the plugin to the tenant and add it to an application such as Cockpit. The community article [How to install a Microfrontend Plugin on a tenant and use it in an app?](https://community.cumulocity.com/t/how-to-install-a-microfrontend-plugin-on-a-tenant-and-use-it-in-an-app/3034) describes each step.
+
+## Development
+
+### Recommended versions
+
+- Node.js ^20.19.0, ^22.12.0, or >=24.0.0
+- npm 11.x
+
+### Run locally
+
+The plugin runs as a Module Federation `remote` inside a `shell` application such as Cockpit. The shell application on the tenant must have at least the Web SDK version of the plugin (1024.x). If the tenant runs an older version, use `c8ycli` to create a Cockpit clone with version 1024.x or later, upload it to the tenant (for example as `cockpit-1024`), and use that name as the shell.
+
+Start the plugin against a tenant:
+
+```sh
+npx ng serve -u https://<tenant>.cumulocity.com --shell cockpit
 ```
-ng serve -u {{C8Y_URL}} --shell cockpit
-```
 
-Keep in mind that this plugin needs to have an app (e.g. cockpit) running with at least the same version as this plugin. if your tenant contains an older version, use the c8ycli to create a cockpit clone running with at least 1021.x.x! Upload this clone to the target tenant (e.g. cockpit-1021) and reference this name in the --shell command.
+Alternatively, set `C8Y_BASEURL` and `C8Y_SHELL_TARGET` in your environment and run:
 
-The widget plugin can be locally tested via the start script:
-
-```
+```sh
 npm start
 ```
 
-In the Module Federation terminology, `widget` plugin is called `remote` and the `cokpit` is called `shell`. Modules provided by this `widget` will be loaded by the `cockpit` application at the runtime. This plugin provides a basic custom widget that can be accessed through the `Add widget` menu.
+The `--shell` flag creates a proxy to the shell application and loads `ServiceRequestPluginModule` as a remote module.
 
-> Note that the `--shell` flag creates a proxy to the cockpit application and provides `ServiceRequestPluginModule` as an `remote` via URL options.
+### Build and deploy
 
-Also deploying needs no special handling and can be simply done via `npm run deploy`. As soon as the application has exports it will be uploaded as a plugin.
+```sh
+npm run build
+npm run deploy
+```
 
-# Useful links 
+Before you deploy, replace `{{C8Y_URL}}` in the `deploy` script in `package.json` with the URL of the target tenant. The application is uploaded as a plugin because it defines exports in `cumulocity.config.ts`.
 
-📘 Explore the Knowledge Base   
-Dive into a wealth of Cumulocity IoT tutorials and articles in our [Tech Community Knowledge Base](https://techcommunity.cumulocity.com/c/knowledge-base/7).  
+### Tests
 
-💡 Get Expert Answers    
-Stuck or just curious? Ask the Cumulocity IoT experts directly on our [Forum](https://techcommunity.cumulocity.com/c/forum/5).   
+```sh
+npm test          # unit tests
+npm run e2e:run   # Cypress end-to-end tests
+```
 
-🚀 Try Cumulocity IoT    
-See Cumulocity IoT in action with a [Free Trial](https://www.cumulocity.com/start-your-journey/free-trial/).   
+### Further documentation
 
-✍️ Share Your Feedback    
-Your input drives our innovation. If you find a bug, please create an issue in the repository. If you’d like to share your ideas or feedback, please post them [here](https://techcommunity.cumulocity.com/c/feedback-ideas/14). 
+- [Specification](./docs/spec.md): functional requirements of the plugin
+- [Architecture decision records](./docs/adr): design decisions such as the timeline relevance filter
 
-More to discover
-* [How to install a Microfrontend Plugin on a tenant and use it in an app?](https://techcommunity.cumulocity.com/t/how-to-install-a-microfrontend-plugin-on-a-tenant-and-use-it-in-an-app/3034)  
-* [Cumulocity IoT Web Development Tutorial - Part 1: Start your journey](https://techcommunity.cumulocity.com/t/cumulocity-iot-web-development-tutorial-part-1-start-your-journey/4124) 
-* [The power of micro frontends – How to dynamically extend Cumulocity IoT Frontends](https://techcommunity.cumulocity.com/t/the-power-of-micro-frontends-how-to-dynamically-extend-cumulocity-iot-frontends/2577)  
+## Useful links
 
-------------------------------
-These tools are provided as-is and without warranty or support. They do not constitute part of the Software AG product suite. Users are free to use, fork and modify them, subject to the license agreement. While Software AG welcomes contributions, we cannot guarantee to include every contribution in the master project.
+📘 **Knowledge base:** tutorials and articles in the [Cumulocity Community knowledge base](https://community.cumulocity.com/c/knowledge-base/7)
+
+💡 **Forum:** questions to the Cumulocity experts in the [forum](https://community.cumulocity.com/c/forum/5)
+
+🚀 **Free trial:** a [free trial of Cumulocity](https://www.cumulocity.com/start-your-journey/free-trial/)
+
+✍️ **Feedback:** report bugs as an issue in this repository; share ideas and feedback in [Feedback & Ideas](https://community.cumulocity.com/c/feedback-ideas/14)
+
+More articles:
+
+- [How to install a Microfrontend Plugin on a tenant and use it in an app?](https://community.cumulocity.com/t/how-to-install-a-microfrontend-plugin-on-a-tenant-and-use-it-in-an-app/3034)
+- [Cumulocity IoT Web Development Tutorial - Part 1: Start your journey](https://community.cumulocity.com/t/cumulocity-iot-web-development-tutorial-part-1-start-your-journey/4124)
+- [The power of micro frontends – How to dynamically extend Cumulocity IoT Frontends](https://community.cumulocity.com/t/the-power-of-micro-frontends-how-to-dynamically-extend-cumulocity-iot-frontends/2577)
+
+## Disclaimer
+
+These tools are provided as-is and without warranty or support. They do not constitute part of the Cumulocity product suite. Users are free to use, fork, and modify them, subject to the license agreement. While Cumulocity welcomes contributions, we cannot guarantee to include every contribution in the main project.
