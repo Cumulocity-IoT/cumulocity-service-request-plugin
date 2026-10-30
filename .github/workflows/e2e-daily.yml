@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: "0 0 * * *" # Runs daily at midnight UTC
   pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "assets/**"
+      - "docs/**"
 
 env:
   C8Y_TENANT: ${{ vars.C8Y_TENANT }}
